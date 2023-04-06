@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>917</width>
+    <height>581</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="page_0_imgshow">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="0">
+         <widget class="QLabel" name="imgShow">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_2_pclshow">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QVTKOpenGLWidget" name="pclShow" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>917</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>工具</string>
+    </property>
+    <addaction name="connectCam"/>
+    <addaction name="showCam"/>
+    <addaction name="showCenter"/>
+    <addaction name="showTrajectory"/>
+    <addaction name="showDepth"/>
+    <addaction name="showPointCloud"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="openFile"/>
+    <addaction name="saveFile"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>设置</string>
+    </property>
+    <addaction name="calibration"/>
+    <addaction name="setParam"/>
+    <addaction name="actionIP"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>帮助</string>
+    </property>
+   </widget>
+   <addaction name="menu_2"/>
+   <addaction name="menu"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="connectCam"/>
+   <addaction name="showCam"/>
+   <addaction name="showCenter"/>
+   <addaction name="showTrajectory"/>
+   <addaction name="showPointCloud"/>
+   <addaction name="showDepth"/>
+   <addaction name="separator"/>
+   <addaction name="openFile"/>
+   <addaction name="saveFile"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>211</width>
+     <height>338</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border-color: rgb(252, 233, 79);</string>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>参数设置</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <widget class="QToolBox" name="toolBox">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>211</width>
+       <height>211</height>
+      </rect>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <property name="tabSpacing">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="page">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>211</width>
+        <height>112</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>IP地址</string>
+      </attribute>
+      <widget class="QLineEdit" name="IpAddr">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>0</y>
+         <width>112</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>120</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="page_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>211</width>
+        <height>112</height>
+       </rect>
+      </property>
+      <attribute name="label">
+       <string>曝光值</string>
+      </attribute>
+      <widget class="QLineEdit" name="exposureValue">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>0</y>
+         <width>72</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>72</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>20-65535</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="applyBtn">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>0</y>
+         <width>71</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>300</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>应用</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="page_3">
+      <attribute name="label">
+       <string>点云及深度图采集参数</string>
+      </attribute>
+      <widget class="QLabel" name="labelDis">
+       <property name="geometry">
+        <rect>
+         <x>12</x>
+         <y>2</y>
+         <width>75</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>采样距离：</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelVel">
+       <property name="geometry">
+        <rect>
+         <x>12</x>
+         <y>39</y>
+         <width>75</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>采样速度：</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="captureDepthBtn">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>186</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>一键采集</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="sampleVel">
+       <property name="geometry">
+        <rect>
+         <x>94</x>
+         <y>40</y>
+         <width>50</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="toolTipDuration">
+        <number>5</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelMMS">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>40</y>
+         <width>39</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>mm/s</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="sampleDis">
+       <property name="geometry">
+        <rect>
+         <x>95</x>
+         <y>4</y>
+         <width>50</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="toolTipDuration">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelMM">
+       <property name="geometry">
+        <rect>
+         <x>151</x>
+         <y>4</y>
+         <width>26</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>mm</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar_right">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>RightToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionup"/>
+   <addaction name="actiondown"/>
+   <addaction name="actionleft"/>
+   <addaction name="actionright"/>
+   <addaction name="actionforward"/>
+   <addaction name="actionbackward"/>
+   <addaction name="separator"/>
+  </widget>
+  <action name="connectCam">
+   <property name="icon">
+    <iconset>
+     <selectedoff>:/toolbar_ico/icons/connect.png</selectedoff>
+     <selectedon>:/toolbar_ico/icons/disconnect.png</selectedon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>连接相机</string>
+   </property>
+  </action>
+  <action name="showCenter">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/centerline.png</normaloff>:/toolbar_ico/icons/centerline.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示中心线</string>
+   </property>
+  </action>
+  <action name="openFile">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/folder-open.png</normaloff>:/toolbar_ico/icons/folder-open.png</iconset>
+   </property>
+   <property name="text">
+    <string>打开文件</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="saveFile">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/save.png</normaloff>:/toolbar_ico/icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>保存结果</string>
+   </property>
+   <property name="toolTip">
+    <string>Ctrl+S保存当前图像</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="showCam">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/srcimg.png</normaloff>:/toolbar_ico/icons/srcimg.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示原图</string>
+   </property>
+  </action>
+  <action name="showTrajectory">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/contour.png</normaloff>:/toolbar_ico/icons/contour.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示轨迹</string>
+   </property>
+  </action>
+  <action name="showDepth">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/range.png</normaloff>:/toolbar_ico/icons/range.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示深度</string>
+   </property>
+  </action>
+  <action name="showPointCloud">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/pointcloud.png</normaloff>:/toolbar_ico/icons/pointcloud.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示点云</string>
+   </property>
+  </action>
+  <action name="setParam">
+   <property name="text">
+    <string>参数设置</string>
+   </property>
+  </action>
+  <action name="calibration">
+   <property name="text">
+    <string>一键标定</string>
+   </property>
+  </action>
+  <action name="actionIP">
+   <property name="text">
+    <string>IP设置</string>
+   </property>
+  </action>
+  <action name="actionup">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/up.png</normaloff>:/toolbar_ico/icons/views/up.png</iconset>
+   </property>
+   <property name="text">
+    <string>up</string>
+   </property>
+   <property name="toolTip">
+    <string>仰视图</string>
+   </property>
+  </action>
+  <action name="actiondown">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/down.png</normaloff>:/toolbar_ico/icons/views/down.png</iconset>
+   </property>
+   <property name="text">
+    <string>down</string>
+   </property>
+   <property name="toolTip">
+    <string>俯视图</string>
+   </property>
+  </action>
+  <action name="actionleft">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/left.png</normaloff>:/toolbar_ico/icons/views/left.png</iconset>
+   </property>
+   <property name="text">
+    <string>left</string>
+   </property>
+   <property name="toolTip">
+    <string>左视图</string>
+   </property>
+  </action>
+  <action name="actionright">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/right.png</normaloff>:/toolbar_ico/icons/views/right.png</iconset>
+   </property>
+   <property name="text">
+    <string>right</string>
+   </property>
+   <property name="toolTip">
+    <string>右视图</string>
+   </property>
+  </action>
+  <action name="actionforward">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/foward.png</normaloff>:/toolbar_ico/icons/views/foward.png</iconset>
+   </property>
+   <property name="text">
+    <string>forward</string>
+   </property>
+   <property name="toolTip">
+    <string>前视图</string>
+   </property>
+  </action>
+  <action name="actionbackward">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/backward.png</normaloff>:/toolbar_ico/icons/views/backward.png</iconset>
+   </property>
+   <property name="text">
+    <string>backward</string>
+   </property>
+   <property name="toolTip">
+    <string>后视图</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKOpenGLWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKOpenGLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="ico.qrc"/>
+ </resources>
+ <connections/>
+</ui>

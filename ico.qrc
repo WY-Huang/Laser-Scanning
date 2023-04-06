@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/toolbar_ico">
+        <file>icons/disconnect.png</file>
+        <file>icons/connect.png</file>
+        <file>icons/save.png</file>
+        <file>icons/folder-open.png</file>
+        <file>icons/srcimg.png</file>
+        <file>icons/contour.png</file>
+        <file>icons/centerline.png</file>
+        <file>icons/range.png</file>
+        <file>icons/pointcloud.png</file>
+        <file>icons/views/up.png</file>
+        <file>icons/views/right.png</file>
+        <file>icons/views/left.png</file>
+        <file>icons/views/foward.png</file>
+        <file>icons/views/down.png</file>
+        <file>icons/views/backward.png</file>
+    </qresource>
+</RCC>
