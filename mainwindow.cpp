@@ -905,9 +905,16 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         cubeAxesActor->ZAxisMinorTickVisibilityOff();
         cubeAxesActor->SetCamera(renderer->GetActiveCamera());
 
-        scalarBar->SetTitle("Distance");
+//        scalarBar->SetTitle("Distance");
         scalarBar->SetNumberOfLabels(5);
         scalarBar->SetLookupTable(lut);
+
+        vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
+        textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
+
+        scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
+        scalarBar->SetHeight(0.6);
+        scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
 
         renderer->AddActor(cubeAxesActor);
         renderer->AddActor(actor);
@@ -991,9 +998,16 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         cubeAxesActor->ZAxisMinorTickVisibilityOff();
         cubeAxesActor->SetCamera(renderer->GetActiveCamera());
 
-        scalarBar->SetTitle("Distance");
+//        scalarBar->SetTitle("Distance");
         scalarBar->SetNumberOfLabels(5);
         scalarBar->SetLookupTable(lut);
+
+        vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
+        textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
+
+        scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
+        scalarBar->SetHeight(0.6);
+        scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
 
         renderer->AddActor(cubeAxesActor);
         renderer->AddActor(actor);

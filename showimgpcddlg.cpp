@@ -18,7 +18,7 @@ showImgPcdDlg::showImgPcdDlg(QWidget *parent) :
    // renderer->SetBackground2(colors->GetColor3d("NavajoWhite").GetData());
     vtkSmartPointer<vtkNamedColors>  colors=vtkSmartPointer<vtkNamedColors>::New();
     renderer->GradientBackgroundOn();
-    renderer->SetBackground(colors->GetColor3d("DarkSlateBlue").GetData());
+    renderer->SetBackground(colors->GetColor3d("Black").GetData()); // Black, DarkSlateBlue
     renderer->ResetCamera();
     ui->widgetPcd->GetRenderWindow()->AddRenderer(renderer);
   //  iren=ui->widgetPcd->GetInteractor();
@@ -212,9 +212,20 @@ void showImgPcdDlg::showpoint(std::string filename)
 //        cylinderActor->GetProperty()->SetColor(1.0000, 0.3883, 0.2784);
 //        cylinderActor->RotateX(30.0);
 //        cylinderActor->RotateY(-45.0);
-        scalarBar->SetTitle("Distance");
+//        scalarBar->SetTitle("Distance");
         scalarBar->SetNumberOfLabels(5);
         scalarBar->SetLookupTable(lut);
+
+        // 获取ColorBarActor的TextProperty
+        vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();
+        // 更改TextProperty的字体大小
+        textProp->SetFontSize(12);
+        // 更改ColorBarActor的高度和宽度
+        scalarBar->SetWidth(0.08);    // 设置宽度为0.1
+        scalarBar->SetHeight(0.6);   // 设置高度为0.8
+        // 设置ColorBarActor的位置
+        scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);
+
         //cubeAxesActor->Modified();
 //        renderer->AddActor(cylinderActor);
         renderer->AddActor(cubeAxesActor);
