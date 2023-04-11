@@ -14,6 +14,7 @@
 #include <showimgpcddlg.h>
 #include <getcurtime.h>
 #include "cambuilddlg.h"
+#include "laser_paramsetingdlg.h"
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
 
@@ -146,6 +147,8 @@ private:
     showImgPcdDlg * showImgPcd;
 
     ImgWindowShowThread *imgshow_thread;
+
+    laser_paramsetingdlg *paramset;    // 参数设置
 
     void UpdateUi();  //刷新控件显示和使能
     void InitSetEdit(); //初始化控件数字

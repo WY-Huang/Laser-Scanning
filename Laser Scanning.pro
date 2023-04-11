@@ -23,6 +23,7 @@ SOURCES += \
     e2promdata.cpp \
     fileout.cpp \
     getcurtime.cpp \
+    laser_paramsetingdlg.cpp \
     main.cpp \
     mainwindow.cpp \
     my_params.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
     fileout.h \
     getcurtime.h \
     global.h \
+    laser_paramsetingdlg.h \
     mainwindow.h \
     my_params.h \
     mypclfunction.h \
@@ -49,6 +51,7 @@ HEADERS += \
 
 FORMS += \
     cambuilddlg.ui \
+    laser_paramsetingdlg.ui \
     mainwindow.ui \
     showimgpcddlg.ui
 

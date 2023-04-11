@@ -322,6 +322,9 @@ MainWindow::MainWindow(QWidget *parent)
 //    }
     });
 
+    // 参数设置
+
+
 }
 
 MainWindow::~MainWindow()
