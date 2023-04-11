@@ -54,7 +54,7 @@ void showImgPcdDlg::showpoint(std::string filename)
         cv::Mat m_srcImage = cv::imread(filename);
         if (m_srcImage.empty()==0)
         {
-            cvtColor(m_srcImage, m_srcImage, cv::COLOR_BGR2RGB);//BGR转化为RGB
+            cvtColor(m_srcImage, m_srcImage, cv::COLOR_BGR2RGB);    //BGR转化为RGB
             QImage::Format format = QImage::Format_RGB888;
             switch (m_srcImage.type())
             {
