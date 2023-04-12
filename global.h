@@ -10,7 +10,7 @@
 #define CAMIMAGE_WIDTH              1536
 
 #define CAMBUILD_IMAGE_WIDTH        1024
-#define CAMBUILD_IMAGE_HEIGHT        1536
+#define CAMBUILD_IMAGE_HEIGHT       1536
 
 #define CAMTOTALNUM                 1       //当前同型号下支持几路相机
 
