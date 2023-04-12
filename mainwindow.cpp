@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
     cambuild = new cambuilddlg(m_mcs);
+    paramset=new laser_paramsetingdlg(m_mcs);
 
     ui->setupUi(this);
     InitSetEdit();
@@ -211,7 +212,6 @@ MainWindow::MainWindow(QWidget *parent)
        });
 
     // 深度图及点云图参数设置的工具栏
-
      connect(ui->actionbackward,&QAction::triggered,[=]()
        {
         vtkNew<vtkCamera> camera;
@@ -323,9 +323,21 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 参数设置
-
+    connect(ui->setParam, &QAction::triggered, [=](){
+        if(m_mcs->resultdata.link_param_state==true)
+        {
+          paramset->setWindowTitle("参数设置");
+          paramset->Initparam(m_mcs);
+          paramset->exec();
+        }
+        else
+        {
+//          ui->record->append("请先连接传感器再进行参数设置");
+        }
+    });
 
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -348,7 +360,7 @@ MainWindow::~MainWindow()
     }
     delete timer_tragetor_clould;
     delete showImgPcd;
-//    delete paramset;
+    delete paramset;
     delete ui;
 }
 
@@ -1031,6 +1043,9 @@ void MainWindow::InitSetEdit()
 
     ui->IpAddr->setText("192.168.1.2");
     ui->exposureValue->setText(QString::number(m_mcs->cam->sop_cam[0].i32_exposure));
+
+    ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
+    ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));
 
     ui->stackedWidget->setCurrentIndex(0);
 }
