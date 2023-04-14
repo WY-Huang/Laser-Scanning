@@ -87,7 +87,7 @@ public:
   virtual void OnLeftButtonDown() override
   {
     std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0]
-              << " " << this->Interactor->GetEventPosition()[1] << std::endl;
+              << " " << this->Interactor->GetEventPosition()[1] << "\t";
     this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
                                         this->Interactor->GetEventPosition()[1],
                                         0, // always zero.
@@ -109,7 +109,7 @@ public:
     this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor(textActor);
 
       //renderer->AddActor2D(textActor);
-    std::cout << "Picked value: " << picked[0] << " " << picked[1] << " "
+    std::cout << "Value: " << picked[0] << " " << picked[1] << " "
               << picked[2] << std::endl;
    // emit Show_data(picked);
 

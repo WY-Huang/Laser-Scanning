@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "QDebug"
 
-volatile bool finsih;
+volatile bool finish;
 volatile bool finish_line;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
+    showImgPcd = new showImgPcdDlg;
     cambuild = new cambuilddlg(m_mcs);
     paramset=new laser_paramsetingdlg(m_mcs);
 
@@ -18,19 +19,16 @@ MainWindow::MainWindow(QWidget *parent)
     InitSetEdit();
 //    UpdateUi();
     vtk_init();
-    //slot_timer_tragetor_clould()为自定义定时器槽
+//  自定义定时器槽 slot_timer_tragetor_clould()
     timer_tragetor_clould=new QTimer(this);
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
 
-    finsih=false;
+    finish=false;
     finish_line=false;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
     b_init_show_pclclould_list_finish=true;
-//    b_int_show_record_finish=true;
     b_int_show_record_finish=true;
-
-    showImgPcd = new showImgPcdDlg;
 
     connect(imgshow_thread, SIGNAL(Send_show_cvimage_inlab(cv::Mat)), this, SLOT(int_show_cvimage_inlab(cv::Mat)));
     connect(imgshow_thread, SIGNAL(Send_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)), this,
@@ -402,7 +400,7 @@ void ImgWindowShowThread::run()
         {
              if(lock==false)
              {
-                // 0原图，1轮廓,2轮廓点云,3深度图,4点云, 5标定
+                // 0原图，1轮廓, 2轮廓点云, 3深度图, 4点云, 5标定
                 switch(_p->m_mcs->e2proomdata.measurementDlg_leaser_data_mod)
                 {
                     //显示原图（不做处理）
@@ -456,8 +454,8 @@ void ImgWindowShowThread::run()
                                   int y=_p->cv_line[n].z;
                                   y=_p->m_mcs->resultdata.cv_imagelinecenter.rows-1-y;
                                   _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3]=255;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=0;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+2]=0;
+                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=255;
+                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+2]=255;
                                 }
                              }
                           }
@@ -640,7 +638,7 @@ void ImgWindowShowThread::run()
                              if(_p->b_int_show_record_finish==true)
                              {
                                _p->b_int_show_record_finish=false;
-                               finsih=true;
+                               finish=true;
                                qRegisterMetaType<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>("pcl::PointCloud<pcl::PointXYZRGB>::Ptr"); //传递自定义类型信号时要添加注册
                                emit Send_show_pclclould_list(_p->m_mcs->resultdata.ptr_pcl_deepclould);
 //                               qRegisterMetaType< QString >("QString");
@@ -831,208 +829,208 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         b_init_show_pclclould_list_finish=true;
         return;
     }
-    if(finsih==true)
-    {
-        finsih=false;
-        b_int_show_record_finish = true;
-        vtkIdType idtype;
-        vtkSmartPointer<vtkCubeAxesActor>   cubeAxesActor=vtkSmartPointer<vtkCubeAxesActor>::New();
-        vtkSmartPointer<vtkPoints>   points=vtkSmartPointer<vtkPoints>::New();
-        vtkSmartPointer<vtkCellArray>   cells=vtkSmartPointer<vtkCellArray>::New();
-        vtkSmartPointer<vtkPolyData>   polydata=vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkFloatArray>  scalars=vtkSmartPointer<vtkFloatArray>::New();
-        vtkSmartPointer<vtkLookupTable>   lut=vtkSmartPointer<vtkLookupTable>::New();
-        vtkSmartPointer<vtkPolyDataMapper>   mapper=vtkSmartPointer<vtkPolyDataMapper>::New();
-        vtkSmartPointer<vtkActor>  actor=vtkSmartPointer<vtkActor>::New();
-        vtkSmartPointer<vtkScalarBarActor> scalarBar=vtkSmartPointer<vtkScalarBarActor>::New();
-//        cout<<pclclould->size()<<endl;
-        vtkActorCollection* actorCollection = renderer->GetActors();
-        vtkActor2DCollection* actorCollection2D=renderer->GetActors2D();
-        int num = actorCollection->GetNumberOfItems();
-        int num1=actorCollection2D->GetNumberOfItems();
-        vtkRendererCollection * collection=vtkRendererCollection ::New();
-        collection=ui->pclShow->GetRenderWindow()->GetRenderers();
-        int num2=collection->GetNumberOfItems();
-        cout<<num2<<endl;
-//        collection->InitTraversal();
-//        for(int i=0;i<num2;i++)
-//        {
-//            vtkRenderer* renderer=collection->GetNextItem();
-//            ui->pclShow->GetRenderWindow()->RemoveRenderer(renderer);
-//        //renderer->Delete();
-//        }
-//        cout<<num<<endl;
-//        cout<<num1<<endl;
-        //这个函数比较重要，否则getNextActor将没法得到正确的actor
-        actorCollection->InitTraversal();
-        actorCollection2D->InitTraversal();
-        for (int i=0;i<num;++i)
+
+    if(finish==true)
         {
-        vtkActor* actor = actorCollection->GetNextActor();
-        renderer->RemoveActor(actor);
-        //处理code
+            finish=false;
+            b_int_show_record_finish = true;
+            vtkIdType idtype;
+            vtkSmartPointer<vtkCubeAxesActor>   cubeAxesActor=vtkSmartPointer<vtkCubeAxesActor>::New();
+            vtkSmartPointer<vtkPoints>   points=vtkSmartPointer<vtkPoints>::New();
+            vtkSmartPointer<vtkCellArray>   cells=vtkSmartPointer<vtkCellArray>::New();
+            vtkSmartPointer<vtkPolyData>   polydata=vtkSmartPointer<vtkPolyData>::New();
+            vtkSmartPointer<vtkFloatArray>  scalars=vtkSmartPointer<vtkFloatArray>::New();
+            vtkSmartPointer<vtkLookupTable>   lut=vtkSmartPointer<vtkLookupTable>::New();
+            vtkSmartPointer<vtkPolyDataMapper>   mapper=vtkSmartPointer<vtkPolyDataMapper>::New();
+            vtkSmartPointer<vtkActor>  actor=vtkSmartPointer<vtkActor>::New();
+            vtkSmartPointer<vtkScalarBarActor> scalarBar=vtkSmartPointer<vtkScalarBarActor>::New();
+    //        cout<<pclclould->size()<<endl;
+            vtkActorCollection* actorCollection = renderer->GetActors();
+            vtkActor2DCollection* actorCollection2D=renderer->GetActors2D();
+            int num = actorCollection->GetNumberOfItems();
+            int num1=actorCollection2D->GetNumberOfItems();
+            vtkRendererCollection * collection=vtkRendererCollection ::New();
+            collection=ui->pclShow->GetRenderWindow()->GetRenderers();
+            int num2=collection->GetNumberOfItems();
+//            cout<<num2<<endl;
+    //        collection->InitTraversal();
+    //        for(int i=0;i<num2;i++)
+    //        {
+    //            vtkRenderer* renderer=collection->GetNextItem();
+    //            ui->pclShow->GetRenderWindow()->RemoveRenderer(renderer);
+    //        //renderer->Delete();
+    //        }
+    //        cout<<num<<endl;
+    //        cout<<num1<<endl;
+            //这个函数比较重要，否则getNextActor将没法得到正确的actor
+            actorCollection->InitTraversal();
+            actorCollection2D->InitTraversal();
+            for (int i=0;i<num;++i)
+            {
+            vtkActor* actor = actorCollection->GetNextActor();
+            renderer->RemoveActor(actor);
+            //处理code
+            }
+            for (int i=0;i<num1;++i)
+            {
+            vtkActor2D* actor2D = actorCollection2D->GetNextActor2D();
+            renderer->RemoveActor2D(actor2D);
+
+            }
+            scalars->SetNumberOfValues(pclclould->size());
+            for (std::size_t i = 0; i < pclclould->points.size (); ++i)
+            {
+                idtype = points->InsertNextPoint(pclclould->points[i].x
+                                                , pclclould->points[i].y
+                                                , pclclould->points[i].z);
+                cells->InsertNextCell(1, &idtype);
+                scalars->SetValue(i, static_cast<float>(pclclould->points[i].z) );
+
+            }
+            lut->Build();
+            polydata->SetPoints(points);
+            polydata->SetVerts(cells);
+            polydata->GetPointData()->SetScalars(scalars);
+
+            mapper->SetInputData(polydata);
+            mapper->ScalarVisibilityOn();
+            //mapper->SetScalarModeToUsePointData();
+            mapper->SetScalarRange(points->GetBounds()[4],points->GetBounds()[5]);
+    //        qDebug()<<(double)points->GetBounds()[4]<<points->GetBounds()[5];
+            mapper->SetColorModeToMapScalars();
+            mapper->SetLookupTable(lut);
+            actor->SetMapper(mapper);
+            actor->GetProperty()->SetInterpolationToFlat();
+            cubeAxesActor->SetBounds(points->GetBounds());
+
+            cubeAxesActor->SetScreenSize(10);
+
+            cubeAxesActor->DrawZGridlinesOff();
+            cubeAxesActor->DrawXGridlinesOn();
+            cubeAxesActor->DrawYGridlinesOn();
+
+            cubeAxesActor->SetDrawXInnerGridlines(false);
+            cubeAxesActor->SetDrawYInnerGridlines(false);
+            cubeAxesActor->SetDrawZInnerGridlines(false);
+
+            cubeAxesActor->SetGridLineLocation(2);
+            cubeAxesActor->XAxisMinorTickVisibilityOff();
+            cubeAxesActor->YAxisMinorTickVisibilityOff();
+            cubeAxesActor->ZAxisMinorTickVisibilityOff();
+            cubeAxesActor->SetCamera(renderer->GetActiveCamera());
+
+    //        scalarBar->SetTitle("Distance");
+            scalarBar->SetNumberOfLabels(5);
+            scalarBar->SetLookupTable(lut);
+
+            vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
+            textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
+
+            scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
+            scalarBar->SetHeight(0.6);
+            scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
+
+            renderer->AddActor(cubeAxesActor);
+            renderer->AddActor(actor);
+            renderer->AddActor2D(scalarBar);
+            renderer->ResetCamera();
+            ui->pclShow->GetRenderWindow()->Render();
+            ui->pclShow->GetRenderWindow()->Finalize();
+            ui->pclShow->update();
         }
-        for (int i=0;i<num1;++i)
-        {
-        vtkActor2D* actor2D = actorCollection2D->GetNextActor2D();
-        renderer->RemoveActor2D(actor2D);
-
-        }
-        scalars->SetNumberOfValues(pclclould->size());
-        for (std::size_t i = 0; i < pclclould->points.size (); ++i)
-        {
-            idtype = points->InsertNextPoint(pclclould->points[i].x
-                                            , pclclould->points[i].y
-                                            , pclclould->points[i].z);
-            cells->InsertNextCell(1, &idtype);
-            scalars->SetValue(i, static_cast<float>(pclclould->points[i].z) );
-
-        }
-        lut->Build();
-        polydata->SetPoints(points);
-        polydata->SetVerts(cells);
-        polydata->GetPointData()->SetScalars(scalars);
-
-        mapper->SetInputData(polydata);
-        mapper->ScalarVisibilityOn();
-        //mapper->SetScalarModeToUsePointData();
-        mapper->SetScalarRange(points->GetBounds()[4],points->GetBounds()[5]);
-//        qDebug()<<(double)points->GetBounds()[4]<<points->GetBounds()[5];
-        mapper->SetColorModeToMapScalars();
-        mapper->SetLookupTable(lut);
-        actor->SetMapper(mapper);
-        actor->GetProperty()->SetInterpolationToFlat();
-        cubeAxesActor->SetBounds(points->GetBounds());
-
-        cubeAxesActor->SetScreenSize(10);
-
-        cubeAxesActor->DrawZGridlinesOff();
-        cubeAxesActor->DrawXGridlinesOn();
-        cubeAxesActor->DrawYGridlinesOn();
-
-        cubeAxesActor->SetDrawXInnerGridlines(false);
-        cubeAxesActor->SetDrawYInnerGridlines(false);
-        cubeAxesActor->SetDrawZInnerGridlines(false);
-
-        cubeAxesActor->SetGridLineLocation(2);
-        cubeAxesActor->XAxisMinorTickVisibilityOff();
-        cubeAxesActor->YAxisMinorTickVisibilityOff();
-        cubeAxesActor->ZAxisMinorTickVisibilityOff();
-        cubeAxesActor->SetCamera(renderer->GetActiveCamera());
-
-//        scalarBar->SetTitle("Distance");
-        scalarBar->SetNumberOfLabels(5);
-        scalarBar->SetLookupTable(lut);
-
-        vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
-        textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
-
-        scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
-        scalarBar->SetHeight(0.6);
-        scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
-
-        renderer->AddActor(cubeAxesActor);
-        renderer->AddActor(actor);
-        renderer->AddActor2D(scalarBar);
-        renderer->ResetCamera();
-        ui->pclShow->GetRenderWindow()->Render();
-        ui->pclShow->GetRenderWindow()->Finalize();
-        ui->pclShow->update();
-    }
 
     if(finish_line==true)
-    {
-        finish_line=false;
-        b_int_show_record_finish = true;
-        vtkIdType idtype;
-        vtkSmartPointer<vtkCubeAxesActor>   cubeAxesActor=vtkSmartPointer<vtkCubeAxesActor>::New();
-        vtkSmartPointer<vtkPoints>   points=vtkSmartPointer<vtkPoints>::New();
-        vtkSmartPointer<vtkCellArray>   cells=vtkSmartPointer<vtkCellArray>::New();
-        vtkSmartPointer<vtkPolyData>   polydata=vtkSmartPointer<vtkPolyData>::New();
-        vtkSmartPointer<vtkFloatArray>  scalars=vtkSmartPointer<vtkFloatArray>::New();
-        vtkSmartPointer<vtkLookupTable>   lut=vtkSmartPointer<vtkLookupTable>::New();
-        vtkSmartPointer<vtkPolyDataMapper>   mapper=vtkSmartPointer<vtkPolyDataMapper>::New();
-        vtkSmartPointer<vtkActor>  actor=vtkSmartPointer<vtkActor>::New();
-        vtkSmartPointer<vtkScalarBarActor> scalarBar=vtkSmartPointer<vtkScalarBarActor>::New();
-        vtkActorCollection* actorCollection = renderer->GetActors();
-        vtkActor2DCollection* actorCollection2D=renderer->GetActors2D();
-        int num = actorCollection->GetNumberOfItems();
-        int num1=actorCollection2D->GetNumberOfItems();
-        //这个函数比较重要，否则getNextActor将没法得到正确的actor
-        actorCollection->InitTraversal();
-        actorCollection2D->InitTraversal();
-        for (int i=0;i<num;++i)
         {
-        vtkActor* actor = actorCollection->GetNextActor();
-        renderer->RemoveActor(actor);
-        //处理code
+            finish_line=false;
+            b_int_show_record_finish = true;
+            vtkIdType idtype;
+            vtkSmartPointer<vtkCubeAxesActor>   cubeAxesActor=vtkSmartPointer<vtkCubeAxesActor>::New();
+            vtkSmartPointer<vtkPoints>   points=vtkSmartPointer<vtkPoints>::New();
+            vtkSmartPointer<vtkCellArray>   cells=vtkSmartPointer<vtkCellArray>::New();
+            vtkSmartPointer<vtkPolyData>   polydata=vtkSmartPointer<vtkPolyData>::New();
+            vtkSmartPointer<vtkFloatArray>  scalars=vtkSmartPointer<vtkFloatArray>::New();
+            vtkSmartPointer<vtkLookupTable>   lut=vtkSmartPointer<vtkLookupTable>::New();
+            vtkSmartPointer<vtkPolyDataMapper>   mapper=vtkSmartPointer<vtkPolyDataMapper>::New();
+            vtkSmartPointer<vtkActor>  actor=vtkSmartPointer<vtkActor>::New();
+            vtkSmartPointer<vtkScalarBarActor> scalarBar=vtkSmartPointer<vtkScalarBarActor>::New();
+            vtkActorCollection* actorCollection = renderer->GetActors();
+            vtkActor2DCollection* actorCollection2D=renderer->GetActors2D();
+            int num = actorCollection->GetNumberOfItems();
+            int num1=actorCollection2D->GetNumberOfItems();
+            //这个函数比较重要，否则getNextActor将没法得到正确的actor
+            actorCollection->InitTraversal();
+            actorCollection2D->InitTraversal();
+            for (int i=0;i<num;++i)
+            {
+            vtkActor* actor = actorCollection->GetNextActor();
+            renderer->RemoveActor(actor);
+            //处理code
+            }
+            for (int i=0;i<num1;++i)
+            {
+            vtkActor2D* actor2D = actorCollection2D->GetNextActor2D();
+            renderer->RemoveActor2D(actor2D);
+            //处理code
+            }
+            scalars->SetNumberOfValues(pclclould->size());
+            for (std::size_t i = 0; i < pclclould->points.size (); ++i)
+            {
+                idtype = points->InsertNextPoint(pclclould->points[i].x
+                                                , pclclould->points[i].y
+                                                , pclclould->points[i].z);
+                cells->InsertNextCell(1, &idtype);
+                scalars->SetValue(i, static_cast<float>(pclclould->points[i].z) );
+
+            }
+            lut->Build();
+            polydata->SetPoints(points);
+            polydata->SetVerts(cells);
+            polydata->GetPointData()->SetScalars(scalars);
+
+            mapper->SetInputData(polydata);
+            mapper->ScalarVisibilityOn();
+            mapper->SetScalarRange(points->GetBounds()[4],points->GetBounds()[5]);
+            mapper->SetColorModeToMapScalars();
+            mapper->SetLookupTable(lut);
+            actor->SetMapper(mapper);
+            actor->GetProperty()->SetInterpolationToFlat();
+            cubeAxesActor->SetBounds(points->GetBounds());
+
+            cubeAxesActor->SetScreenSize(10);
+
+            cubeAxesActor->DrawZGridlinesOff();
+            cubeAxesActor->DrawXGridlinesOn();
+            cubeAxesActor->DrawYGridlinesOn();
+
+            cubeAxesActor->SetDrawXInnerGridlines(false);
+            cubeAxesActor->SetDrawYInnerGridlines(false);
+            cubeAxesActor->SetDrawZInnerGridlines(false);
+
+            cubeAxesActor->SetGridLineLocation(2);
+            cubeAxesActor->XAxisMinorTickVisibilityOff();
+            cubeAxesActor->YAxisMinorTickVisibilityOff();
+            cubeAxesActor->ZAxisMinorTickVisibilityOff();
+            cubeAxesActor->SetCamera(renderer->GetActiveCamera());
+
+    //        scalarBar->SetTitle("Distance");
+            scalarBar->SetNumberOfLabels(5);
+            scalarBar->SetLookupTable(lut);
+
+            vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
+            textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
+
+            scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
+            scalarBar->SetHeight(0.6);
+            scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
+
+            renderer->AddActor(cubeAxesActor);
+            renderer->AddActor(actor);
+            renderer->AddActor2D(scalarBar);
+            renderer->ResetCamera();
+            ui->pclShow->GetRenderWindow()->Render();
+            ui->pclShow->GetRenderWindow()->Finalize();
+            ui->pclShow->update();
         }
-        for (int i=0;i<num1;++i)
-        {
-        vtkActor2D* actor2D = actorCollection2D->GetNextActor2D();
-        renderer->RemoveActor2D(actor2D);
-        //处理code
-        }
-        scalars->SetNumberOfValues(pclclould->size());
-        for (std::size_t i = 0; i < pclclould->points.size (); ++i)
-        {
-            idtype = points->InsertNextPoint(pclclould->points[i].x
-                                            , pclclould->points[i].y
-                                            , pclclould->points[i].z);
-            cells->InsertNextCell(1, &idtype);
-            scalars->SetValue(i, static_cast<float>(pclclould->points[i].z) );
-
-        }
-        lut->Build();
-        polydata->SetPoints(points);
-        polydata->SetVerts(cells);
-        polydata->GetPointData()->SetScalars(scalars);
-
-        mapper->SetInputData(polydata);
-        mapper->ScalarVisibilityOn();
-        mapper->SetScalarRange(points->GetBounds()[4],points->GetBounds()[5]);
-        mapper->SetColorModeToMapScalars();
-        mapper->SetLookupTable(lut);
-        actor->SetMapper(mapper);
-        actor->GetProperty()->SetInterpolationToFlat();
-        cubeAxesActor->SetBounds(points->GetBounds());
-
-        cubeAxesActor->SetScreenSize(10);
-
-        cubeAxesActor->DrawZGridlinesOff();
-        cubeAxesActor->DrawXGridlinesOn();
-        cubeAxesActor->DrawYGridlinesOn();
-
-        cubeAxesActor->SetDrawXInnerGridlines(false);
-        cubeAxesActor->SetDrawYInnerGridlines(false);
-        cubeAxesActor->SetDrawZInnerGridlines(false);
-
-        cubeAxesActor->SetGridLineLocation(2);
-        cubeAxesActor->XAxisMinorTickVisibilityOff();
-        cubeAxesActor->YAxisMinorTickVisibilityOff();
-        cubeAxesActor->ZAxisMinorTickVisibilityOff();
-        cubeAxesActor->SetCamera(renderer->GetActiveCamera());
-
-//        scalarBar->SetTitle("Distance");
-        scalarBar->SetNumberOfLabels(5);
-        scalarBar->SetLookupTable(lut);
-
-        vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
-        textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
-
-        scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
-        scalarBar->SetHeight(0.6);
-        scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
-
-        renderer->AddActor(cubeAxesActor);
-        renderer->AddActor(actor);
-        renderer->AddActor2D(scalarBar);
-        renderer->ResetCamera();
-        ui->pclShow->GetRenderWindow()->Render();
-        ui->pclShow->GetRenderWindow()->Finalize();
-        ui->pclShow->update();
-    }
-
 
     b_init_show_pclclould_list_finish=true;
 }
@@ -1209,8 +1207,8 @@ void MainWindow::vtk_init()
     ui->pclShow->SetRenderWindow(renderWindow);
     style->SetDefaultRenderer(renderer);
     renderer->GradientBackgroundOn();
-   // renderer->SetBackground2(colors->GetColor3d("NavajoWhite").GetData());
-    renderer->SetBackground(colors->GetColor3d("DarkSlateBlue").GetData());
+    renderer->SetBackground(colors->GetColor3d("black").GetData());
+//    renderer->SetBackground(colors->GetColor3d("DarkSlateBlue").GetData());
     renderer->ResetCamera();
     ui->pclShow->GetRenderWindow()->AddRenderer(renderer);
     //iren=ui->pclShow->GetInteractor();

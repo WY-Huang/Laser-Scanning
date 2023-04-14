@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>917</width>
-     <height>28</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -96,7 +96,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>工具栏</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -164,7 +164,7 @@
         <x>0</x>
         <y>0</y>
         <width>211</width>
-        <height>112</height>
+        <height>115</height>
        </rect>
       </property>
       <attribute name="label">
@@ -208,7 +208,7 @@
         <x>0</x>
         <y>0</y>
         <width>211</width>
-        <height>112</height>
+        <height>115</height>
        </rect>
       </property>
       <attribute name="label">
@@ -275,6 +275,14 @@
       </widget>
      </widget>
      <widget class="QWidget" name="page_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>211</width>
+        <height>115</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>点云及深度图采集参数</string>
       </attribute>
@@ -459,7 +467,7 @@
   </widget>
   <widget class="QToolBar" name="toolBar_right">
    <property name="windowTitle">
-    <string>toolBar_2</string>
+    <string>侧边栏</string>
    </property>
    <attribute name="toolBarArea">
     <enum>RightToolBarArea</enum>
@@ -561,6 +569,12 @@
   <action name="setParam">
    <property name="text">
     <string>参数设置</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <bold>false</bold>
+    </font>
    </property>
   </action>
   <action name="calibration">
