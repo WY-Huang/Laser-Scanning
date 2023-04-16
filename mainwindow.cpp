@@ -848,7 +848,6 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             vtkActor2DCollection* actorCollection2D = renderer->GetActors2D();
             int num = actorCollection->GetNumberOfItems();
             int num1 = actorCollection2D->GetNumberOfItems();
-            std::cout<<"1";
 //            vtkRendererCollection * collection = vtkRendererCollection ::New();
 //            collection = ui->pclShow->GetRenderWindow()->GetRenderers();
 //            int num2 = collection->GetNumberOfItems();
@@ -865,21 +864,18 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             // 这个函数比较重要，否则getNextActor将没法得到正确的actor
             actorCollection->InitTraversal();
             actorCollection2D->InitTraversal();
-            std::cout<<"2";
             for (int i=0;i<num;++i)
             {
                 vtkActor* actor = actorCollection->GetNextActor();
                 renderer->RemoveActor(actor);
                 //处理code
             }
-            std::cout<<"3";
             for (int i=0;i<num1;++i)
             {
                 vtkActor2D* actor2D = actorCollection2D->GetNextActor2D();
                 renderer->RemoveActor2D(actor2D);
 
             }
-            std::cout<<"4";
             scalars->SetNumberOfValues(pclclould->size());
             for (std::size_t i = 0; i < pclclould->points.size (); ++i)
             {
@@ -890,12 +886,10 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
                 scalars->SetValue(i, static_cast<float>(pclclould->points[i].z) );
 
             }
-            std::cout<<"5";
             lut->Build();
             polydata->SetPoints(points);
             polydata->SetVerts(cells);
             polydata->GetPointData()->SetScalars(scalars);
-            std::cout<<"6";
             mapper->SetInputData(polydata);
             mapper->ScalarVisibilityOn();
             //mapper->SetScalarModeToUsePointData();
@@ -903,7 +897,6 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
     //        qDebug()<<(double)points->GetBounds()[4]<<points->GetBounds()[5];
             mapper->SetColorModeToMapScalars();
             mapper->SetLookupTable(lut);
-            std::cout<<"7";
             actor->SetMapper(mapper);
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
@@ -923,7 +916,6 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             cubeAxesActor->YAxisMinorTickVisibilityOff();
             cubeAxesActor->ZAxisMinorTickVisibilityOff();
             cubeAxesActor->SetCamera(renderer->GetActiveCamera());
-            std::cout<<"8";
     //        scalarBar->SetTitle("Distance");
             scalarBar->SetNumberOfLabels(5);
             scalarBar->SetLookupTable(lut);
@@ -938,11 +930,9 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             renderer->AddActor(actor);
             renderer->AddActor2D(scalarBar);
             renderer->ResetCamera();
-            std::cout<<"9";
             ui->pclShow->GetRenderWindow()->Render();
 //            ui->pclShow->GetRenderWindow()->Finalize();
             ui->pclShow->update();
-            std::cout<<"10"<<std::endl;
         }
 
     // 扫描完成的点云
