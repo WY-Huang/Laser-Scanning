@@ -100,6 +100,7 @@ public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr pclclould;
     volatile  bool b_int_show_record_finish;
     // VTK显示点云
+
     vtkSmartPointer<vtkNamedColors> colors;
     vtkSmartPointer<vtkEventQtSlotConnect> slotConnector;
     vtkSmartPointer<vtkPoints> points;
@@ -135,6 +136,9 @@ public:
 
     volatile bool b_int_show_cvimage_inlab_finish;          //int_show_cvimage_inlab信号曹空闲
     volatile bool b_init_show_pclclould_list_finish;          //init_show_pclclould_list信号曹空闲
+
+    volatile bool finish;       // 单条轮廓是否采集完成
+    volatile bool finish_line;  // 整个点云是否采集完成
 
 private slots:
     void int_show_cvimage_inlab(cv::Mat cv_image);// 显示图像
