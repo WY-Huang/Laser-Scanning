@@ -69,6 +69,8 @@
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
 
+#include <vtkCellPicker.h>
+
 namespace Ui {
 class showImgPcdDlg;
 }
@@ -79,44 +81,52 @@ namespace {
 class MouseInteractorStylePP : public vtkInteractorStyleTrackballCamera
 {
 public:
-  static MouseInteractorStylePP* New();
-  MouseInteractorStylePP(){
-    textActor=vtkSmartPointer<vtkTextActor>::New();
-  }
-  vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
-  virtual void OnLeftButtonDown() override
-  {
-    std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0]
-              << " " << this->Interactor->GetEventPosition()[1] << "\t";
-    this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
-                                        this->Interactor->GetEventPosition()[1],
-                                        0, // always zero.
-                                        this->Interactor->GetRenderWindow()
-                                            ->GetRenderers()
-                                            ->GetFirstRenderer());
-    double picked[3];
-    this->Interactor->GetPicker()->GetPickPosition(picked);
-    this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->RemoveActor(textActor);
-   // vtkNew<vtkTextActor> textActor;
-    vtkNew<vtkNamedColors> colors;
-    std::string s="( "+std::to_string(picked[0])+" ,"+std::to_string(picked[1])+" ,"+std::to_string(picked[2])+" )";
+    static MouseInteractorStylePP* New();
+    vtkSmartPointer<vtkTextActor> textActor;
+    vtkSmartPointer<vtkCellPicker> cellpicker;
 
+    MouseInteractorStylePP()    // 构造函数
+    {
+        textActor = vtkSmartPointer<vtkTextActor>::New();
+        cellpicker = vtkSmartPointer<vtkCellPicker>::New();
+        cellpicker->SetTolerance(0.005);
+//        this->Interactor->SetPicker(cellpicker);
+    }
 
-    textActor->SetInput(s.c_str());
-    textActor->SetPosition2(10, 40);
-    textActor->GetTextProperty()->SetFontSize(24);
-    textActor->GetTextProperty()->SetColor(colors->GetColor3d("Gold").GetData());
-    this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor(textActor);
+    vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
 
-      //renderer->AddActor2D(textActor);
-    std::cout << "Value: " << picked[0] << " " << picked[1] << " "
-              << picked[2] << std::endl;
-   // emit Show_data(picked);
+    virtual void OnRightButtonDown() override   // 重载鼠标右键事件
+    {
+//        std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0]
+//                  << " " << this->Interactor->GetEventPosition()[1] << "\t";
+        cellpicker->Pick(this->Interactor->GetEventPosition()[0],
+                                            this->Interactor->GetEventPosition()[1],
+                                            0, // always zero.
+                                            this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
 
-    // Forward events
-    vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-  }
-  vtkSmartPointer<vtkTextActor> textActor;
+        double picked[3];
+        cellpicker->GetPickPosition(picked);
+        this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->RemoveActor(textActor);
+
+//        std::cout << cellpicker->GetCellId() << std::endl;
+        if(cellpicker->GetCellId() != -1)
+        {
+            vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
+            std::string s = "Picked: ( "+std::to_string(picked[0])+" ,"+std::to_string(picked[1])+" ,"+std::to_string(picked[2])+" )";
+
+            textActor->SetInput(s.c_str());
+            textActor->SetPosition2(10, 40);
+            textActor->GetTextProperty()->SetFontSize(24);
+            textActor->GetTextProperty()->SetColor(colors->GetColor3d("Gold").GetData());
+            this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor(textActor);
+
+//            std::cout << "Value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
+        }
+
+        // Forward events
+        vtkInteractorStyleTrackballCamera::OnRightButtonDown();
+    }
+
 };
 
 vtkStandardNewMacro(MouseInteractorStylePP);
@@ -136,8 +146,26 @@ public:
     void showpoint(std::string filename);      //显示图像及点云
 
     // VTK显示点云
+    vtkSmartPointer<vtkNamedColors> colors;
+    vtkSmartPointer<vtkEventQtSlotConnect> slotConnector;
+    vtkSmartPointer<vtkPoints> points;
+    vtkSmartPointer<vtkCellArray> cells;
+    vtkSmartPointer<vtkPolyData> polydata;
+    vtkSmartPointer<vtkFloatArray> scalars;
+    vtkSmartPointer<vtkLookupTable> lut;
+    vtkSmartPointer<vtkPolyDataMapper> mapper;
+    vtkSmartPointer<vtkActor> actor;
     vtkSmartPointer<vtkRenderer> renderer;
+    vtkSmartPointer<vtkScalarBarActor> scalarBar;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
+    vtkSmartPointer<vtkAxesActor> axes_actor;
+    vtkSmartPointer<MouseInteractorStylePP> style;
+    vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
+    vtkSmartPointer<vtkPropPicker> propPicker;
+    vtkSmartPointer<vtkRenderWindowInteractor> iren;
+    vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget;
+    vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget;
+    vtkPropPicker*  Picker;          // Pointer to the picker
     void vtk_init();
 
 private:

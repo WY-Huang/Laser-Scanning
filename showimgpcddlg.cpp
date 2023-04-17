@@ -11,20 +11,20 @@ showImgPcdDlg::showImgPcdDlg(QWidget *parent) :
     // 设置窗体最大化和最小化
     this->setWindowFlags(Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowCloseButtonHint);
 
-    renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    ui->widgetPcd->SetRenderWindow(renderWindow);
+//    vtk_init();
+//    renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+//    ui->widgetPcd->SetRenderWindow(renderWindow);
 
-    renderer = vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
-    renderer->GradientBackgroundOn();   // 用于启用渐变背景
-    renderer->SetBackground2(colors->GetColor3d("Black").GetData());
-    renderer->SetBackground(colors->GetColor3d("Gray").GetData()); // Black, DarkSlateBlue，LightSkyBlue，Gray
-    renderer->ResetCamera();
-    ui->widgetPcd->GetRenderWindow()->AddRenderer(renderer);
+//    renderer = vtkSmartPointer<vtkRenderer>::New();
+//    vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
+//    renderer->GradientBackgroundOn();   // 用于启用渐变背景
+//    renderer->SetBackground2(colors->GetColor3d("Black").GetData());
+//    renderer->SetBackground(colors->GetColor3d("Gray").GetData()); // Black, DarkSlateBlue，LightSkyBlue，Gray
+//    renderer->ResetCamera();
+//    ui->widgetPcd->GetRenderWindow()->AddRenderer(renderer);
 
     pclclould.reset(new pcl::PointCloud<pcl::PointXYZ>);
 
-    //vtk_init();
 }
 
 showImgPcdDlg::~showImgPcdDlg()
@@ -105,7 +105,49 @@ void showImgPcdDlg::showpoint(std::string filename)
     else if(msgList[msgList.size()-1]=="PCD"||
             msgList[msgList.size()-1]=="pcd")
     {
-      //  vtk_init();
+        // 显示打开的点云
+        ui->stackedWidget->setCurrentIndex(1);
+        pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *pclclould);
+        vtk_init();
+        vtkIdType idtype;
+        points = vtkSmartPointer<vtkPoints>::New();
+        cells = vtkSmartPointer<vtkCellArray>::New();
+        polydata = vtkSmartPointer<vtkPolyData>::New();
+
+        scalars->SetNumberOfValues(pclclould->size());
+        for (std::size_t i = 0; i < pclclould->points.size (); ++i)
+        {
+            idtype = points->InsertNextPoint(pclclould->points[i].x,
+                                             pclclould->points[i].y,
+                                             pclclould->points[i].z);
+            cells->InsertNextCell(1, &idtype);
+            scalars->SetValue(i, static_cast<float>(pclclould->points[i].z) );
+
+        }
+
+        polydata->SetPoints(points);
+        polydata->SetVerts(cells);
+        polydata->GetPointData()->SetScalars(scalars);
+
+        mapper->SetInputData(polydata);
+        mapper->ScalarVisibilityOn();
+        //mapper->SetScalarModeToUsePointData();
+        mapper->SetScalarRange(points->GetBounds()[4], points->GetBounds()[5]);
+        mapper->SetColorModeToMapScalars();
+        mapper->SetLookupTable(lut);
+
+        actor->SetMapper(mapper);
+        actor->GetProperty()->SetInterpolationToFlat();
+        cubeAxesActor->SetBounds(points->GetBounds());
+
+//            actor->Modified();
+//            cubeAxesActor->Modified();
+//            scalarBar->Modified();
+        renderer->ResetCamera();
+        ui->widgetPcd->GetRenderWindow()->Render();
+        ui->widgetPcd->update();
+/*
+        //  vtk_init();
 
         vtkSmartPointer<vtkEventQtSlotConnect> slotConnector = vtkSmartPointer<vtkEventQtSlotConnect>::New();   // 管理信号与槽
         this->Connections = slotConnector;
@@ -119,10 +161,10 @@ void showImgPcdDlg::showpoint(std::string filename)
         vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();                             // 用于显示几何图形
         vtkSmartPointer<vtkScalarBarActor> scalarBar = vtkSmartPointer<vtkScalarBarActor>::New();       // 渲染colorbar
 //        vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget=vtkSmartPointer<vtkScalarBarWidget>::New();   // 交互模式调整colorbar属性
-//        vtkSmartPointer<MouseInteractorStyle> style=vtkSmartPointer<MouseInteractorStyle>::New();
-//        vtkSmartPointer<vtkRenderWindowInteractor> iren=vtkSmartPointer<vtkRenderWindowInteractor>::New();
-//        vtkSmartPointer<vtkAxesActor> axes_actor=vtkSmartPointer<vtkAxesActor>::New();
-//        vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget=vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+        vtkSmartPointer<MouseInteractorStylePP> style = vtkSmartPointer<MouseInteractorStylePP>::New();
+        vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+        vtkSmartPointer<vtkAxesActor> axes_actor = vtkSmartPointer<vtkAxesActor>::New();
+        vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
 
         ui->widgetPcd->update();
         ui->stackedWidget->setCurrentIndex(1);
@@ -217,11 +259,92 @@ void showImgPcdDlg::showpoint(std::string filename)
 
        // ui->widgetPcd->GetRenderWindow()->Finalize();
         ui->widgetPcd->update();
-
+*/
     }
 }
 
 void showImgPcdDlg::vtk_init()
 {
+    slotConnector = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+    this->Connections = slotConnector;
 
+    colors = vtkSmartPointer<vtkNamedColors>::New();
+    cubeAxesActor = vtkSmartPointer<vtkCubeAxesActor>::New();
+//    points = vtkSmartPointer<vtkPoints>::New();
+    cells = vtkSmartPointer<vtkCellArray>::New();
+    polydata = vtkSmartPointer<vtkPolyData>::New();
+    scalars = vtkSmartPointer<vtkFloatArray>::New();
+    lut = vtkSmartPointer<vtkLookupTable>::New();
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    actor = vtkSmartPointer<vtkActor>::New();
+    renderer = vtkSmartPointer<vtkRenderer>::New();
+    scalarBar = vtkSmartPointer<vtkScalarBarActor>::New();
+    scalarBarWidget = vtkSmartPointer<vtkScalarBarWidget>::New();
+
+    style = vtkSmartPointer<MouseInteractorStylePP>::New();
+    iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    axes_actor = vtkSmartPointer<vtkAxesActor>::New();
+    axes_actorWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+    renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+
+    ui->widgetPcd->SetRenderWindow(renderWindow); // 设置渲染窗口
+    style->SetDefaultRenderer(renderer);        // 将 renderer 设置为默认的渲染器
+
+    renderer->GradientBackgroundOn();       // 背景设置
+    renderer->SetBackground(colors->GetColor3d("black").GetData());
+    renderer->SetBackground2(colors->GetColor3d("Gray").GetData());
+//    renderer->ResetCamera();
+
+    ui->widgetPcd->GetRenderWindow()->AddRenderer(renderer);  // 添加renderer到渲染窗口
+    //iren=ui->pclShow->GetInteractor();
+    iren = ui->widgetPcd->GetRenderWindow()->GetInteractor(); // 交互
+    iren->SetInteractorStyle(style);
+
+    //
+    cubeAxesActor->SetScreenSize(10);
+    cubeAxesActor->DrawZGridlinesOff();
+    cubeAxesActor->DrawXGridlinesOn();
+    cubeAxesActor->DrawYGridlinesOn();
+    cubeAxesActor->SetDrawXInnerGridlines(false);
+    cubeAxesActor->SetDrawYInnerGridlines(false);
+    cubeAxesActor->SetDrawZInnerGridlines(false);
+    cubeAxesActor->SetGridLineLocation(2);
+    cubeAxesActor->XAxisMinorTickVisibilityOff();
+    cubeAxesActor->YAxisMinorTickVisibilityOff();
+    cubeAxesActor->ZAxisMinorTickVisibilityOff();
+    cubeAxesActor->SetCamera(renderer->GetActiveCamera());
+
+    lut->Build();
+    scalarBar->SetTitle("Unit (mm)\n");
+    scalarBar->SetNumberOfLabels(5);
+    scalarBar->SetLookupTable(lut);
+    scalarBar->GetLabelTextProperty()->SetFontSize(12);
+//    vtkTextProperty* textProp = scalarBar->GetLabelTextProperty();  // 获取ColorBarActor的TextProperty
+//    textProp->SetFontSize(12);                                      // 更改TextProperty的字体大小
+    scalarBar->SetWidth(0.08);                                      // 更改ColorBarActor的高度和宽度
+    scalarBar->SetHeight(0.6);
+    scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
+    scalarBar->SetLabelFormat("%.3f");
+
+    renderer->AddActor(cubeAxesActor);
+    renderer->AddActor(actor);
+    renderer->AddActor2D(scalarBar);
+    //
+
+    vtkCamera* camera = renderer->GetActiveCamera();
+    camera->SetPosition(1, 0, 0);
+    camera->SetViewUp (0, 0, -1);
+    camera->SetFocalPoint (0, 0, 0);
+    renderer->ResetCamera();
+
+    axes_actor->SetPosition(0, 0, 0);
+    axes_actor->SetTotalLength(2, 2, 2);
+    axes_actor->SetShaftType(0);
+    axes_actor->SetCylinderRadius(0.02);
+    axes_actorWidget->SetOrientationMarker(axes_actor);
+    axes_actorWidget->SetInteractor(iren);
+    axes_actorWidget->On();
+    axes_actorWidget->InteractiveOn();
+
+    ui->widgetPcd->update();
 }

@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
             SLOT(init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)));
 //    connect(imgshow_thread, SIGNAL(Send_show_record(QString)), this, SLOT(int_show_record(QString)));
     b_imgshow_thread = true;
-    imgshow_thread->start();
+//    imgshow_thread->start();
 
     // 打开图像和点云文件
     connect(ui->openFile, &QAction::triggered, [=](){
@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (m_mcs->cam->sop_cam[0].b_connect == false)
         {
+            imgshow_thread->start();
             img_windowshow(true, ui->imgShow);
             UpdateUi();
         }
@@ -937,6 +938,7 @@ void MainWindow::vtk_init()
     renderer = vtkSmartPointer<vtkRenderer>::New();
     scalarBar = vtkSmartPointer<vtkScalarBarActor>::New();
     scalarBarWidget = vtkSmartPointer<vtkScalarBarWidget>::New();
+
     style = vtkSmartPointer<MouseInteractorStylePP>::New();
     iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     axes_actor = vtkSmartPointer<vtkAxesActor>::New();
@@ -944,12 +946,12 @@ void MainWindow::vtk_init()
     renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
 
     ui->pclShow->SetRenderWindow(renderWindow); // 设置渲染窗口
-    style->SetDefaultRenderer(renderer);    // 将 renderer 设置为默认的渲染器
+    style->SetDefaultRenderer(renderer);        // 将 renderer 设置为默认的渲染器
 
     renderer->GradientBackgroundOn();       // 背景设置
     renderer->SetBackground(colors->GetColor3d("black").GetData());
-//    renderer->SetBackground2(colors->GetColor3d("DarkSlateBlue").GetData());
-    renderer->ResetCamera();
+    renderer->SetBackground2(colors->GetColor3d("Gray").GetData());
+//    renderer->ResetCamera();
 
     ui->pclShow->GetRenderWindow()->AddRenderer(renderer);  // 添加renderer到渲染窗口
     //iren=ui->pclShow->GetInteractor();
@@ -971,7 +973,7 @@ void MainWindow::vtk_init()
     cubeAxesActor->SetCamera(renderer->GetActiveCamera());
 
     lut->Build();
-    scalarBar->SetTitle("Unit: mm\n");
+    scalarBar->SetTitle("Unit (mm)\n");
     scalarBar->SetNumberOfLabels(5);
     scalarBar->SetLookupTable(lut);
     scalarBar->GetLabelTextProperty()->SetFontSize(12);
@@ -986,6 +988,12 @@ void MainWindow::vtk_init()
     renderer->AddActor(actor);
     renderer->AddActor2D(scalarBar);
     //
+
+    vtkCamera* camera = renderer->GetActiveCamera();
+    camera->SetPosition(1, 0, 0);
+    camera->SetViewUp (0, 0, -1);
+    camera->SetFocalPoint (0, 0, 0);
+    renderer->ResetCamera();
 
     axes_actor->SetPosition(0, 0, 0);
     axes_actor->SetTotalLength(2, 2, 2);
