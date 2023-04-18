@@ -42,7 +42,7 @@
 //任务号103寄存器总数
 #define ALS103_REG_TOTALNUM                    0x0008
 //重置任务103参数寄存器
-#define ALS103_INIT_REG_ADD                    0x006f
+#define ALS103_INIT_REG_ADD                    0x007f
 
 //显示图像处理步骤
 #define ALS_SHOW_STEP_REG_ADD                  0x018f

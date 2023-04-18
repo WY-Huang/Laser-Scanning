@@ -776,8 +776,8 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
 //            ui->record->append("参数端口连接成功");
         }
         //设置task信息
-//        u_int16_t task=103;
-//        int rc=modbus_write_registers(m_mcs->resultdata.ctx_result,0x102,1,&task);
+        u_int16_t task=103;
+        int rc=modbus_write_registers(m_mcs->resultdata.ctx_result,0x102,1,&task);
 //        if(rc!=1)
 //        {
 //            ui->record->append("激光器任务模式设置失败");

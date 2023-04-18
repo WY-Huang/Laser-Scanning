@@ -11,7 +11,7 @@ showImgPcdDlg::showImgPcdDlg(QWidget *parent) :
     // 设置窗体最大化和最小化
     this->setWindowFlags(Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowCloseButtonHint);
 
-//    vtk_init();
+    vtk_init();
 //    renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
 //    ui->widgetPcd->SetRenderWindow(renderWindow);
 
@@ -108,7 +108,7 @@ void showImgPcdDlg::showpoint(std::string filename)
         // 显示打开的点云
         ui->stackedWidget->setCurrentIndex(1);
         pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *pclclould);
-        vtk_init();
+//        vtk_init();
         vtkIdType idtype;
         points = vtkSmartPointer<vtkPoints>::New();
         cells = vtkSmartPointer<vtkCellArray>::New();
