@@ -87,6 +87,9 @@ LIBS += /usr/lib/x86_64-linux-gnu/libboost_*
 INCLUDEPATH +=/usr/local/include/pcl-1.12
 LIBS += /usr/local/lib/libpcl_*
 
+#libssh库添加
+INCLUDEPATH += /usr/include/libssh
+LIBS += /usr/lib/x86_64-linux-gnu/libssh*
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

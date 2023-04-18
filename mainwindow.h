@@ -73,6 +73,8 @@
 #include "vtkPropPicker.h"
 #include <vtkActor2DCollection.h>
 
+#include <libssh/libssh.h>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE

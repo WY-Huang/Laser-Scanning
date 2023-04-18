@@ -82,6 +82,7 @@
     <addaction name="calibration"/>
     <addaction name="setParam"/>
     <addaction name="actionIP"/>
+    <addaction name="action_restart"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
@@ -571,15 +572,12 @@
     <string>参数设置</string>
    </property>
    <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <bold>false</bold>
-    </font>
+    <font/>
    </property>
   </action>
   <action name="calibration">
    <property name="text">
-    <string>一键标定</string>
+    <string>相机标定</string>
    </property>
   </action>
   <action name="actionIP">
@@ -657,6 +655,11 @@
    </property>
    <property name="toolTip">
     <string>后视图</string>
+   </property>
+  </action>
+  <action name="action_restart">
+   <property name="text">
+    <string>重启</string>
    </property>
   </action>
  </widget>
