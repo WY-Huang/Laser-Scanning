@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "opencv2/opencv.hpp"
 #include "mypclfunction.h"
+#include "label_image_viewer.h"
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
 
@@ -144,6 +145,7 @@ public:
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr pclclould;
     void showpoint(std::string filename);      //显示图像及点云
+    int indexLabel;     // 图像label窗口的索引
 
     // VTK显示点云
     vtkSmartPointer<vtkNamedColors> colors;
@@ -171,6 +173,8 @@ public:
 private:
     Ui::showImgPcdDlg *ui;
     MyPclFunction pclclass;//点云算法
+
+    LabelImageViewer * imgLabel;
 
     // vtk显示点云
     vtkSmartPointer<vtkEventQtSlotConnect> Connections;
