@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    imgshow_thread->start();
 
     // 打开图像和点云文件
-    connect(ui->openFile, &QAction::triggered, [=](){
+    connect(ui->openFile, &QAction::triggered, this, [=](){
         {
           if(m_mcs->resultdata.b_deepimg_pushoneline==false)
           {
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 保存图像和点云文件
-    connect(ui->saveFile, &QAction::triggered, [=](){
+    connect(ui->saveFile, &QAction::triggered, this, [=](){
            u8_save_data=1;
 
            std::string saveimg = "./USER_DATA";
@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 设置相机参数
-    connect(ui->applyBtn,&QPushButton::clicked,[=](){      //设置相机参数
+    connect(ui->applyBtn,&QPushButton::clicked, this, [=](){      //设置相机参数
 
         if(m_mcs->resultdata.link_param_state==true)
         {
@@ -210,7 +210,7 @@ MainWindow::MainWindow(QWidget *parent)
        });
 
     // 点云数据视图设置的工具栏
-     connect(ui->actionbackward,&QAction::triggered,[=]()
+     connect(ui->actionbackward,&QAction::triggered, this, [=]()
        {
 //        vtkNew<vtkCamera> camera;
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -224,7 +224,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->update();
     });
 
-     connect(ui->actiondown,&QAction::triggered,[=]()
+     connect(ui->actiondown,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 0, -1);
@@ -235,7 +235,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->update();
     });
 
-     connect(ui->actionforward,&QAction::triggered,[=]()
+     connect(ui->actionforward,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(1, 0, 0);
@@ -245,7 +245,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-     connect(ui->actionleft,&QAction::triggered,[=]()
+     connect(ui->actionleft,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 1, 0);
@@ -256,7 +256,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->update();
     });
 
-     connect(ui->actionright,&QAction::triggered,[=]()
+     connect(ui->actionright,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, -1, 0);
@@ -267,7 +267,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->update();
     });
 
-     connect(ui->actionup,&QAction::triggered,[=]()
+     connect(ui->actionup,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 0, 1);
@@ -279,7 +279,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     //激光头标定
-    connect(ui->calibration, &QAction::triggered, [=](){
+    connect(ui->calibration, &QAction::triggered, this, [=](){
     if(m_mcs->resultdata.link_param_state==true)
     {
        m_mcs->e2proomdata.measurementDlg_leaser_data_mod=5;
@@ -318,7 +318,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 参数设置
-    connect(ui->setParam, &QAction::triggered, [=](){
+    connect(ui->setParam, &QAction::triggered, this, [=](){
         if(m_mcs->resultdata.link_param_state==true)
         {
           paramset->setWindowTitle("参数设置");
@@ -332,7 +332,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 重启按钮
-    connect(ui->action_restart, &QAction::triggered, [=](){
+    connect(ui->action_restart, &QAction::triggered, this, [=](){
 
         ssh_session session;
         int rc;
@@ -786,7 +786,7 @@ void MainWindow::showupdata_tabWidget()
         }
         else
         {
-            if(rcvdata[0]>65535)
+            if(rcvdata[0]>65534)
             {
                 m_mcs->cam->sop_cam[0].i32_exposure=65535;
             }
