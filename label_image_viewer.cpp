@@ -5,8 +5,8 @@ LabelImageViewer::LabelImageViewer(QWidget* parent) : QLabel(parent)
 {
 //    setScaledContents(false);
     setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    setMinimumWidth(800);
-    setMinimumHeight(600);
+    setMinimumWidth(600);
+    setMinimumHeight(400);
     _winW = width();
     _winH = height();   // window size
     _col = 0;
@@ -159,6 +159,17 @@ void LabelImageViewer::mouseMoveEvent(QMouseEvent * event)
     }
     event->accept();
 }
+
+//
+void LabelImageViewer::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        // 在此处理左键双击事件
+        fitToWindow();
+    }
+    event->accept();
+}
 /*
 void LabelImageViewer::mouseReleaseEvent(QMouseEvent * event)
 {
@@ -178,7 +189,7 @@ void LabelImageViewer::scaleImage(float newScale)
 {
     if (_srcImg.isNull())
 		return;
-    if (newScale > 5 || newScale < 0.33)
+    if (newScale > 8 || newScale < 0.5)
         return;
     if (!_mouseAsScaleCt)
 	{

@@ -7,14 +7,14 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    ui->setupUi(this);
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
-    showImgPcd = new showImgPcdDlg;
-    cambuild = new cambuilddlg(m_mcs);
-    paramset=new laser_paramsetingdlg(m_mcs);
+    paramset = new laser_paramsetingdlg(m_mcs);
+    imgShowLabel = new LabelImageViewer;
+    indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
 
-    ui->setupUi(this);
     InitSetEdit();
 //    UpdateUi();
     vtk_init();
@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
 
     finish_line = false;
+    camera_reset_once = true;   // 首次重置相机
     finish_cloud = false;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
@@ -47,9 +48,11 @@ MainWindow::MainWindow(QWidget *parent)
             std::string name = code->fromUnicode(fileName).data();
             if(name.size()>0)
             {
+                showImgPcd = new showImgPcdDlg;
                 showImgPcd->setWindowTitle(fileName);
                 showImgPcd->showpoint(name);
                 showImgPcd->exec();
+                delete showImgPcd;
             }
             imgshow_thread->unLock();
           }
@@ -77,18 +80,18 @@ MainWindow::MainWindow(QWidget *parent)
         if (m_mcs->cam->sop_cam[0].b_connect == false)
         {
             imgshow_thread->start();
-            img_windowshow(true, ui->imgShow);
+            img_windowshow(true, imgShowLabel);
             UpdateUi();
         }
         else
         {
-            img_windowshow(false, ui->imgShow);
+            img_windowshow(false, imgShowLabel);
             UpdateUi();
         }
     });
 
     // 设置相机参数
-    connect(ui->applyBtn,&QPushButton::clicked, this, [=](){      //设置相机参数
+    connect(ui->applyBtn,&QPushButton::clicked, this, [=](){
 
         if(m_mcs->resultdata.link_param_state==true)
         {
@@ -126,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=0;
-          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
         UpdateUi();
@@ -139,7 +142,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=1;
-          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
         UpdateUi();
@@ -151,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
 //            ui->record->append("切换为显示轨迹模式");
@@ -167,11 +170,12 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=3;
 
-            ui->stackedWidget->setCurrentIndex(0);
+//            ui->stackedWidget->setCurrentIndex(0);
+            ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
 
 //            ui->record->append("切换为显示深度图模式");
 //            UpdateUi();
@@ -201,7 +205,7 @@ MainWindow::MainWindow(QWidget *parent)
            {
              m_mcs->cam->sop_cam[0].DisConnect();
              m_mcs->cam->sop_cam[0].node_mode=1;
-             m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+             m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
            }
            m_mcs->e2proomdata.measurementDlg_leaser_data_mod=4;
            ui->stackedWidget->setCurrentIndex(1);
@@ -215,7 +219,7 @@ MainWindow::MainWindow(QWidget *parent)
 //        vtkNew<vtkCamera> camera;
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(-1, 0, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
 //        renderer->SetActiveCamera(camera);
         renderer->ResetCamera();
@@ -228,7 +232,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 0, -1);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -239,7 +243,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(1, 0, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -249,7 +253,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 1, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -260,7 +264,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, -1, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -271,7 +275,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 0, 1);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -282,24 +286,28 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->calibration, &QAction::triggered, this, [=](){
     if(m_mcs->resultdata.link_param_state==true)
     {
-       m_mcs->e2proomdata.measurementDlg_leaser_data_mod=5;
+       m_mcs->e2proomdata.measurementDlg_leaser_data_mod = 5;
        u_int16_t tab_reg[1];
-       tab_reg[0]=2;
-       int rc=modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD,1,tab_reg);
-       if(rc!=1)
+       tab_reg[0] = 2;
+       int rc = modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD, 1, tab_reg);
+       if(rc != 1)
        {
-           //   if(ui->checkBox->isChecked()==false)
-    //             ui->record->append(QString::fromLocal8Bit("写入视图步骤失败"));
+        //   if(ui->checkBox->isChecked()==false)
+        //      ui->record->append(QString::fromLocal8Bit("写入视图步骤失败"));
        }
-       else{
+       else
+       {
            m_mcs->cam->sop_cam[0].DisConnect();
-           m_mcs->cam->sop_cam[0].node_mode=3;
+           m_mcs->cam->sop_cam[0].node_mode = 3;
            m_mcs->cam->sop_cam[0].InitConnect1();
 
+           cambuild = new cambuilddlg(m_mcs);
            cambuild->init_dlg_show();
            cambuild->setWindowTitle(QString::fromLocal8Bit("激光平面标定"));
            cambuild->exec();
            cambuild->close_dlg_show();
+
+           delete cambuild;
 
 //           tab_reg[0]=1;
 //           int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS_SHOW_STEP_REG_ADD,1,tab_reg);
@@ -397,6 +405,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     });
 
+    // 恢复至默认视图大小
+//    connect(default_img_button, &QPushButton::clicked, this, [=](){
+//        imgShowLabel->fitToWindow();
+//    });
 }
 
 
@@ -420,8 +432,8 @@ MainWindow::~MainWindow()
 //        ui->record->append("参数端口关闭");
     }
     delete timer_tragetor_clould;
-    delete showImgPcd;
     delete paramset;
+    delete imgShowLabel;
     delete ui;
 }
 
@@ -768,9 +780,10 @@ void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
       break;
     }
     QImage img = QImage((const uchar*)cv_image.data, cv_image.cols, cv_image.rows,cv_image.cols * cv_image.channels(), format);
-    img = img.scaled(ui->imgShow->width(),ui->imgShow->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
-    ui->imgShow->setPixmap(QPixmap::fromImage(img));
-    b_int_show_cvimage_inlab_finish=true;
+    img = img.scaled(imgShowLabel->width(), imgShowLabel->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
+//    ui->imgShow->setPixmap(QPixmap::fromImage(img));
+    imgShowLabel->showImage(img);
+    b_int_show_cvimage_inlab_finish = true;
 }
 
 void MainWindow::showupdata_tabWidget()
@@ -917,7 +930,13 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             polydata->SetVerts(cells);
             polydata->GetPointData()->SetScalars(scalars);
 
-            mapper->SetInputData(polydata);
+//            mapper->SetInputData(polydata);
+            try {
+                mapper->SetInputData(polydata);
+            }
+            catch (std::exception& e) {
+                std::cout << "错误信息：" << e.what() << std::endl;
+            }
             mapper->ScalarVisibilityOn();
             //mapper->SetScalarModeToUsePointData();
             mapper->SetScalarRange(points->GetBounds()[4], points->GetBounds()[5]);
@@ -931,7 +950,11 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
 //            actor->Modified();
 //            cubeAxesActor->Modified();
 //            scalarBar->Modified();
-            renderer->ResetCamera();
+            if (camera_reset_once)
+            {
+                camera_reset_once = false;
+                renderer->ResetCamera();
+            }
             ui->pclShow->GetRenderWindow()->Render();
             ui->pclShow->update();
 
@@ -1083,7 +1106,8 @@ void MainWindow::InitSetEdit()
     ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
     ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));
 
-    ui->stackedWidget->setCurrentIndex(0);
+//    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
 }
 
 // modbus
@@ -1111,14 +1135,15 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-    ui->stackedWidget->setCurrentIndex(0);
+//    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
     {
         ui->connectCam->setText("连接相机");
         ui->applyBtn->setEnabled(false);
         ui->captureDepthBtn->setEnabled(false);
-        ui->imgShow->clear();
+        imgShowLabel->clear();
     }
     else
     {

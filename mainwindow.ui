@@ -22,6 +22,20 @@
       </property>
       <widget class="QWidget" name="page_0_imgshow">
        <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" alignment="Qt::AlignLeft">
+         <widget class="QPushButton" name="default_img">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="ico.qrc">
+            <normaloff>:/toolbar_ico/icons/huifuxitongmoren.png</normaloff>:/toolbar_ico/icons/huifuxitongmoren.png</iconset>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="imgShow">
           <property name="sizePolicy">

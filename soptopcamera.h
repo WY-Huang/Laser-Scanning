@@ -148,7 +148,7 @@ public:
 private:
     SoptopCamera *_p;
 public:
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
+//    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
 
     void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
     void callbackMatrixParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
@@ -156,7 +156,7 @@ public:
 //#ifdef DEBUG_MYINTERFACES
 //    rclcpp::Subscription<tutorial_interfaces::msg::IfAlgorhmitmsg>::SharedPtr subscription_;
 //#else
-      rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription1_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription1_;
 //#endif
 
 //#ifdef DEBUG_MYINTERFACES
