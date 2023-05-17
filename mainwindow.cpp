@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(imgshow_thread, SIGNAL(Send_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)), this,
             SLOT(init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)));
 //    connect(imgshow_thread, SIGNAL(Send_show_record(QString)), this, SLOT(int_show_record(QString)));
-    b_imgshow_thread = true;
+//    b_imgshow_thread = true;
 //    imgshow_thread->start();
 
     // 打开图像和点云文件
@@ -76,9 +76,12 @@ MainWindow::MainWindow(QWidget *parent)
     // 连接按钮控制，lambda表达式
     connect(ui->connectCam, &QAction::triggered, this, [=]()
     {
+
         if (m_mcs->cam->sop_cam[0].b_connect == false)
         {
+            b_imgshow_thread = true;
             imgshow_thread->start();
+
             img_windowshow(true, imgShowLabel);
             UpdateUi();
         }
@@ -621,16 +624,6 @@ void ImgWindowShowThread::run()
                        {   //采集完成,点云转深度图
                            _p->m_mcs->resultdata.b_deepimg_showclould_finish=false;
 
-                           /**************************/
-                           //测试
-                           /*
-                           pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZ>);
-                           pcl::io::loadPCDFile("/home/qubo/suanfabmp/dianyun/1.pcd", *pointCloud);
-                           pcl::PointCloud<pcl::PointXYZRGB>::Ptr rgbclould(new pcl::PointCloud<pcl::PointXYZRGB>);
-                           pcl::copyPointCloud(*pointCloud,*_p->m_mcs->resultdata.ptr_pcl_deepclould);//点云转换
-                           */
-                           /**************************/
-
                            _p->pclclass.pointCloud2imgI(&_p->m_mcs->resultdata.ptr_pcl_deepclould,&_p->m_mcs->resultdata.cv_deepimg,_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis);
                            _p->pclclass.addpoint_image(&_p->m_mcs->resultdata.cv_deepimg,
                                                        (int)(_p->m_mcs->e2proomdata.paramsetingDlg_col_add_distance/_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis+0.5),
@@ -699,15 +692,7 @@ void ImgWindowShowThread::run()
                          if(_p->m_mcs->resultdata.b_deepimg_showclould_finish==true)
                          {   //采集完成,重新刷新下颜色
                              _p->m_mcs->resultdata.b_deepimg_showclould_finish=false;
-                             /**************************/
-                             //测试
-                             /*
-                             pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZ>);
-                             pcl::io::loadPCDFile("/home/qubo/suanfabmp/dianyun/1.pcd", *pointCloud);
-                             pcl::PointCloud<pcl::PointXYZRGB>::Ptr rgbclould(new pcl::PointCloud<pcl::PointXYZRGB>);
-                             pcl::copyPointCloud(*pointCloud,*_p->m_mcs->resultdata.ptr_pcl_deepclould);//点云转换
-                             */
-                             /**************************/
+
                              _p->pclclass.updata_color_pclclould(&_p->m_mcs->resultdata.ptr_pcl_deepclould,&_p->m_mcs->resultdata.ptr_pcl_deepclould);
                              if(_p->b_int_show_record_finish==true)
                              {
@@ -1173,6 +1158,7 @@ void MainWindow::UpdateUi()
         ui->showDepth->setEnabled(true);
         ui->saveFile->setEnabled(true);
 
+
     }
 }
 
@@ -1219,7 +1205,10 @@ QString MainWindow::save_pcldata_pclclould(pcl::PointCloud<pcl::PointXYZRGB>::Pt
     QString format=".pcd";
     dir=dir+time+format;
     pcl::copyPointCloud(*pclclould,*saveclould);//点云转换
-    pcl::io::savePCDFile(dir.toStdString(),*saveclould);
+    if (saveclould->size() > 0)
+    {
+        pcl::io::savePCDFile(dir.toStdString(), *saveclould);
+    }
     return dir;
 }
 
