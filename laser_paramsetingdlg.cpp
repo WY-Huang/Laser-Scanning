@@ -30,7 +30,7 @@ laser_paramsetingdlg::laser_paramsetingdlg(My_params *mcs, QWidget *parent):
     }
 
     // 写入相机参数
-    connect(ui->writeTab1Btn,&QPushButton::clicked,[=](){
+    connect(ui->writeTab1Btn,&QPushButton::clicked, this, [=](){
     if(m_mcs->resultdata.link_param_state==true)
     {
         uint16_t tab_reg[ALS103_REG_TOTALNUM-1];

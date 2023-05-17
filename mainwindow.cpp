@@ -15,15 +15,14 @@ MainWindow::MainWindow(QWidget *parent)
     imgShowLabel = new LabelImageViewer;
     indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
 
-    InitSetEdit();
-//    UpdateUi();
+    InitSetEdit();  // 界面初始化
     vtk_init();
 //  自定义定时器槽 slot_timer_tragetor_clould()
     timer_tragetor_clould=new QTimer(this);
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
 
     finish_line = false;
-    camera_reset_once = true;   // 首次重置相机
+    camera_reset_once = true;   // 首次重置相机视角
     finish_cloud = false;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
@@ -159,6 +158,7 @@ MainWindow::MainWindow(QWidget *parent)
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
 //            ui->record->append("切换为显示轨迹模式");
             ui->stackedWidget->setCurrentIndex(1);
+
 //            create_axis();
            // m_mcs->resultdata.viewer->removeAllPointClouds();
          //   m_mcs->resultdata.viewer->removeAllShapes();
@@ -433,7 +433,6 @@ MainWindow::~MainWindow()
     }
     delete timer_tragetor_clould;
     delete paramset;
-    delete imgShowLabel;
     delete ui;
 }
 
@@ -908,8 +907,6 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
 
     if(finish_line==true)
         {
-            finish_line = false;
-            b_int_show_record_finish = true;
             vtkIdType idtype;
             points = vtkSmartPointer<vtkPoints>::New();
             cells = vtkSmartPointer<vtkCellArray>::New();
@@ -930,7 +927,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             polydata->SetVerts(cells);
             polydata->GetPointData()->SetScalars(scalars);
 
-//            mapper->SetInputData(polydata);
+//            mapper->SetInputData(polydata);   // ？
             try {
                 mapper->SetInputData(polydata);
             }
@@ -955,9 +952,11 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
                 camera_reset_once = false;
                 renderer->ResetCamera();
             }
-            ui->pclShow->GetRenderWindow()->Render();
-            ui->pclShow->update();
+            ui->pclShow->GetRenderWindow()->Render();   // ？
+//            ui->pclShow->update();
 
+            finish_line = false;
+            b_int_show_record_finish = true;
         }
 
     // 扫描完成的点云
@@ -1106,8 +1105,18 @@ void MainWindow::InitSetEdit()
     ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
     ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));
 
-//    ui->stackedWidget->setCurrentIndex(0);
     ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+
+    // 按钮可用性初始化
+    ui->applyBtn->setEnabled(false);
+    ui->captureDepthBtn->setEnabled(false);
+    ui->toolBar_right->setEnabled(false);
+    ui->showCam->setEnabled(false);
+    ui->showCenter->setEnabled(false);
+    ui->showTrajectory->setEnabled(false);
+    ui->showPointCloud->setEnabled(false);
+    ui->showDepth->setEnabled(false);
+    ui->saveFile->setEnabled(false);
 }
 
 // modbus
@@ -1135,7 +1144,6 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-//    ui->stackedWidget->setCurrentIndex(0);
     ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
@@ -1143,6 +1151,13 @@ void MainWindow::UpdateUi()
         ui->connectCam->setText("连接相机");
         ui->applyBtn->setEnabled(false);
         ui->captureDepthBtn->setEnabled(false);
+        ui->toolBar_right->setEnabled(false);
+        ui->showCam->setEnabled(false);
+        ui->showCenter->setEnabled(false);
+        ui->showTrajectory->setEnabled(false);
+        ui->showPointCloud->setEnabled(false);
+        ui->showDepth->setEnabled(false);
+        ui->saveFile->setEnabled(false);
         imgShowLabel->clear();
     }
     else
@@ -1150,6 +1165,13 @@ void MainWindow::UpdateUi()
         ui->connectCam->setText("断开相机");
         ui->applyBtn->setEnabled(true);
         ui->captureDepthBtn->setEnabled(true);
+        ui->toolBar_right->setEnabled(true);
+        ui->showCam->setEnabled(true);
+        ui->showCenter->setEnabled(true);
+        ui->showTrajectory->setEnabled(true);
+        ui->showPointCloud->setEnabled(true);
+        ui->showDepth->setEnabled(true);
+        ui->saveFile->setEnabled(true);
 
     }
 }
