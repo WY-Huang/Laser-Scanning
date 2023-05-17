@@ -15,5 +15,8 @@
         <file>icons/views/foward.png</file>
         <file>icons/views/down.png</file>
         <file>icons/views/backward.png</file>
+        <file>icons/huifuxitongmoren.png</file>
+        <file>icons/right.png</file>
+        <file>icons/down.png</file>
     </qresource>
 </RCC>

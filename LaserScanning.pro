@@ -23,6 +23,7 @@ SOURCES += \
     e2promdata.cpp \
     fileout.cpp \
     getcurtime.cpp \
+    label_image_viewer.cpp \
     laser_paramsetingdlg.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     fileout.h \
     getcurtime.h \
     global.h \
+    label_image_viewer.h \
     laser_paramsetingdlg.h \
     mainwindow.h \
     my_params.h \

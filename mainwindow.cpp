@@ -7,22 +7,22 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    ui->setupUi(this);
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
-    showImgPcd = new showImgPcdDlg;
-    cambuild = new cambuilddlg(m_mcs);
-    paramset=new laser_paramsetingdlg(m_mcs);
+    paramset = new laser_paramsetingdlg(m_mcs);
+    imgShowLabel = new LabelImageViewer;
+    indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
 
-    ui->setupUi(this);
-    InitSetEdit();
-//    UpdateUi();
+    InitSetEdit();  // 界面初始化
     vtk_init();
 //  自定义定时器槽 slot_timer_tragetor_clould()
     timer_tragetor_clould=new QTimer(this);
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
 
     finish_line = false;
+    camera_reset_once = true;   // 首次重置相机视角
     finish_cloud = false;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(imgshow_thread, SIGNAL(Send_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)), this,
             SLOT(init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)));
 //    connect(imgshow_thread, SIGNAL(Send_show_record(QString)), this, SLOT(int_show_record(QString)));
-    b_imgshow_thread = true;
+//    b_imgshow_thread = true;
 //    imgshow_thread->start();
 
     // 打开图像和点云文件
@@ -47,9 +47,11 @@ MainWindow::MainWindow(QWidget *parent)
             std::string name = code->fromUnicode(fileName).data();
             if(name.size()>0)
             {
+                showImgPcd = new showImgPcdDlg;
                 showImgPcd->setWindowTitle(fileName);
                 showImgPcd->showpoint(name);
                 showImgPcd->exec();
+                delete showImgPcd;
             }
             imgshow_thread->unLock();
           }
@@ -74,21 +76,24 @@ MainWindow::MainWindow(QWidget *parent)
     // 连接按钮控制，lambda表达式
     connect(ui->connectCam, &QAction::triggered, this, [=]()
     {
+
         if (m_mcs->cam->sop_cam[0].b_connect == false)
         {
+            b_imgshow_thread = true;
             imgshow_thread->start();
-            img_windowshow(true, ui->imgShow);
+
+            img_windowshow(true, imgShowLabel);
             UpdateUi();
         }
         else
         {
-            img_windowshow(false, ui->imgShow);
+            img_windowshow(false, imgShowLabel);
             UpdateUi();
         }
     });
 
     // 设置相机参数
-    connect(ui->applyBtn,&QPushButton::clicked, this, [=](){      //设置相机参数
+    connect(ui->applyBtn,&QPushButton::clicked, this, [=](){
 
         if(m_mcs->resultdata.link_param_state==true)
         {
@@ -126,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=0;
-          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
         UpdateUi();
@@ -139,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=1;
-          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
         UpdateUi();
@@ -151,11 +156,12 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
 //            ui->record->append("切换为显示轨迹模式");
             ui->stackedWidget->setCurrentIndex(1);
+
 //            create_axis();
            // m_mcs->resultdata.viewer->removeAllPointClouds();
          //   m_mcs->resultdata.viewer->removeAllShapes();
@@ -167,11 +173,12 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=3;
 
-            ui->stackedWidget->setCurrentIndex(0);
+//            ui->stackedWidget->setCurrentIndex(0);
+            ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
 
 //            ui->record->append("切换为显示深度图模式");
 //            UpdateUi();
@@ -201,7 +208,7 @@ MainWindow::MainWindow(QWidget *parent)
            {
              m_mcs->cam->sop_cam[0].DisConnect();
              m_mcs->cam->sop_cam[0].node_mode=1;
-             m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+             m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
            }
            m_mcs->e2proomdata.measurementDlg_leaser_data_mod=4;
            ui->stackedWidget->setCurrentIndex(1);
@@ -215,7 +222,7 @@ MainWindow::MainWindow(QWidget *parent)
 //        vtkNew<vtkCamera> camera;
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(-1, 0, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
 //        renderer->SetActiveCamera(camera);
         renderer->ResetCamera();
@@ -228,7 +235,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 0, -1);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -239,7 +246,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(1, 0, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -249,7 +256,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 1, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -260,7 +267,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, -1, 0);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -271,7 +278,7 @@ MainWindow::MainWindow(QWidget *parent)
        {
         vtkCamera* camera = renderer->GetActiveCamera();
         camera->SetPosition(0, 0, 1);
-        camera->SetViewUp (0, 0, 1);
+        camera->SetViewUp (0, 0, -1);
         camera->SetFocalPoint (0, 0, 0);
         renderer->ResetCamera();
         ui->pclShow->GetRenderWindow()->Render();
@@ -282,24 +289,28 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->calibration, &QAction::triggered, this, [=](){
     if(m_mcs->resultdata.link_param_state==true)
     {
-       m_mcs->e2proomdata.measurementDlg_leaser_data_mod=5;
+       m_mcs->e2proomdata.measurementDlg_leaser_data_mod = 5;
        u_int16_t tab_reg[1];
-       tab_reg[0]=2;
-       int rc=modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD,1,tab_reg);
-       if(rc!=1)
+       tab_reg[0] = 2;
+       int rc = modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD, 1, tab_reg);
+       if(rc != 1)
        {
-           //   if(ui->checkBox->isChecked()==false)
-    //             ui->record->append(QString::fromLocal8Bit("写入视图步骤失败"));
+        //   if(ui->checkBox->isChecked()==false)
+        //      ui->record->append(QString::fromLocal8Bit("写入视图步骤失败"));
        }
-       else{
+       else
+       {
            m_mcs->cam->sop_cam[0].DisConnect();
-           m_mcs->cam->sop_cam[0].node_mode=3;
+           m_mcs->cam->sop_cam[0].node_mode = 3;
            m_mcs->cam->sop_cam[0].InitConnect1();
 
+           cambuild = new cambuilddlg(m_mcs);
            cambuild->init_dlg_show();
            cambuild->setWindowTitle(QString::fromLocal8Bit("激光平面标定"));
            cambuild->exec();
            cambuild->close_dlg_show();
+
+           delete cambuild;
 
 //           tab_reg[0]=1;
 //           int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS_SHOW_STEP_REG_ADD,1,tab_reg);
@@ -397,6 +408,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     });
 
+    // 恢复至默认视图大小
+//    connect(default_img_button, &QPushButton::clicked, this, [=](){
+//        imgShowLabel->fitToWindow();
+//    });
 }
 
 
@@ -420,7 +435,6 @@ MainWindow::~MainWindow()
 //        ui->record->append("参数端口关闭");
     }
     delete timer_tragetor_clould;
-    delete showImgPcd;
     delete paramset;
     delete ui;
 }
@@ -610,16 +624,6 @@ void ImgWindowShowThread::run()
                        {   //采集完成,点云转深度图
                            _p->m_mcs->resultdata.b_deepimg_showclould_finish=false;
 
-                           /**************************/
-                           //测试
-                           /*
-                           pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZ>);
-                           pcl::io::loadPCDFile("/home/qubo/suanfabmp/dianyun/1.pcd", *pointCloud);
-                           pcl::PointCloud<pcl::PointXYZRGB>::Ptr rgbclould(new pcl::PointCloud<pcl::PointXYZRGB>);
-                           pcl::copyPointCloud(*pointCloud,*_p->m_mcs->resultdata.ptr_pcl_deepclould);//点云转换
-                           */
-                           /**************************/
-
                            _p->pclclass.pointCloud2imgI(&_p->m_mcs->resultdata.ptr_pcl_deepclould,&_p->m_mcs->resultdata.cv_deepimg,_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis);
                            _p->pclclass.addpoint_image(&_p->m_mcs->resultdata.cv_deepimg,
                                                        (int)(_p->m_mcs->e2proomdata.paramsetingDlg_col_add_distance/_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis+0.5),
@@ -688,15 +692,7 @@ void ImgWindowShowThread::run()
                          if(_p->m_mcs->resultdata.b_deepimg_showclould_finish==true)
                          {   //采集完成,重新刷新下颜色
                              _p->m_mcs->resultdata.b_deepimg_showclould_finish=false;
-                             /**************************/
-                             //测试
-                             /*
-                             pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZ>);
-                             pcl::io::loadPCDFile("/home/qubo/suanfabmp/dianyun/1.pcd", *pointCloud);
-                             pcl::PointCloud<pcl::PointXYZRGB>::Ptr rgbclould(new pcl::PointCloud<pcl::PointXYZRGB>);
-                             pcl::copyPointCloud(*pointCloud,*_p->m_mcs->resultdata.ptr_pcl_deepclould);//点云转换
-                             */
-                             /**************************/
+
                              _p->pclclass.updata_color_pclclould(&_p->m_mcs->resultdata.ptr_pcl_deepclould,&_p->m_mcs->resultdata.ptr_pcl_deepclould);
                              if(_p->b_int_show_record_finish==true)
                              {
@@ -768,9 +764,10 @@ void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
       break;
     }
     QImage img = QImage((const uchar*)cv_image.data, cv_image.cols, cv_image.rows,cv_image.cols * cv_image.channels(), format);
-    img = img.scaled(ui->imgShow->width(),ui->imgShow->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
-    ui->imgShow->setPixmap(QPixmap::fromImage(img));
-    b_int_show_cvimage_inlab_finish=true;
+    img = img.scaled(imgShowLabel->width(), imgShowLabel->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
+//    ui->imgShow->setPixmap(QPixmap::fromImage(img));
+    imgShowLabel->showImage(img);
+    b_int_show_cvimage_inlab_finish = true;
 }
 
 void MainWindow::showupdata_tabWidget()
@@ -895,8 +892,6 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
 
     if(finish_line==true)
         {
-            finish_line = false;
-            b_int_show_record_finish = true;
             vtkIdType idtype;
             points = vtkSmartPointer<vtkPoints>::New();
             cells = vtkSmartPointer<vtkCellArray>::New();
@@ -917,7 +912,13 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             polydata->SetVerts(cells);
             polydata->GetPointData()->SetScalars(scalars);
 
-            mapper->SetInputData(polydata);
+//            mapper->SetInputData(polydata);   // ？
+            try {
+                mapper->SetInputData(polydata);
+            }
+            catch (std::exception& e) {
+                std::cout << "错误信息：" << e.what() << std::endl;
+            }
             mapper->ScalarVisibilityOn();
             //mapper->SetScalarModeToUsePointData();
             mapper->SetScalarRange(points->GetBounds()[4], points->GetBounds()[5]);
@@ -931,10 +932,16 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
 //            actor->Modified();
 //            cubeAxesActor->Modified();
 //            scalarBar->Modified();
-            renderer->ResetCamera();
-            ui->pclShow->GetRenderWindow()->Render();
-            ui->pclShow->update();
+            if (camera_reset_once)
+            {
+                camera_reset_once = false;
+                renderer->ResetCamera();
+            }
+            ui->pclShow->GetRenderWindow()->Render();   // ？
+//            ui->pclShow->update();
 
+            finish_line = false;
+            b_int_show_record_finish = true;
         }
 
     // 扫描完成的点云
@@ -1083,7 +1090,18 @@ void MainWindow::InitSetEdit()
     ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
     ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));
 
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+
+    // 按钮可用性初始化
+    ui->applyBtn->setEnabled(false);
+    ui->captureDepthBtn->setEnabled(false);
+    ui->toolBar_right->setEnabled(false);
+    ui->showCam->setEnabled(false);
+    ui->showCenter->setEnabled(false);
+    ui->showTrajectory->setEnabled(false);
+    ui->showPointCloud->setEnabled(false);
+    ui->showDepth->setEnabled(false);
+    ui->saveFile->setEnabled(false);
 }
 
 // modbus
@@ -1111,20 +1129,35 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-    ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
     {
         ui->connectCam->setText("连接相机");
         ui->applyBtn->setEnabled(false);
         ui->captureDepthBtn->setEnabled(false);
-        ui->imgShow->clear();
+        ui->toolBar_right->setEnabled(false);
+        ui->showCam->setEnabled(false);
+        ui->showCenter->setEnabled(false);
+        ui->showTrajectory->setEnabled(false);
+        ui->showPointCloud->setEnabled(false);
+        ui->showDepth->setEnabled(false);
+        ui->saveFile->setEnabled(false);
+        imgShowLabel->clear();
     }
     else
     {
         ui->connectCam->setText("断开相机");
         ui->applyBtn->setEnabled(true);
         ui->captureDepthBtn->setEnabled(true);
+        ui->toolBar_right->setEnabled(true);
+        ui->showCam->setEnabled(true);
+        ui->showCenter->setEnabled(true);
+        ui->showTrajectory->setEnabled(true);
+        ui->showPointCloud->setEnabled(true);
+        ui->showDepth->setEnabled(true);
+        ui->saveFile->setEnabled(true);
+
 
     }
 }
@@ -1172,7 +1205,10 @@ QString MainWindow::save_pcldata_pclclould(pcl::PointCloud<pcl::PointXYZRGB>::Pt
     QString format=".pcd";
     dir=dir+time+format;
     pcl::copyPointCloud(*pclclould,*saveclould);//点云转换
-    pcl::io::savePCDFile(dir.toStdString(),*saveclould);
+    if (saveclould->size() > 0)
+    {
+        pcl::io::savePCDFile(dir.toStdString(), *saveclould);
+    }
     return dir;
 }
 

@@ -15,6 +15,7 @@
 #include <getcurtime.h>
 #include "cambuilddlg.h"
 #include "laser_paramsetingdlg.h"
+#include "label_image_viewer.h"
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
 
@@ -101,8 +102,9 @@ public:
     void showpoint(std::string filename);
     pcl::PointCloud<pcl::PointXYZ>::Ptr pclclould;
     volatile  bool b_int_show_record_finish;
-    // VTK显示点云
+    int indexImgShowLabel;      // 图像显示的窗口索引
 
+    // VTK显示点云
     vtkSmartPointer<vtkNamedColors> colors;
     vtkSmartPointer<vtkEventQtSlotConnect> slotConnector;
     vtkSmartPointer<vtkPoints> points;
@@ -140,6 +142,7 @@ public:
     volatile bool b_init_show_pclclould_list_finish;          //init_show_pclclould_list信号曹空闲
 
     volatile bool finish_line;       // 单条轮廓是否采集完成
+    volatile bool camera_reset_once;    // 仅首次重置相机
     volatile bool finish_cloud;  // 整个点云是否采集完成
 
 private slots:
@@ -154,7 +157,8 @@ private:
 
     ImgWindowShowThread *imgshow_thread;
 
-    laser_paramsetingdlg *paramset;    // 参数设置
+    laser_paramsetingdlg *paramset;     // 参数设置
+    LabelImageViewer * imgShowLabel;        // 自定义图像显示的label
 
     void UpdateUi();  //刷新控件显示和使能
     void InitSetEdit(); //初始化控件数字
