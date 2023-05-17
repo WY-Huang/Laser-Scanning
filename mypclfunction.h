@@ -1,7 +1,7 @@
 #ifndef MYPCLFUNCTION_H
 #define MYPCLFUNCTION_H
 
-#include "global.h"
+// #include "global.h"
 #include <iostream>
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
