@@ -218,8 +218,8 @@ public:
     void write();
 
 private:
-    void read_para();				//读取
-    void check_para();			//检查参数
+    void read_para();			// 读取参数
+    void check_para();			// 检查参数
 };
 
 #endif // E2PROMDATA_H

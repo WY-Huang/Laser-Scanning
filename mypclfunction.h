@@ -2,15 +2,15 @@
 #define MYPCLFUNCTION_H
 
 #include <iostream>
-#include <pcl/common/common_headers.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/visualization/cloud_viewer.h>
-#include <pcl/console/parse.h>
-#include <pcl/range_image/range_image.h>
-#include <pcl/visualization/common/float_image_utils.h>
-#include <pcl/io/png_io.h>
 #include <opencv2/opencv.hpp>
+#include <pcl/common/common_headers.h>
+#include <pcl/console/parse.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/png_io.h>
+#include <pcl/range_image/range_image.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/common/float_image_utils.h>
+#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/range_image_visualizer.h> //深度图像可视化
 
 #include "global.h"

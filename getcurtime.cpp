@@ -10,7 +10,7 @@ GetCurTime::~GetCurTime()
 
 }
 
-
+// 将当前系统时间写入 timeOut
 void GetCurTime::get_time_ms(QString *timeOut)
 {
     struct timeval tv;
