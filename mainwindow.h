@@ -11,7 +11,7 @@
 //#include <vtkCubeAxesActor.h>
 #include <QFileDialog>
 #include <QtCore/QTextCodec>
-#include <showimgpcddlg.h>
+#include "showimgpcddlg.h"
 #include <getcurtime.h>
 #include "cambuilddlg.h"
 #include "laser_paramsetingdlg.h"
