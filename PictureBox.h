@@ -5,6 +5,8 @@
 #include <QImage>
 #include <QPixmap>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QDebug>
 
 
 class PictureBox : public QWidget

@@ -1,7 +1,6 @@
 #ifndef MYPCLFUNCTION_H
 #define MYPCLFUNCTION_H
 
-#include "global.h"
 #include <iostream>
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
@@ -12,9 +11,9 @@
 #include <pcl/visualization/common/float_image_utils.h>
 #include <pcl/io/png_io.h>
 #include <opencv2/opencv.hpp>
-//#include <QVTKWidget.h>
-//#include <QVTKOpenGLWidget.h>
 #include <pcl/visualization/range_image_visualizer.h> //深度图像可视化
+
+#include "global.h"
 #include "tistdtypes.h"
 
 class MyPclFunction

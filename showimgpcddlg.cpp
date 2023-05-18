@@ -1,6 +1,5 @@
 #include "showimgpcddlg.h"
 #include "ui_showimgpcddlg.h"
-#include <vtkActor2DCollection.h>
 
 
 showImgPcdDlg::showImgPcdDlg(QWidget *parent) :

@@ -1,11 +1,10 @@
 ﻿#ifndef CAMBUILDDLG_H
 #define CAMBUILDDLG_H
 
-// #include "global.h"
-
 #include <QDialog>
-#include "my_params.h"
 #include <QKeyEvent>
+
+#include "my_params.h"
 
 
 namespace Ui {

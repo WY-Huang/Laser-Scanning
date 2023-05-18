@@ -1,7 +1,6 @@
 #ifndef CAM_SENSOR_H
 #define CAM_SENSOR_H
 
-// #include "global.h"
 #include "soptopcamera.h"
 
 class my_params;

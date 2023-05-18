@@ -2,12 +2,9 @@
 #define SHOWIMGPCDDLG_H
 
 #include <QDialog>
-#include "opencv2/opencv.hpp"
-#include "mypclfunction.h"
-#include "label_image_viewer.h"
+#include <opencv2/opencv.hpp>
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
-
 #include <vtkExtractSelection.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
@@ -44,7 +41,6 @@
 #include <vtkAxesActor.h>
 #include <vtkCamera.h>
 #include <vtkAssembly.h>
-
 #include <QVTKOpenGLNativeWidget.h>
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
@@ -55,22 +51,24 @@
 #include <pcl/visualization/common/float_image_utils.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
-
 #include <pcl/io/png_io.h>
 #include <vtkColorSeries.h>
 #include <vtkLookupTable.h>
 #include <vtkScalarBarActor.h>
-#include "vtkPropPicker.h"
-#include "vtkCylinderSource.h"
-#include "vtkProperty.h"
-#include "vtkCamera.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDataSetMapper.h"
-#include "vtkHexahedron.h"
+#include <vtkPropPicker.h>
+#include <vtkCylinderSource.h>
+#include <vtkProperty.h>
+#include <vtkCamera.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkDataSetMapper.h>
+#include <vtkHexahedron.h>
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
-
 #include <vtkCellPicker.h>
+#include <vtkActor2DCollection.h>
+
+#include "mypclfunction.h"
+#include "label_image_viewer.h"
 
 namespace Ui {
 class showImgPcdDlg;

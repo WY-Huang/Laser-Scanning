@@ -2,7 +2,9 @@
 #define LASER_PARAMSETINGDLG_H
 
 #include <QDialog>
+
 #include "my_params.h"
+
 
 namespace Ui {
 class laser_paramsetingdlg;

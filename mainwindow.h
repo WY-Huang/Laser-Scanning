@@ -5,20 +5,12 @@
 #include <QLabel>
 #include <QThread>
 #include <opencv2/opencv.hpp>
-#include "rclcpp/rclcpp.hpp"
-#include "my_params.h"
-#include "mypclfunction.h"
-//#include <vtkCubeAxesActor.h>
+#include <rclcpp/rclcpp.hpp>
 #include <QFileDialog>
 #include <QtCore/QTextCodec>
-#include "showimgpcddlg.h"
-#include <getcurtime.h>
-#include "cambuilddlg.h"
-#include "laser_paramsetingdlg.h"
-#include "label_image_viewer.h"
+#include <libssh/libssh.h>
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
-
 #include <vtkExtractSelection.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
@@ -55,7 +47,6 @@
 #include <vtkAxesActor.h>
 #include <vtkCamera.h>
 #include <vtkAssembly.h>
-
 #include <QVTKOpenGLNativeWidget.h>
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
@@ -66,15 +57,21 @@
 #include <pcl/visualization/common/float_image_utils.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
-
 #include <pcl/io/png_io.h>
 #include <vtkColorSeries.h>
 #include <vtkLookupTable.h>
 #include <vtkScalarBarActor.h>
-#include "vtkPropPicker.h"
+#include <vtkPropPicker.h>
 #include <vtkActor2DCollection.h>
 
-#include <libssh/libssh.h>
+#include "my_params.h"
+#include "mypclfunction.h"
+#include "showimgpcddlg.h"
+#include "getcurtime.h"
+#include "cambuilddlg.h"
+#include "laser_paramsetingdlg.h"
+#include "label_image_viewer.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
