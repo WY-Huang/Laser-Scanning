@@ -74,8 +74,7 @@ namespace Ui {
 class showImgPcdDlg;
 }
 
-namespace {
-
+namespace InteractionStyle {
 // Define interaction style
 class MouseInteractorStylePP : public vtkInteractorStyleTrackballCamera
 {
@@ -92,7 +91,8 @@ public:
 //        this->Interactor->SetPicker(cellpicker);
     }
 
-    vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
+    vtkTypeMacro(InteractionStyle::MouseInteractorStylePP, vtkInteractorStyleTrackballCamera)
+
 
     virtual void OnRightButtonDown() override   // 重载鼠标右键事件
     {
@@ -111,11 +111,13 @@ public:
         if(cellpicker->GetCellId() != -1)
         {
             vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
-            std::string s = "Picked: ( "+std::to_string(picked[0])+" ,"+std::to_string(picked[1])+" ,"+std::to_string(picked[2])+" )";
+            std::string s = "Picked: ( "+std::to_string(picked[0])+", "+std::to_string(picked[1])+", "+std::to_string(picked[2])+" )";
 
             textActor->SetInput(s.c_str());
-            textActor->SetPosition2(10, 40);
-            textActor->GetTextProperty()->SetFontSize(24);
+//            textActor->SetPosition2(10, 400);
+            textActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+            textActor->GetPositionCoordinate()->SetValue(0.01, 0.96);
+            textActor->GetTextProperty()->SetFontSize(18);
             textActor->GetTextProperty()->SetColor(colors->GetColor3d("Gold").GetData());
             this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor(textActor);
 
@@ -127,11 +129,8 @@ public:
     }
 
 };
-
-vtkStandardNewMacro(MouseInteractorStylePP);
-
-} // namespace
-
+//vtkStandardNewMacro(InteractionStyle::MouseInteractorStylePP)
+}
 
 class showImgPcdDlg : public QDialog
 {
@@ -159,13 +158,13 @@ public:
     vtkSmartPointer<vtkScalarBarActor> scalarBar;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
     vtkSmartPointer<vtkAxesActor> axes_actor;
-    vtkSmartPointer<MouseInteractorStylePP> style;
+    vtkSmartPointer<InteractionStyle::MouseInteractorStylePP> style;
     vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
     vtkSmartPointer<vtkPropPicker> propPicker;
     vtkSmartPointer<vtkRenderWindowInteractor> iren;
     vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget;
     vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget;
-    vtkPropPicker*  Picker;          // Pointer to the picker
+//    vtkPropPicker*  Picker;          // Pointer to the picker
     void vtk_init();
 
 private:

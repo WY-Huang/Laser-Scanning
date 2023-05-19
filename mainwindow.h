@@ -115,13 +115,13 @@ public:
     vtkSmartPointer<vtkScalarBarActor> scalarBar;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
     vtkSmartPointer<vtkAxesActor> axes_actor;
-    vtkSmartPointer<MouseInteractorStylePP> style;
+    vtkSmartPointer<InteractionStyle::MouseInteractorStylePP> style;
     vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
     vtkSmartPointer<vtkPropPicker> propPicker;
     vtkSmartPointer<vtkRenderWindowInteractor> iren;
     vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget;
     vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget;
-    vtkPropPicker*  Picker;          // Pointer to the picker
+//    vtkPropPicker*  Picker;          // Pointer to the picker
 
     bool b_imgshow_thread;      //线程运行标记
     bool stop_b_imgshow_thread;  //是否成功断开线程

@@ -892,12 +892,16 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
     if(finish_line==true)
         {
             vtkIdType idtype;
-            points = vtkSmartPointer<vtkPoints>::New();
-            cells = vtkSmartPointer<vtkCellArray>::New();
-            polydata = vtkSmartPointer<vtkPolyData>::New();
+            vtkPoints* points = vtkPoints::New();
+            vtkCellArray* cells = vtkCellArray::New();
+            vtkPolyData* polydata = vtkPolyData::New();
+            // 使用智能指针进行操作
+//            points = vtkSmartPointer<vtkPoints>::New();
+//            cells = vtkSmartPointer<vtkCellArray>::New();
+//            polydata = vtkSmartPointer<vtkPolyData>::New();
 
             scalars->SetNumberOfValues(pclclould->size());
-            for (std::size_t i = 0; i < pclclould->points.size (); ++i)
+            for (std::size_t i = 0; i < pclclould->points.size(); ++i)
             {
                 idtype = points->InsertNextPoint(pclclould->points[i].x,
                                                  pclclould->points[i].y,
@@ -911,13 +915,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             polydata->SetVerts(cells);
             polydata->GetPointData()->SetScalars(scalars);
 
-//            mapper->SetInputData(polydata);   // ？
-            try {
-                mapper->SetInputData(polydata);
-            }
-            catch (std::exception& e) {
-                std::cout << "错误信息：" << e.what() << std::endl;
-            }
+            mapper->SetInputData(polydata);   // err
             mapper->ScalarVisibilityOn();
             //mapper->SetScalarModeToUsePointData();
             mapper->SetScalarRange(points->GetBounds()[4], points->GetBounds()[5]);
@@ -928,19 +926,19 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
 
-//            actor->Modified();
-//            cubeAxesActor->Modified();
-//            scalarBar->Modified();
             if (camera_reset_once)
             {
                 camera_reset_once = false;
                 renderer->ResetCamera();
             }
-            ui->pclShow->GetRenderWindow()->Render();   // ？
-//            ui->pclShow->update();
+            ui->pclShow->GetRenderWindow()->Render();   // err
 
             finish_line = false;
             b_int_show_record_finish = true;
+
+            points->Delete();
+            cells->Delete();
+            polydata->Delete();
         }
 
     // 扫描完成的点云
@@ -979,12 +977,9 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
 
-//            actor->Modified();
-//            cubeAxesActor->Modified();
-//            scalarBar->Modified();
             renderer->ResetCamera();
             ui->pclShow->GetRenderWindow()->Render();
-            ui->pclShow->update();
+//            ui->pclShow->update();
 
         }
 
@@ -1001,8 +996,8 @@ void MainWindow::vtk_init()
     colors = vtkSmartPointer<vtkNamedColors>::New();
     cubeAxesActor = vtkSmartPointer<vtkCubeAxesActor>::New();
 //    points = vtkSmartPointer<vtkPoints>::New();
-    cells = vtkSmartPointer<vtkCellArray>::New();
-    polydata = vtkSmartPointer<vtkPolyData>::New();
+//    cells = vtkSmartPointer<vtkCellArray>::New();
+//    polydata = vtkSmartPointer<vtkPolyData>::New();
     scalars = vtkSmartPointer<vtkFloatArray>::New();
     lut = vtkSmartPointer<vtkLookupTable>::New();
     mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -1011,7 +1006,7 @@ void MainWindow::vtk_init()
     scalarBar = vtkSmartPointer<vtkScalarBarActor>::New();
     scalarBarWidget = vtkSmartPointer<vtkScalarBarWidget>::New();
 
-    style = vtkSmartPointer<MouseInteractorStylePP>::New();
+    style = vtkSmartPointer<InteractionStyle::MouseInteractorStylePP>::New();
     iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     axes_actor = vtkSmartPointer<vtkAxesActor>::New();
     axes_actorWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
@@ -1030,7 +1025,7 @@ void MainWindow::vtk_init()
     iren = ui->pclShow->GetRenderWindow()->GetInteractor(); // 交互
     iren->SetInteractorStyle(style);
 
-    //
+    // 坐标轴及网格显示控制
     cubeAxesActor->SetScreenSize(10);
     cubeAxesActor->DrawZGridlinesOff();
     cubeAxesActor->DrawXGridlinesOn();
@@ -1056,8 +1051,8 @@ void MainWindow::vtk_init()
     scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
     scalarBar->SetLabelFormat("%.3f");
 
-    renderer->AddActor(cubeAxesActor);
     renderer->AddActor(actor);
+    renderer->AddActor(cubeAxesActor);
     renderer->AddActor2D(scalarBar);
     //
 
@@ -1128,7 +1123,7 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+//    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
     {
