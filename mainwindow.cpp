@@ -215,6 +215,11 @@ MainWindow::MainWindow(QWidget *parent)
 //           UpdateUi();
        });
 
+    // 点云选两点测距按钮
+    connect(ui->actiondisMeasure, &QAction::toggled, this, [=](bool checked){
+        doDisMeasure(checked);
+    });
+
     // 点云数据视图设置的工具栏
      connect(ui->actionbackward,&QAction::triggered, this, [=]()
        {
@@ -931,7 +936,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
                 camera_reset_once = false;
                 renderer->ResetCamera();
             }
-            ui->pclShow->GetRenderWindow()->Render();   // err
+            ui->pclShow->GetRenderWindow()->Render();   // err 2
 
             finish_line = false;
             b_int_show_record_finish = true;
@@ -1123,7 +1128,7 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-//    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
     {
@@ -1247,4 +1252,18 @@ void MainWindow::slot_timer_tragetor_clould()
     m_mcs->resultdata.b_deepimg_showclould_finish=true;
     m_mcs->resultdata.b_deepimg_pushoneline=false;
     ui->captureDepthBtn->setText("一键采集");
+}
+
+void MainWindow::doDisMeasure(bool checked)
+{
+   if (checked)
+   {
+       style->recordPoint = true;
+       style->clearDis = false;
+   }
+   else
+   {
+       style->recordPoint = false;
+       style->clearDis = true;
+   }
 }

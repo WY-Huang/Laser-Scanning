@@ -18,5 +18,6 @@
         <file>icons/huifuxitongmoren.png</file>
         <file>icons/right.png</file>
         <file>icons/down.png</file>
+        <file>icons/views/ceju.png</file>
     </qresource>
 </RCC>

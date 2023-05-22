@@ -148,6 +148,8 @@ private slots:
 //    void int_show_record(QString msg);
     void slot_timer_tragetor_clould();      //轨迹进入点云的定时器中断函数
 
+    void doDisMeasure(bool value);
+
 private:
     Ui::MainWindow *ui;
     showImgPcdDlg * showImgPcd;
