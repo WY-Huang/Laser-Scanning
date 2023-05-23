@@ -39,7 +39,10 @@ namespace InteractionStyle
         cellpicker->GetPickPosition(picked);
         this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->RemoveActor(textActor);
         if (clearDis)
+        {
             this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->RemoveActor(textActor2);
+        }
+
         // std::cout << cellpicker->GetCellId() << std::endl;
         if(cellpicker->GetCellId() != -1)
         {
@@ -293,6 +296,7 @@ void showImgPcdDlg::vtk_init()
     cubeAxesActor->SetDrawXInnerGridlines(false);
     cubeAxesActor->SetDrawYInnerGridlines(false);
     cubeAxesActor->SetDrawZInnerGridlines(false);
+    cubeAxesActor->SetFlyMode(2);
     cubeAxesActor->SetGridLineLocation(2);
     cubeAxesActor->XAxisMinorTickVisibilityOff();
     cubeAxesActor->YAxisMinorTickVisibilityOff();

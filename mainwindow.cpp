@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     finish_line = false;
     camera_reset_once = true;   // 首次重置相机视角
     finish_cloud = false;
+    updateVTKShow = true;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
     b_init_show_pclclould_list_finish=true;
@@ -347,70 +348,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 重启按钮
-    connect(ui->action_restart, &QAction::triggered, this, [=](){
-
-        ssh_session session;
-        int rc;
-        // 初始化SSH会话
-        session = ssh_new();
-        if (session == NULL) {
-            std::cerr << "Failed to create SSH session" << std::endl;
-            return 1;
-        }
-        // 设置SSH连接选项
-        ssh_options_set(session, SSH_OPTIONS_HOST, "192.168.1.2");
-        ssh_options_set(session, SSH_OPTIONS_USER, "pi");
-        // 连接到下位机
-        rc = ssh_connect(session);
-        if (rc != SSH_OK) {
-            std::cerr << "Failed to connect to the host" << std::endl;
-            ssh_free(session);
-            return 1;
-        }
-        // 认证
-        rc = ssh_userauth_password(session, NULL, "123456");
-        if (rc != SSH_AUTH_SUCCESS) {
-            std::cerr << "Failed to authenticate" << std::endl;
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        // 执行Docker命令来重启指定的容器
-        ssh_channel channel;
-        channel = ssh_channel_new(session);
-        if (channel == NULL) {
-            std::cerr << "Failed to create SSH channel" << std::endl;
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        rc = ssh_channel_open_session(channel);
-        if (rc != SSH_OK) {
-            std::cerr << "Failed to open SSH channel" << std::endl;
-            ssh_channel_free(channel);
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        // 重启容器
-        std::string command = "sudo docker-compose restart";
-        rc = ssh_channel_request_exec(channel, command.c_str());
-        if (rc != SSH_OK) {
-            std::cerr << "Failed to execute command: " << command << std::endl;
-            ssh_channel_close(channel);
-            ssh_channel_free(channel);
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        // 关闭连接和会话
-        ssh_channel_send_eof(channel);
-        ssh_channel_close(channel);
-        ssh_channel_free(channel);
-        ssh_disconnect(session);
-        ssh_free(session);
-
-    });
+    connect(ui->action_restart, &QAction::triggered, this, &MainWindow::doDockerRestart);
 
     // 恢复至默认视图大小
 //    connect(default_img_button, &QPushButton::clicked, this, [=](){
@@ -894,13 +832,13 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         return;
     }
 
-    if(finish_line==true)
+    if(finish_line==true && updateVTKShow)
         {
+            // 清空数据
+            points->Reset();
+            cells->Reset();
+            polydata->Initialize();
             vtkIdType idtype;
-            vtkPoints* points = vtkPoints::New();
-            vtkCellArray* cells = vtkCellArray::New();
-            vtkPolyData* polydata = vtkPolyData::New();
-            // 使用智能指针进行操作
 //            points = vtkSmartPointer<vtkPoints>::New();
 //            cells = vtkSmartPointer<vtkCellArray>::New();
 //            polydata = vtkSmartPointer<vtkPolyData>::New();
@@ -936,14 +874,12 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
                 camera_reset_once = false;
                 renderer->ResetCamera();
             }
-            ui->pclShow->GetRenderWindow()->Render();   // err 2
+            ui->pclShow->GetRenderWindow()->Render();   // err 3
 
             finish_line = false;
             b_int_show_record_finish = true;
 
-            points->Delete();
-            cells->Delete();
-            polydata->Delete();
+
         }
 
     // 扫描完成的点云
@@ -1000,9 +936,9 @@ void MainWindow::vtk_init()
 
     colors = vtkSmartPointer<vtkNamedColors>::New();
     cubeAxesActor = vtkSmartPointer<vtkCubeAxesActor>::New();
-//    points = vtkSmartPointer<vtkPoints>::New();
-//    cells = vtkSmartPointer<vtkCellArray>::New();
-//    polydata = vtkSmartPointer<vtkPolyData>::New();
+    points = vtkSmartPointer<vtkPoints>::New();
+    cells = vtkSmartPointer<vtkCellArray>::New();
+    polydata = vtkSmartPointer<vtkPolyData>::New();
     scalars = vtkSmartPointer<vtkFloatArray>::New();
     lut = vtkSmartPointer<vtkLookupTable>::New();
     mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -1016,6 +952,7 @@ void MainWindow::vtk_init()
     axes_actor = vtkSmartPointer<vtkAxesActor>::New();
     axes_actorWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
     renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+//    textActorFPS = vtkSmartPointer<vtkTextActor>::New();
 
     ui->pclShow->SetRenderWindow(renderWindow); // 设置渲染窗口
     style->SetDefaultRenderer(renderer);        // 将 renderer 设置为默认的渲染器
@@ -1038,6 +975,7 @@ void MainWindow::vtk_init()
     cubeAxesActor->SetDrawXInnerGridlines(false);
     cubeAxesActor->SetDrawYInnerGridlines(false);
     cubeAxesActor->SetDrawZInnerGridlines(false);
+    cubeAxesActor->SetFlyMode(2);
     cubeAxesActor->SetGridLineLocation(2);
     cubeAxesActor->XAxisMinorTickVisibilityOff();
     cubeAxesActor->YAxisMinorTickVisibilityOff();
@@ -1059,6 +997,7 @@ void MainWindow::vtk_init()
     renderer->AddActor(actor);
     renderer->AddActor(cubeAxesActor);
     renderer->AddActor2D(scalarBar);
+//    renderer->AddActor(textActorFPS);
     //
 
     vtkCamera* camera = renderer->GetActiveCamera();
@@ -1254,16 +1193,85 @@ void MainWindow::slot_timer_tragetor_clould()
     ui->captureDepthBtn->setText("一键采集");
 }
 
+// 控制距离测量按钮是否执行
 void MainWindow::doDisMeasure(bool checked)
 {
    if (checked)
    {
+       updateVTKShow = false;
        style->recordPoint = true;
        style->clearDis = false;
    }
    else
    {
+       updateVTKShow = true;
        style->recordPoint = false;
        style->clearDis = true;
+       style->twoPoints.clear();
    }
+}
+
+void MainWindow::doDockerRestart()
+{
+    ssh_session session;
+    int rc;
+    // 初始化SSH会话
+    session = ssh_new();
+    if (session == NULL) {
+        std::cout << "Failed to create SSH session" << std::endl;
+        return ;
+    }
+    // 设置SSH连接选项
+    ssh_options_set(session, SSH_OPTIONS_HOST, "192.168.1.2");
+    ssh_options_set(session, SSH_OPTIONS_USER, "pi");
+    // 连接到下位机
+    rc = ssh_connect(session);
+    if (rc != SSH_OK) {
+        std::cout << "Failed to connect to the host" << std::endl;
+        ssh_free(session);
+        return ;
+    }
+    // 认证
+    rc = ssh_userauth_password(session, NULL, "123456");
+    if (rc != SSH_AUTH_SUCCESS) {
+        std::cout << "Failed to authenticate" << std::endl;
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 执行Docker命令来重启指定的容器
+    ssh_channel channel;
+    channel = ssh_channel_new(session);
+    if (channel == NULL) {
+        std::cout << "Failed to create SSH channel" << std::endl;
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 开启会话通道
+    rc = ssh_channel_open_session(channel);
+    if (rc != SSH_OK) {
+        std::cout << "Failed to open SSH channel" << std::endl;
+        ssh_channel_free(channel);
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 执行重启容器命令（无法执行需要sudo权限）
+    std::string command = "docker-compose restart";
+    rc = ssh_channel_request_exec(channel, command.c_str());
+    if (rc != SSH_OK) {
+        std::cout << "Failed to execute command: " << command << std::endl;
+        ssh_channel_close(channel);
+        ssh_channel_free(channel);
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 关闭连接和会话
+    ssh_channel_send_eof(channel);
+    ssh_channel_close(channel);
+    ssh_channel_free(channel);
+    ssh_disconnect(session);
+    ssh_free(session);
 }

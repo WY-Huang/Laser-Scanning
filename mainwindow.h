@@ -121,6 +121,7 @@ public:
     vtkSmartPointer<vtkRenderWindowInteractor> iren;
     vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget;
     vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget;
+//    vtkSmartPointer<vtkTextActor> textActorFPS;
 //    vtkPropPicker*  Picker;          // Pointer to the picker
 
     bool b_imgshow_thread;      //线程运行标记
@@ -141,6 +142,7 @@ public:
     volatile bool finish_line;       // 单条轮廓是否采集完成
     volatile bool camera_reset_once;    // 仅首次重置相机
     volatile bool finish_cloud;  // 整个点云是否采集完成
+    volatile bool updateVTKShow;    // 是否刷新轮廓显示窗口
 
 private slots:
     void int_show_cvimage_inlab(cv::Mat cv_image);// 显示图像
@@ -148,7 +150,8 @@ private slots:
 //    void int_show_record(QString msg);
     void slot_timer_tragetor_clould();      //轨迹进入点云的定时器中断函数
 
-    void doDisMeasure(bool value);
+    void doDisMeasure(bool value);      // 两点距离测量
+    void doDockerRestart();         // 重启docker镜像
 
 private:
     Ui::MainWindow *ui;
