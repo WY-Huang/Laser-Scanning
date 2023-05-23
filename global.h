@@ -47,4 +47,12 @@
 //显示图像处理步骤
 #define ALS_SHOW_STEP_REG_ADD                  0x018f
 
+// 软件用户参数保存
+#define SOPTOPCAM_SAVEBUFF		32
+#define SOPTOPCAM_SYSPATH_MOTO	"./SAVE/SOPTOPCAM.bsd"
+
+#define SOPTOPCAM_EXPOSURE_MAX    65535
+#define SOPTOPCAM_EXPOSURE_USE    10000
+#define SOPTOPCAM_EXPOSURE_MIN    20
+
 #endif // GLOBAL_H

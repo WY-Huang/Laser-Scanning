@@ -7,6 +7,7 @@
 #include <time.h>
 #include <QString>
 
+
 // 保存图像和点云时，用当前系统时间给文件命名
 class GetCurTime
 {

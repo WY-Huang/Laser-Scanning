@@ -2,12 +2,9 @@
 #define SHOWIMGPCDDLG_H
 
 #include <QDialog>
-#include "opencv2/opencv.hpp"
-#include "mypclfunction.h"
-#include "label_image_viewer.h"
+#include <opencv2/opencv.hpp>
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
-
 #include <vtkExtractSelection.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
@@ -44,7 +41,6 @@
 #include <vtkAxesActor.h>
 #include <vtkCamera.h>
 #include <vtkAssembly.h>
-
 #include <QVTKOpenGLNativeWidget.h>
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
@@ -55,85 +51,68 @@
 #include <pcl/visualization/common/float_image_utils.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
-
 #include <pcl/io/png_io.h>
 #include <vtkColorSeries.h>
 #include <vtkLookupTable.h>
 #include <vtkScalarBarActor.h>
-#include "vtkPropPicker.h"
-#include "vtkCylinderSource.h"
-#include "vtkProperty.h"
-#include "vtkCamera.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDataSetMapper.h"
-#include "vtkHexahedron.h"
+#include <vtkPropPicker.h>
+#include <vtkCylinderSource.h>
+#include <vtkProperty.h>
+#include <vtkCamera.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkDataSetMapper.h>
+#include <vtkHexahedron.h>
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
-
 #include <vtkCellPicker.h>
+#include <vtkActor2DCollection.h>
 
+#include <vector>
+
+#include "mypclfunction.h"
+#include "label_image_viewer.h"
+
+//using namespace std;
 namespace Ui {
 class showImgPcdDlg;
 }
 
-namespace {
-
+namespace InteractionStyle {
 // Define interaction style
 class MouseInteractorStylePP : public vtkInteractorStyleTrackballCamera
 {
 public:
     static MouseInteractorStylePP* New();
     vtkSmartPointer<vtkTextActor> textActor;
+    vtkSmartPointer<vtkTextActor> textActor2;
     vtkSmartPointer<vtkCellPicker> cellpicker;
 
-    MouseInteractorStylePP()    // 构造函数
-    {
-        textActor = vtkSmartPointer<vtkTextActor>::New();
-        cellpicker = vtkSmartPointer<vtkCellPicker>::New();
-        cellpicker->SetTolerance(0.005);
-//        this->Interactor->SetPicker(cellpicker);
-    }
+    std::vector<double> twoPoints;
+    double picked[3];
+    bool clearDis;
+    bool recordPoint;
 
-    vtkTypeMacro(MouseInteractorStylePP, vtkInteractorStyleTrackballCamera);
+    MouseInteractorStylePP();
 
-    virtual void OnRightButtonDown() override   // 重载鼠标右键事件
-    {
-//        std::cout << "Picking pixel: " << this->Interactor->GetEventPosition()[0]
-//                  << " " << this->Interactor->GetEventPosition()[1] << "\t";
-        cellpicker->Pick(this->Interactor->GetEventPosition()[0],
-                                            this->Interactor->GetEventPosition()[1],
-                                            0, // always zero.
-                                            this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer());
+    void twoPointsDisCal();
 
-        double picked[3];
-        cellpicker->GetPickPosition(picked);
-        this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->RemoveActor(textActor);
+    vtkTypeMacro(InteractionStyle::MouseInteractorStylePP, vtkInteractorStyleTrackballCamera)
 
-//        std::cout << cellpicker->GetCellId() << std::endl;
-        if(cellpicker->GetCellId() != -1)
-        {
-            vtkSmartPointer<vtkNamedColors> colors = vtkSmartPointer<vtkNamedColors>::New();
-            std::string s = "Picked: ( "+std::to_string(picked[0])+" ,"+std::to_string(picked[1])+" ,"+std::to_string(picked[2])+" )";
+    virtual void OnRightButtonDown() override;
 
-            textActor->SetInput(s.c_str());
-            textActor->SetPosition2(10, 40);
-            textActor->GetTextProperty()->SetFontSize(24);
-            textActor->GetTextProperty()->SetColor(colors->GetColor3d("Gold").GetData());
-            this->Interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor(textActor);
+private:
+    double disXX;
+    double disYY;
+    double disZZ;
+    double disXY;
+    double disXZ;
+    double disYZ;
+    double disXYZ;
 
-//            std::cout << "Value: " << picked[0] << " " << picked[1] << " " << picked[2] << std::endl;
-        }
-
-        // Forward events
-        vtkInteractorStyleTrackballCamera::OnRightButtonDown();
-    }
 
 };
-
-vtkStandardNewMacro(MouseInteractorStylePP);
-
-} // namespace
-
+//vtkStandardNewMacro(InteractionStyle::MouseInteractorStylePP)
+}
 
 class showImgPcdDlg : public QDialog
 {
@@ -161,13 +140,13 @@ public:
     vtkSmartPointer<vtkScalarBarActor> scalarBar;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
     vtkSmartPointer<vtkAxesActor> axes_actor;
-    vtkSmartPointer<MouseInteractorStylePP> style;
+    vtkSmartPointer<InteractionStyle::MouseInteractorStylePP> style;
     vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
     vtkSmartPointer<vtkPropPicker> propPicker;
     vtkSmartPointer<vtkRenderWindowInteractor> iren;
     vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget;
     vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget;
-    vtkPropPicker*  Picker;          // Pointer to the picker
+//    vtkPropPicker*  Picker;          // Pointer to the picker
     void vtk_init();
 
 private:

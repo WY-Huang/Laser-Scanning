@@ -158,7 +158,7 @@
    <property name="font">
     <font>
      <pointsize>12</pointsize>
-     <bold>true</bold>
+     <bold>false</bold>
      <underline>false</underline>
     </font>
    </property>
@@ -532,6 +532,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actiondisMeasure"/>
+   <addaction name="separator"/>
    <addaction name="actionup"/>
    <addaction name="actiondown"/>
    <addaction name="actionleft"/>
@@ -716,6 +718,21 @@
   <action name="action_restart">
    <property name="text">
     <string>重启</string>
+   </property>
+  </action>
+  <action name="actiondisMeasure">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/ceju.png</normaloff>:/toolbar_ico/icons/views/ceju.png</iconset>
+   </property>
+   <property name="text">
+    <string>disMeasure</string>
+   </property>
+   <property name="toolTip">
+    <string>测量两点间的距离</string>
    </property>
   </action>
  </widget>

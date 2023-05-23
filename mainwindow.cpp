@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "QDebug"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -24,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     finish_line = false;
     camera_reset_once = true;   // 首次重置相机视角
     finish_cloud = false;
+    updateVTKShow = true;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
     b_init_show_pclclould_list_finish=true;
@@ -216,6 +216,11 @@ MainWindow::MainWindow(QWidget *parent)
 //           UpdateUi();
        });
 
+    // 点云选两点测距按钮
+    connect(ui->actiondisMeasure, &QAction::toggled, this, [=](bool checked){
+        doDisMeasure(checked);
+    });
+
     // 点云数据视图设置的工具栏
      connect(ui->actionbackward,&QAction::triggered, this, [=]()
        {
@@ -343,70 +348,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // 重启按钮
-    connect(ui->action_restart, &QAction::triggered, this, [=](){
-
-        ssh_session session;
-        int rc;
-        // 初始化SSH会话
-        session = ssh_new();
-        if (session == NULL) {
-            std::cerr << "Failed to create SSH session" << std::endl;
-            return 1;
-        }
-        // 设置SSH连接选项
-        ssh_options_set(session, SSH_OPTIONS_HOST, "192.168.1.2");
-        ssh_options_set(session, SSH_OPTIONS_USER, "pi");
-        // 连接到下位机
-        rc = ssh_connect(session);
-        if (rc != SSH_OK) {
-            std::cerr << "Failed to connect to the host" << std::endl;
-            ssh_free(session);
-            return 1;
-        }
-        // 认证
-        rc = ssh_userauth_password(session, NULL, "123456");
-        if (rc != SSH_AUTH_SUCCESS) {
-            std::cerr << "Failed to authenticate" << std::endl;
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        // 执行Docker命令来重启指定的容器
-        ssh_channel channel;
-        channel = ssh_channel_new(session);
-        if (channel == NULL) {
-            std::cerr << "Failed to create SSH channel" << std::endl;
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        rc = ssh_channel_open_session(channel);
-        if (rc != SSH_OK) {
-            std::cerr << "Failed to open SSH channel" << std::endl;
-            ssh_channel_free(channel);
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        // 重启容器
-        std::string command = "sudo docker-compose restart";
-        rc = ssh_channel_request_exec(channel, command.c_str());
-        if (rc != SSH_OK) {
-            std::cerr << "Failed to execute command: " << command << std::endl;
-            ssh_channel_close(channel);
-            ssh_channel_free(channel);
-            ssh_disconnect(session);
-            ssh_free(session);
-            return 1;
-        }
-        // 关闭连接和会话
-        ssh_channel_send_eof(channel);
-        ssh_channel_close(channel);
-        ssh_channel_free(channel);
-        ssh_disconnect(session);
-        ssh_free(session);
-
-    });
+    connect(ui->action_restart, &QAction::triggered, this, &MainWindow::doDockerRestart);
 
     // 恢复至默认视图大小
 //    connect(default_img_button, &QPushButton::clicked, this, [=](){
@@ -890,15 +832,19 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         return;
     }
 
-    if(finish_line==true)
+    if(finish_line==true && updateVTKShow)
         {
+            // 清空数据
+            points->Reset();
+            cells->Reset();
+            polydata->Initialize();
             vtkIdType idtype;
-            points = vtkSmartPointer<vtkPoints>::New();
-            cells = vtkSmartPointer<vtkCellArray>::New();
-            polydata = vtkSmartPointer<vtkPolyData>::New();
+//            points = vtkSmartPointer<vtkPoints>::New();
+//            cells = vtkSmartPointer<vtkCellArray>::New();
+//            polydata = vtkSmartPointer<vtkPolyData>::New();
 
             scalars->SetNumberOfValues(pclclould->size());
-            for (std::size_t i = 0; i < pclclould->points.size (); ++i)
+            for (std::size_t i = 0; i < pclclould->points.size(); ++i)
             {
                 idtype = points->InsertNextPoint(pclclould->points[i].x,
                                                  pclclould->points[i].y,
@@ -912,13 +858,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             polydata->SetVerts(cells);
             polydata->GetPointData()->SetScalars(scalars);
 
-//            mapper->SetInputData(polydata);   // ？
-            try {
-                mapper->SetInputData(polydata);
-            }
-            catch (std::exception& e) {
-                std::cout << "错误信息：" << e.what() << std::endl;
-            }
+            mapper->SetInputData(polydata);   // err
             mapper->ScalarVisibilityOn();
             //mapper->SetScalarModeToUsePointData();
             mapper->SetScalarRange(points->GetBounds()[4], points->GetBounds()[5]);
@@ -929,19 +869,17 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
 
-//            actor->Modified();
-//            cubeAxesActor->Modified();
-//            scalarBar->Modified();
             if (camera_reset_once)
             {
                 camera_reset_once = false;
                 renderer->ResetCamera();
             }
-            ui->pclShow->GetRenderWindow()->Render();   // ？
-//            ui->pclShow->update();
+            ui->pclShow->GetRenderWindow()->Render();   // err 3
 
             finish_line = false;
             b_int_show_record_finish = true;
+
+
         }
 
     // 扫描完成的点云
@@ -980,12 +918,9 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
 
-//            actor->Modified();
-//            cubeAxesActor->Modified();
-//            scalarBar->Modified();
             renderer->ResetCamera();
             ui->pclShow->GetRenderWindow()->Render();
-            ui->pclShow->update();
+//            ui->pclShow->update();
 
         }
 
@@ -1001,7 +936,7 @@ void MainWindow::vtk_init()
 
     colors = vtkSmartPointer<vtkNamedColors>::New();
     cubeAxesActor = vtkSmartPointer<vtkCubeAxesActor>::New();
-//    points = vtkSmartPointer<vtkPoints>::New();
+    points = vtkSmartPointer<vtkPoints>::New();
     cells = vtkSmartPointer<vtkCellArray>::New();
     polydata = vtkSmartPointer<vtkPolyData>::New();
     scalars = vtkSmartPointer<vtkFloatArray>::New();
@@ -1012,11 +947,12 @@ void MainWindow::vtk_init()
     scalarBar = vtkSmartPointer<vtkScalarBarActor>::New();
     scalarBarWidget = vtkSmartPointer<vtkScalarBarWidget>::New();
 
-    style = vtkSmartPointer<MouseInteractorStylePP>::New();
+    style = vtkSmartPointer<InteractionStyle::MouseInteractorStylePP>::New();
     iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     axes_actor = vtkSmartPointer<vtkAxesActor>::New();
     axes_actorWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
     renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+//    textActorFPS = vtkSmartPointer<vtkTextActor>::New();
 
     ui->pclShow->SetRenderWindow(renderWindow); // 设置渲染窗口
     style->SetDefaultRenderer(renderer);        // 将 renderer 设置为默认的渲染器
@@ -1031,7 +967,7 @@ void MainWindow::vtk_init()
     iren = ui->pclShow->GetRenderWindow()->GetInteractor(); // 交互
     iren->SetInteractorStyle(style);
 
-    //
+    // 坐标轴及网格显示控制
     cubeAxesActor->SetScreenSize(10);
     cubeAxesActor->DrawZGridlinesOff();
     cubeAxesActor->DrawXGridlinesOn();
@@ -1039,6 +975,7 @@ void MainWindow::vtk_init()
     cubeAxesActor->SetDrawXInnerGridlines(false);
     cubeAxesActor->SetDrawYInnerGridlines(false);
     cubeAxesActor->SetDrawZInnerGridlines(false);
+    cubeAxesActor->SetFlyMode(2);
     cubeAxesActor->SetGridLineLocation(2);
     cubeAxesActor->XAxisMinorTickVisibilityOff();
     cubeAxesActor->YAxisMinorTickVisibilityOff();
@@ -1057,9 +994,10 @@ void MainWindow::vtk_init()
     scalarBar->GetPositionCoordinate()->SetValue(0.9, 0.2);         // 设置ColorBarActor的位置
     scalarBar->SetLabelFormat("%.3f");
 
-    renderer->AddActor(cubeAxesActor);
     renderer->AddActor(actor);
+    renderer->AddActor(cubeAxesActor);
     renderer->AddActor2D(scalarBar);
+//    renderer->AddActor(textActorFPS);
     //
 
     vtkCamera* camera = renderer->GetActiveCamera();
@@ -1253,4 +1191,87 @@ void MainWindow::slot_timer_tragetor_clould()
     m_mcs->resultdata.b_deepimg_showclould_finish=true;
     m_mcs->resultdata.b_deepimg_pushoneline=false;
     ui->captureDepthBtn->setText("一键采集");
+}
+
+// 控制距离测量按钮是否执行
+void MainWindow::doDisMeasure(bool checked)
+{
+   if (checked)
+   {
+       updateVTKShow = false;
+       style->recordPoint = true;
+       style->clearDis = false;
+   }
+   else
+   {
+       updateVTKShow = true;
+       style->recordPoint = false;
+       style->clearDis = true;
+       style->twoPoints.clear();
+   }
+}
+
+void MainWindow::doDockerRestart()
+{
+    ssh_session session;
+    int rc;
+    // 初始化SSH会话
+    session = ssh_new();
+    if (session == NULL) {
+        std::cout << "Failed to create SSH session" << std::endl;
+        return ;
+    }
+    // 设置SSH连接选项
+    ssh_options_set(session, SSH_OPTIONS_HOST, "192.168.1.2");
+    ssh_options_set(session, SSH_OPTIONS_USER, "pi");
+    // 连接到下位机
+    rc = ssh_connect(session);
+    if (rc != SSH_OK) {
+        std::cout << "Failed to connect to the host" << std::endl;
+        ssh_free(session);
+        return ;
+    }
+    // 认证
+    rc = ssh_userauth_password(session, NULL, "123456");
+    if (rc != SSH_AUTH_SUCCESS) {
+        std::cout << "Failed to authenticate" << std::endl;
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 执行Docker命令来重启指定的容器
+    ssh_channel channel;
+    channel = ssh_channel_new(session);
+    if (channel == NULL) {
+        std::cout << "Failed to create SSH channel" << std::endl;
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 开启会话通道
+    rc = ssh_channel_open_session(channel);
+    if (rc != SSH_OK) {
+        std::cout << "Failed to open SSH channel" << std::endl;
+        ssh_channel_free(channel);
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 执行重启容器命令（无法执行需要sudo权限）
+    std::string command = "docker-compose restart";
+    rc = ssh_channel_request_exec(channel, command.c_str());
+    if (rc != SSH_OK) {
+        std::cout << "Failed to execute command: " << command << std::endl;
+        ssh_channel_close(channel);
+        ssh_channel_free(channel);
+        ssh_disconnect(session);
+        ssh_free(session);
+        return ;
+    }
+    // 关闭连接和会话
+    ssh_channel_send_eof(channel);
+    ssh_channel_close(channel);
+    ssh_channel_free(channel);
+    ssh_disconnect(session);
+    ssh_free(session);
 }

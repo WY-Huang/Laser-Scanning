@@ -1,10 +1,12 @@
 #ifndef MY_PARAMS_H
 #define MY_PARAMS_H
+
 #include <opencv2/opencv.hpp>
+
 #include "cam_sensor.h"
-#include "soptopcamera.h"
 #include "e2promdata.h"
 #include "resultdata.h"
+
 
 class Cam_Sensor;
 

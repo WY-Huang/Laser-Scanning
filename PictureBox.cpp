@@ -1,6 +1,6 @@
 #include "PictureBox.h"
-#include <QPainter>
-#include <QDebug>
+
+
 static const int IMAGE_WIDTH = 160;
 static const int IMAGE_HEIGHT = 120;
 static const QSize IMAGE_SIZE = QSize(IMAGE_WIDTH, IMAGE_HEIGHT);

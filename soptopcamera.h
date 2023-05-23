@@ -1,34 +1,29 @@
 #ifndef SOPTOPCAMERA_H
 #define SOPTOPCAMERA_H
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include "std_msgs/msg/header.hpp"
+#include <std_msgs/msg/header.hpp>
 #include <cv_bridge/cv_bridge.h>
 
-#include "tutorial_interfaces/msg/if_algorhmitcloud.hpp"
-#include "tutorial_interfaces/msg/if_algorhmitmsg.hpp"
+#include <tutorial_interfaces/msg/if_algorhmitcloud.hpp>
+#include <tutorial_interfaces/msg/if_algorhmitmsg.hpp>
 
 #include <opencv2/opencv.hpp>
 #include <QObject>
 #include <QThread>
 #include <QLabel>
-#include "fileout.h"
 #include <QTimerEvent>
+
 #include "global.h"
+#include "fileout.h"
 // qjq
 #include "opencv2/core/mat.hpp"
 #include <QTimer>
 #include <QProcess>
 #include "PictureBox.h"
 
-#define SOPTOPCAM_SAVEBUFF		32
-#define SOPTOPCAM_SYSPATH_MOTO	"./SAVE/SOPTOPCAM.bsd"
-
-#define SOPTOPCAM_EXPOSURE_MAX    65535
-#define SOPTOPCAM_EXPOSURE_USE    10000
-#define SOPTOPCAM_EXPOSURE_MIN    20
 
 using std::placeholders::_1;
 using std::placeholders::_2;

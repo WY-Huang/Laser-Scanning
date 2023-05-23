@@ -5,20 +5,12 @@
 #include <QLabel>
 #include <QThread>
 #include <opencv2/opencv.hpp>
-#include "rclcpp/rclcpp.hpp"
-#include "my_params.h"
-#include "mypclfunction.h"
-//#include <vtkCubeAxesActor.h>
+#include <rclcpp/rclcpp.hpp>
 #include <QFileDialog>
 #include <QtCore/QTextCodec>
-#include <showimgpcddlg.h>
-#include <getcurtime.h>
-#include "cambuilddlg.h"
-#include "laser_paramsetingdlg.h"
-#include "label_image_viewer.h"
+#include <libssh/libssh.h>
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
-
 #include <vtkExtractSelection.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
@@ -55,7 +47,6 @@
 #include <vtkAxesActor.h>
 #include <vtkCamera.h>
 #include <vtkAssembly.h>
-
 #include <QVTKOpenGLNativeWidget.h>
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
@@ -66,15 +57,21 @@
 #include <pcl/visualization/common/float_image_utils.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/common/common.h>
-
 #include <pcl/io/png_io.h>
 #include <vtkColorSeries.h>
 #include <vtkLookupTable.h>
 #include <vtkScalarBarActor.h>
-#include "vtkPropPicker.h"
+#include <vtkPropPicker.h>
 #include <vtkActor2DCollection.h>
 
-#include <libssh/libssh.h>
+#include "my_params.h"
+#include "mypclfunction.h"
+#include "showimgpcddlg.h"
+#include "getcurtime.h"
+#include "cambuilddlg.h"
+#include "laser_paramsetingdlg.h"
+#include "label_image_viewer.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -118,13 +115,14 @@ public:
     vtkSmartPointer<vtkScalarBarActor> scalarBar;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
     vtkSmartPointer<vtkAxesActor> axes_actor;
-    vtkSmartPointer<MouseInteractorStylePP> style;
+    vtkSmartPointer<InteractionStyle::MouseInteractorStylePP> style;
     vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
     vtkSmartPointer<vtkPropPicker> propPicker;
     vtkSmartPointer<vtkRenderWindowInteractor> iren;
     vtkSmartPointer<vtkOrientationMarkerWidget> axes_actorWidget;
     vtkSmartPointer<vtkScalarBarWidget> scalarBarWidget;
-    vtkPropPicker*  Picker;          // Pointer to the picker
+//    vtkSmartPointer<vtkTextActor> textActorFPS;
+//    vtkPropPicker*  Picker;          // Pointer to the picker
 
     bool b_imgshow_thread;      //线程运行标记
     bool stop_b_imgshow_thread;  //是否成功断开线程
@@ -144,12 +142,16 @@ public:
     volatile bool finish_line;       // 单条轮廓是否采集完成
     volatile bool camera_reset_once;    // 仅首次重置相机
     volatile bool finish_cloud;  // 整个点云是否采集完成
+    volatile bool updateVTKShow;    // 是否刷新轮廓显示窗口
 
 private slots:
     void int_show_cvimage_inlab(cv::Mat cv_image);// 显示图像
     void init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclclould);      //在QVTKWidgetlib中显示点云
 //    void int_show_record(QString msg);
     void slot_timer_tragetor_clould();      //轨迹进入点云的定时器中断函数
+
+    void doDisMeasure(bool value);      // 两点距离测量
+    void doDockerRestart();         // 重启docker镜像
 
 private:
     Ui::MainWindow *ui;
