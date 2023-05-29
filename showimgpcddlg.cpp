@@ -105,8 +105,8 @@ showImgPcdDlg::showImgPcdDlg(QWidget *parent) :
     // 设置窗体最大化和最小化
     this->setWindowFlags(Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowCloseButtonHint);
 
-    imgLabel = new LabelImageViewer;
-    indexLabel = ui->stackedWidget->addWidget(imgLabel);
+//    imgLabel = new LabelImageViewer;
+//    indexLabel = ui->stackedWidget->addWidget(imgLabel);
     //    std::cout << indexLabel << std::endl;
 
     vtk_init();
@@ -131,7 +131,7 @@ showImgPcdDlg::~showImgPcdDlg()
     //    renderer->Delete();
     //    renderWindow->Delete();
     //    this->Connections->Disconnect();
-    delete imgLabel;
+//    delete imgLabel;
     delete ui;
 
 }
@@ -145,8 +145,8 @@ void showImgPcdDlg::showpoint(std::string filename)
     QStringList msgList = msg.split(".");
     if(msgList[msgList.size()-1]=="BMP"||msgList[msgList.size()-1]=="bmp")
     {
-        //        ui->stackedWidget->setCurrentIndex(0);
-        ui->stackedWidget->setCurrentIndex(indexLabel);
+        ui->stackedWidget->setCurrentIndex(0);
+//        ui->stackedWidget->setCurrentIndex(indexLabel);
         cv::Mat m_srcImage = cv::imread(filename);
         if (m_srcImage.empty()==0)
         {
@@ -169,14 +169,14 @@ void showImgPcdDlg::showpoint(std::string filename)
 //            img = img.scaled(ui->labelImg->width(), ui->labelImg->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);// 图片自适应lab大小
 //            ui->labelImg->setPixmap(QPixmap::fromImage(img));
 //            ui->labelImg->setScaledContents(true);
-            img = img.scaled(imgLabel->width(), imgLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            imgLabel->showImage(img);
+            img = img.scaled(ui->labelImg->width(), ui->labelImg->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            ui->labelImg->showImage(img);
         }
     }
     else if(msgList[msgList.size()-1]=="TIFF"||msgList[msgList.size()-1]=="tiff")
     {
-//        ui->stackedWidget->setCurrentIndex(0);
-        ui->stackedWidget->setCurrentIndex(indexLabel);
+        ui->stackedWidget->setCurrentIndex(0);
+//        ui->stackedWidget->setCurrentIndex(indexLabel);
         cv::Mat m_fsrcImage = cv::imread(filename,cv::IMREAD_UNCHANGED);
         cv::Mat m_srcImage;
         if(m_fsrcImage.type()!=CV_32FC1)
@@ -203,7 +203,7 @@ void showImgPcdDlg::showpoint(std::string filename)
 //            img = img.scaled(ui->labelImg->width(), ui->labelImg->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);// 图片自适应lab大小
 //            ui->labelImg->setPixmap(QPixmap::fromImage(img));
 //            ui->labelImg->setScaledContents(true);
-            imgLabel->showImage(img);
+            ui->labelImg->showImage(img);
         }
     }
     else if(msgList[msgList.size()-1]=="PCD"||
