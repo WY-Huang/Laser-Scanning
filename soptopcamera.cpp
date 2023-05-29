@@ -243,6 +243,20 @@ void SoptopCamera::InitConnect(QLabel *lab_show)
   }
 }
 
+// qjq
+void SoptopCamera::InitConnect1()
+{
+  if(b_connect==false)
+  {
+    callbacknumber=0;
+    oldcallbacknumber=0;
+    timerid1 = startTimer(1000);
+//    delete m_lab_show;
+    b_connect=true;
+    StartCamera_thread->start();
+  }
+}
+
 void SoptopCamera::DisConnect()
 {
   if(b_connect==true)
@@ -324,19 +338,6 @@ void StartCameraThread::run()
   _p->b_stopthred=true;
 }
 
-// qjq
-void SoptopCamera::InitConnect1()
-{
-  if(b_connect==false)
-  {
-    callbacknumber=0;
-    oldcallbacknumber=0;
-    timerid1 = startTimer(1000);
-//    delete m_lab_show;
-    b_connect=true;
-    StartCamera_thread->start();
-  }
-}
 
 void SoptopCamera::ros_config_set(std::string msg)
  {

@@ -19,5 +19,10 @@
         <file>icons/right.png</file>
         <file>icons/down.png</file>
         <file>icons/views/ceju.png</file>
+        <file>icons/views/cameraView.png</file>
+        <file>icons/paramSet.png</file>
+        <file>icons/calibration.png</file>
+        <file>icons/IP.png</file>
+        <file>icons/restart.png</file>
     </qresource>
 </RCC>

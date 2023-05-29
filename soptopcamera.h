@@ -22,7 +22,6 @@
 #include "opencv2/core/mat.hpp"
 #include <QTimer>
 #include <QProcess>
-#include "PictureBox.h"
 
 
 using std::placeholders::_1;
@@ -58,7 +57,7 @@ public:
     // qjq
     void InitConnect1();//连接相机
     Params ros_Params;
-    PictureBox *m_lab_show1;
+//    PictureBox *m_lab_show1;
 
     cv_bridge::CvImagePtr cv_ptr;
     volatile bool b_int_show_image_inlab;

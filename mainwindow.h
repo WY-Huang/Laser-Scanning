@@ -141,6 +141,7 @@ public:
 
     volatile bool finish_line;       // 单条轮廓是否采集完成
     volatile bool camera_reset_once;    // 仅首次重置相机
+    volatile bool camera_reset_always;    // 每次刷新都重置相机
     volatile bool finish_cloud;  // 整个点云是否采集完成
     volatile bool updateVTKShow;    // 是否刷新轮廓显示窗口
 
@@ -160,7 +161,7 @@ private:
     ImgWindowShowThread *imgshow_thread;
 
     laser_paramsetingdlg *paramset;     // 参数设置
-    LabelImageViewer * imgShowLabel;        // 自定义图像显示的label
+//    LabelImageViewer * imgShowLabel;  // 自定义图像显示的label
 
     void UpdateUi();  //刷新控件显示和使能
     void InitSetEdit(); //初始化控件数字
@@ -171,6 +172,8 @@ private:
     void close_camer_modbus();
 
     void showupdata_tabWidget();
+
+    QString ipAddress;
 
     // vtk显示点云
     vtkSmartPointer<vtkEventQtSlotConnect> Connections;

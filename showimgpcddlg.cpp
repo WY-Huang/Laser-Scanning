@@ -242,6 +242,7 @@ void showImgPcdDlg::showpoint(std::string filename)
 
         actor->SetMapper(mapper);
         actor->GetProperty()->SetInterpolationToFlat();
+//        actor->GetProperty()->SetPointSize(1.5);
         cubeAxesActor->SetBounds(points->GetBounds());
 
         renderer->ResetCamera();

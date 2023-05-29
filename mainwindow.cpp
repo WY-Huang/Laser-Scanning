@@ -11,8 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
     paramset = new laser_paramsetingdlg(m_mcs);
-    imgShowLabel = new LabelImageViewer;
-    indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
+//    imgShowLabel = new LabelImageViewer;
+//    indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
 
     InitSetEdit();  // 界面初始化
     vtk_init();
@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     finish_line = false;
     camera_reset_once = true;   // 首次重置相机视角
+    camera_reset_always = false;
     finish_cloud = false;
     updateVTKShow = true;
     imgshow_thread = new ImgWindowShowThread(this);
@@ -57,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
           }
           else
           {
-//            ui->record->append("等采集数据完成后再进行此操作");
+            ui->textBrowser->append("等采集数据完成后再进行此操作");
           }
         }
     });
@@ -81,13 +82,12 @@ MainWindow::MainWindow(QWidget *parent)
         {
             b_imgshow_thread = true;
             imgshow_thread->start();
-
-            img_windowshow(true, imgShowLabel);
+            img_windowshow(true, ui->imgShow);
             UpdateUi();
         }
         else
         {
-            img_windowshow(false, imgShowLabel);
+            img_windowshow(false, ui->imgShow);
             UpdateUi();
         }
     });
@@ -100,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
             int alg0_99_threshold=ui->exposureValue->text().toInt();
             if(alg0_99_threshold<20||alg0_99_threshold>65535)
             {
-//                ui->record->append("设置相机曝光值超出范围");
+                ui->textBrowser->append("设置相机曝光值超出范围");
             }
             else
             {
@@ -109,19 +109,19 @@ MainWindow::MainWindow(QWidget *parent)
                 int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,1,tab_reg);
                 if(rc!=1)
                 {
-//                    ui->record->append("设置曝光参数失败");
+                    ui->textBrowser->append("设置曝光参数失败");
                 }
                 else
                 {
                     m_mcs->cam->sop_cam[0].i32_exposure=alg0_99_threshold;
                     m_mcs->cam->sop_cam[0].write_para();
-//                    ui->record->append("设置曝光参数成功");
+                    ui->textBrowser->append("设置曝光参数成功");
                 }
             }
         }
         else
         {
-//            ui->record->append("请连接相机后再设置曝光值");
+            ui->textBrowser->append("请连接相机后再设置曝光值");
         }
     });
 
@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=0;
-          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
         UpdateUi();
@@ -144,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=1;
-          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
         UpdateUi();
@@ -156,10 +156,10 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
-//            ui->record->append("切换为显示轨迹模式");
+            ui->textBrowser->append("切换为显示轮廓模式");
             ui->stackedWidget->setCurrentIndex(1);
 
 //            create_axis();
@@ -173,14 +173,14 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=3;
 
-//            ui->stackedWidget->setCurrentIndex(0);
-            ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+            ui->stackedWidget->setCurrentIndex(0);
+//            ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
 
-//            ui->record->append("切换为显示深度图模式");
+            ui->textBrowser->append("切换为显示深度图模式");
 //            UpdateUi();
         });
 
@@ -193,12 +193,12 @@ MainWindow::MainWindow(QWidget *parent)
             #else
 
             #endif
-//                ui->record->append("正在采集数据......");
+                ui->textBrowser->append("正在采集数据......");
             }
             else
             {
                 stop_deepimg();
-//                ui->record->append("手动停止采集");
+                ui->textBrowser->append("手动停止采集");
             }
         });
 
@@ -208,13 +208,25 @@ MainWindow::MainWindow(QWidget *parent)
            {
              m_mcs->cam->sop_cam[0].DisConnect();
              m_mcs->cam->sop_cam[0].node_mode=1;
-             m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+             m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
            }
            m_mcs->e2proomdata.measurementDlg_leaser_data_mod=4;
            ui->stackedWidget->setCurrentIndex(1);
-//           ui->record->append("切换为显示点云图模式");
+           ui->textBrowser->append("切换为显示点云图模式");
 //           UpdateUi();
        });
+
+    // 点云自适应缩放
+    connect(ui->actionactionCemaraView, &QAction::toggled, this, [=](bool checked){
+        if(checked)
+        {
+            camera_reset_always = true;
+        }
+        else
+        {
+            camera_reset_always = false;
+        }
+    });
 
     // 点云选两点测距按钮
     connect(ui->actiondisMeasure, &QAction::toggled, this, [=](bool checked){
@@ -296,7 +308,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
        m_mcs->e2proomdata.measurementDlg_leaser_data_mod = 5;
        u_int16_t tab_reg[1];
-       tab_reg[0] = 2;
+       tab_reg[0] = 1;
        int rc = modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD, 1, tab_reg);
        if(rc != 1)
        {
@@ -343,8 +355,21 @@ MainWindow::MainWindow(QWidget *parent)
         }
         else
         {
-//          ui->record->append("请先连接传感器再进行参数设置");
+          ui->textBrowser->append("请先连接传感器再进行参数设置");
         }
+    });
+
+    // IP设置
+    connect(ui->actionIP, &QAction::triggered, this, [=](){
+            bool isbool;
+            QString strString = QInputDialog::getText(this, "IP设置", "请输入IP地址:",
+                                                      QLineEdit::Normal, ipAddress, &isbool);
+
+            if(isbool && !strString.isEmpty())  // 是否点击了确认及判断字符串是否为空
+            {
+                ipAddress = strString;
+            }
+
     });
 
     // 重启按钮
@@ -368,13 +393,13 @@ MainWindow::~MainWindow()
         close_camer_modbus();
         modbus_free(m_mcs->resultdata.ctx_result);
         m_mcs->resultdata.link_result_state=false;
-//        ui->record->append("控制端口关闭");
+        ui->textBrowser->append("控制端口关闭");
     }
     if(m_mcs->resultdata.link_param_state==true)
     {
         modbus_close(m_mcs->resultdata.ctx_param);
         m_mcs->resultdata.link_param_state=false;
-//        ui->record->append("参数端口关闭");
+        ui->textBrowser->append("参数端口关闭");
     }
     delete timer_tragetor_clould;
     delete paramset;
@@ -706,9 +731,9 @@ void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
       break;
     }
     QImage img = QImage((const uchar*)cv_image.data, cv_image.cols, cv_image.rows,cv_image.cols * cv_image.channels(), format);
-    img = img.scaled(imgShowLabel->width(), imgShowLabel->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
+    img = img.scaled(ui->imgShow->width(), ui->imgShow->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
 //    ui->imgShow->setPixmap(QPixmap::fromImage(img));
-    imgShowLabel->showImage(img);
+    ui->imgShow->showImage(img);
     b_int_show_cvimage_inlab_finish = true;
 }
 
@@ -721,7 +746,7 @@ void MainWindow::showupdata_tabWidget()
         real_readnum=modbus_read_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,ALS103_REG_TOTALNUM,rcvdata);
         if(real_readnum<0)
         {
-//            ui->record->append("读取参数失败");
+            ui->textBrowser->append("读取参数失败");
         }
         else
         {
@@ -741,7 +766,7 @@ void MainWindow::showupdata_tabWidget()
             /*******************/
             //这里添加其他设置参数显示
             /*******************/
-//            ui->record->append("读取参数成功");
+            ui->textBrowser->append("读取参数成功");
         }
     }
 }
@@ -753,7 +778,8 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
     #ifndef ONLY_TEST_CAMER
         if(m_mcs->resultdata.link_result_state==false)
         {
-            QString server_ip=ui->IpAddr->text();
+//            QString server_ip=ui->IpAddr->text();
+            QString server_ip = ipAddress;
             QString server_port2="1502";
             m_mcs->resultdata.ctx_result = modbus_new_tcp(server_ip.toUtf8(), server_port2.toInt());
             if (modbus_connect(m_mcs->resultdata.ctx_result) == -1)
@@ -768,25 +794,26 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
         }
         if(m_mcs->resultdata.link_param_state==false)
         {
-            QString server_ip=ui->IpAddr->text();
+//            QString server_ip=ui->IpAddr->text();
+            QString server_ip = ipAddress;
             QString server_port1="1500";
             m_mcs->resultdata.ctx_param = modbus_new_tcp(server_ip.toUtf8(), server_port1.toInt());
             if (modbus_connect(m_mcs->resultdata.ctx_param) == -1)
             {
-//                ui->record->append("参数端口连接失败");
+                ui->textBrowser->append("参数端口连接失败");
                 modbus_free(m_mcs->resultdata.ctx_param);
                 return;
             }
             m_mcs->resultdata.link_param_state=true;
-//            ui->record->append("参数端口连接成功");
+            ui->textBrowser->append("参数端口连接成功");
         }
         //设置task信息
         u_int16_t task=103;
         int rc=modbus_write_registers(m_mcs->resultdata.ctx_result,0x102,1,&task);
-//        if(rc!=1)
-//        {
-//            ui->record->append("激光器任务模式设置失败");
-//        }
+        if(rc!=1)
+        {
+            ui->textBrowser->append("激光器任务模式设置失败");
+        }
 //        else
 //        {
 //            ui->record->append("激光器任务模式设置成功");
@@ -812,13 +839,13 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
             close_camer_modbus();
             modbus_free(m_mcs->resultdata.ctx_result);
             m_mcs->resultdata.link_result_state=false;
-//            ui->record->append("控制端口关闭");
+            ui->textBrowser->append("控制端口关闭");
         }
         if(m_mcs->resultdata.link_param_state==true)
         {
             modbus_close(m_mcs->resultdata.ctx_param);
             m_mcs->resultdata.link_param_state=false;
-//            ui->record->append("参数端口关闭");
+            ui->textBrowser->append("参数端口关闭");
         }
     #endif
     }
@@ -832,7 +859,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         return;
     }
 
-    if(finish_line==true && updateVTKShow)
+    if(finish_line && updateVTKShow)
         {
             // 清空数据
             points->Reset();
@@ -869,7 +896,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
 
-            if (camera_reset_once)
+            if (camera_reset_once || camera_reset_always)
             {
                 camera_reset_once = false;
                 renderer->ResetCamera();
@@ -878,7 +905,6 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
 
             finish_line = false;
             b_int_show_record_finish = true;
-
 
         }
 
@@ -1022,13 +1048,14 @@ void MainWindow::vtk_init()
 void MainWindow::InitSetEdit()
 {
 
-    ui->IpAddr->setText("192.168.1.2");
+//    ui->IpAddr->setText("192.168.1.2");
+    ipAddress = "192.168.1.2";
     ui->exposureValue->setText(QString::number(m_mcs->cam->sop_cam[0].i32_exposure));
 
     ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
     ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));
 
-    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+    ui->stackedWidget->setCurrentIndex(0);
 
     // 按钮可用性初始化
     ui->applyBtn->setEnabled(false);
@@ -1067,7 +1094,7 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+    ui->stackedWidget->setCurrentIndex(0);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
     {
@@ -1081,7 +1108,7 @@ void MainWindow::UpdateUi()
         ui->showPointCloud->setEnabled(false);
         ui->showDepth->setEnabled(false);
         ui->saveFile->setEnabled(false);
-        imgShowLabel->clear();
+        ui->imgShow->clear();
     }
     else
     {
@@ -1258,7 +1285,7 @@ void MainWindow::doDockerRestart()
         return ;
     }
     // 执行重启容器命令（无法执行需要sudo权限）
-    std::string command = "docker-compose restart";
+    std::string command = "echo \"123456\" | sudo -S docker-compose restart";
     rc = ssh_channel_request_exec(channel, command.c_str());
     if (rc != SSH_OK) {
         std::cout << "Failed to execute command: " << command << std::endl;
