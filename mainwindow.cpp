@@ -2,11 +2,13 @@
 #include "ui_mainwindow.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->action_restart->setVisible(false);
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
@@ -16,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     InitSetEdit();  // 界面初始化
     vtk_init();
+    initChart();
 //  自定义定时器槽 slot_timer_tragetor_clould()
     timer_tragetor_clould=new QTimer(this);
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
@@ -150,7 +153,7 @@ MainWindow::MainWindow(QWidget *parent)
         UpdateUi();
     });
 
-    //显示轨迹
+    //显示轮廓
     connect(ui->showTrajectory, &QAction::triggered, this, [=](){
             if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
             {
@@ -160,7 +163,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
             ui->textBrowser->append("切换为显示轮廓模式");
-            ui->stackedWidget->setCurrentIndex(1);
+            ui->stackedWidget->setCurrentIndex(2);
 
 //            create_axis();
            // m_mcs->resultdata.viewer->removeAllPointClouds();
@@ -771,6 +774,8 @@ void MainWindow::showupdata_tabWidget()
     }
 }
 
+
+
 void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
 {
     if(b_show==true)
@@ -851,6 +856,38 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
     }
 }
 
+void MainWindow::initChart()
+{
+    series = new QScatterSeries();                              // 创建一个散点数据集对象
+    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);  // 设置绘制的散点的样式为圆
+    series->setMarkerSize(1);                                   // 设置绘制的点的大小
+    series->setColor(QColor(0,255,0));                          // 设置散点颜色
+    series->setUseOpenGL(true);                                 // 设置使用openGL加速
+
+//    ui->graphicsView->setRenderHint(QPainter::Antialiasing);                              // 设置抗锯齿
+    //    ui->graphicsView->chart()->setTitle("散点图标题");                                      // 设置图表标题
+    ui->graphicsView->chart()->setDropShadowEnabled(false);                               // 设置不启用背景阴影效果
+    //    QBrush brush(Qt::darkGray);                                                                // 创建蓝色画刷
+    //    ui->graphicsView->chart()->setBackgroundBrush(brush);
+    //    ui->graphicsView->chart()->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);  // 在图例中显示点的形状样式
+    ui->graphicsView->chart()->legend()->hide();
+    ui->graphicsView->chart()->setTheme(QChart::ChartThemeDark);                  // 设置表的样式
+//    ui->graphicsView->chart()->addSeries(series);       // 将创建的series添加经chart中
+//    ui->graphicsView->chart()->createDefaultAxes();     // 新添加series后，调用这个函数根据添加的series自动生成对于类型的XY轴，会删除已有的轴再生成
+
+    axisX = new QValueAxis();
+    axisY = new QValueAxis();
+    ui->graphicsView->chart()->addAxis(axisX, Qt::AlignBottom); // 将坐标轴添加到图表
+    ui->graphicsView->chart()->addAxis(axisY, Qt::AlignLeft);
+
+    axisX->setRange(0, 100);        // 设置初始坐标轴范围
+    axisY->setRange(-10, 10);
+    ui->graphicsView->chart()->addSeries(series);
+    series->attachAxis(axisX);                                   // 将系列关联到坐标轴
+    series->attachAxis(axisY);
+
+}
+
 void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclclould)
 {
     if(pclclould->size()==0)
@@ -860,15 +897,36 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
     }
 
     if(finish_line && updateVTKShow)
+    {
+        finish_line = false;
+        b_int_show_record_finish = true;
+
+//        series->clear();
+        ui->graphicsView->chart()->removeSeries(series);
+        QVector<QPointF> MyPointf;      // 绘制散点所需要的数据
+        pcl::PointXYZRGB minPt, maxPt;
+        pcl::getMinMax3D(*pclclould, minPt, maxPt);
+        for (std::size_t i = 0; i < pclclould->points.size(); ++i)
+        {
+            MyPointf << QPointF(pclclould->points[i].y - minPt.y, -(pclclould->points[i].z + maxPt.z));
+//            series->append(pclclould->points[i].y, pclclould->points[i].z);
+        }
+        series->replace(MyPointf);
+//        ui->graphicsView->chart()->addSeries(series);
+//        ui->graphicsView->chart()->createDefaultAxes();
+        // 动态调整坐标轴范围
+        axisX->setRange(0, maxPt.y-minPt.y);
+        axisY->setRange(0, maxPt.z-minPt.z);
+        ui->graphicsView->chart()->addSeries(series);
+    }
+/*
+    if(finish_line && updateVTKShow)
         {
             // 清空数据
             points->Reset();
             cells->Reset();
             polydata->Initialize();
             vtkIdType idtype;
-//            points = vtkSmartPointer<vtkPoints>::New();
-//            cells = vtkSmartPointer<vtkCellArray>::New();
-//            polydata = vtkSmartPointer<vtkPolyData>::New();
 
             scalars->SetNumberOfValues(pclclould->size());
             for (std::size_t i = 0; i < pclclould->points.size(); ++i)
@@ -907,7 +965,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             b_int_show_record_finish = true;
 
         }
-
+*/
     // 扫描完成的点云
     if(finish_cloud==true)
         {
@@ -984,8 +1042,8 @@ void MainWindow::vtk_init()
     style->SetDefaultRenderer(renderer);        // 将 renderer 设置为默认的渲染器
 
     renderer->GradientBackgroundOn();       // 背景设置
-    renderer->SetBackground(colors->GetColor3d("black").GetData());
-    renderer->SetBackground2(colors->GetColor3d("Gray").GetData());
+    renderer->SetBackground(colors->GetColor3d("dark").GetData());
+//    renderer->SetBackground2(colors->GetColor3d("Gray").GetData());
 //    renderer->ResetCamera();
 
     ui->pclShow->GetRenderWindow()->AddRenderer(renderer);  // 添加renderer到渲染窗口
@@ -995,7 +1053,7 @@ void MainWindow::vtk_init()
 
     // 坐标轴及网格显示控制
     cubeAxesActor->SetScreenSize(10);
-    cubeAxesActor->DrawZGridlinesOff();
+    cubeAxesActor->DrawZGridlinesOn();
     cubeAxesActor->DrawXGridlinesOn();
     cubeAxesActor->DrawYGridlinesOn();
     cubeAxesActor->SetDrawXInnerGridlines(false);
@@ -1008,6 +1066,7 @@ void MainWindow::vtk_init()
     cubeAxesActor->ZAxisMinorTickVisibilityOff();
     cubeAxesActor->SetCamera(renderer->GetActiveCamera());
 
+    lut->SetHueRange(0.666, 0);
     lut->Build();
     scalarBar->SetTitle("Unit (mm)\n");
     scalarBar->SetNumberOfLabels(5);
@@ -1286,6 +1345,7 @@ void MainWindow::doDockerRestart()
     }
     // 执行重启容器命令（无法执行需要sudo权限）
     std::string command = "echo \"123456\" | sudo -S docker-compose restart";
+//    std::cout << command.c_str() << std::endl;
     rc = ssh_channel_request_exec(channel, command.c_str());
     if (rc != SSH_OK) {
         std::cout << "Failed to execute command: " << command << std::endl;

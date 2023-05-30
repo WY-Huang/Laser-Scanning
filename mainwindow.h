@@ -72,6 +72,9 @@
 #include "laser_paramsetingdlg.h"
 #include "label_image_viewer.h"
 
+#include <QScatterSeries>
+#include <QValueAxis>
+QT_CHARTS_USE_NAMESPACE
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -177,6 +180,11 @@ private:
 
     // vtk显示点云
     vtkSmartPointer<vtkEventQtSlotConnect> Connections;
+
+    QScatterSeries* series;         // 散点图chart
+    QValueAxis *axisX;
+    QValueAxis *axisY;
+    void initChart();
 };
 
 // 图像显示线程

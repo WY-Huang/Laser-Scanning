@@ -30,7 +30,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_0_imgshow">
        <layout class="QGridLayout" name="gridLayout">
@@ -61,6 +61,32 @@
           </property>
           <property name="autoFillBackground">
            <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_3_chartshow">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QChartView" name="graphicsView">
+          <property name="resizeAnchor">
+           <enum>QGraphicsView::NoAnchor</enum>
+          </property>
+          <property name="viewportUpdateMode">
+           <enum>QGraphicsView::SmartViewportUpdate</enum>
           </property>
          </widget>
         </item>
@@ -763,6 +789,11 @@
    <class>LabelImageViewer</class>
    <extends>QLabel</extends>
    <header>label_image_viewer.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>qchartview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

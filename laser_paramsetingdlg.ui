@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
-    <height>489</height>
+    <width>576</width>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,12 +18,12 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>491</width>
-     <height>301</height>
+     <width>541</width>
+     <height>341</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -34,8 +34,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>311</width>
-       <height>241</height>
+       <width>341</width>
+       <height>281</height>
       </rect>
      </property>
      <attribute name="verticalHeaderVisible">
@@ -220,7 +220,7 @@
     <widget class="QPushButton" name="readTab1Btn">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>370</x>
        <y>140</y>
        <width>151</width>
        <height>51</height>
@@ -233,7 +233,7 @@
     <widget class="QPushButton" name="writeTab1Btn">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>370</x>
        <y>200</y>
        <width>151</width>
        <height>51</height>
@@ -246,7 +246,7 @@
     <widget class="QPushButton" name="initTab1Btn">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>370</x>
        <y>10</y>
        <width>151</width>
        <height>51</height>
@@ -266,8 +266,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>311</width>
-       <height>241</height>
+       <width>341</width>
+       <height>281</height>
       </rect>
      </property>
      <attribute name="verticalHeaderVisible">
@@ -332,7 +332,7 @@
     <widget class="QPushButton" name="initTab2Btn">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>370</x>
        <y>10</y>
        <width>151</width>
        <height>51</height>
@@ -345,7 +345,7 @@
     <widget class="QPushButton" name="writeTab2Btn">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>370</x>
        <y>200</y>
        <width>151</width>
        <height>51</height>
@@ -358,7 +358,7 @@
     <widget class="QPushButton" name="readTab2Btn">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>370</x>
        <y>140</y>
        <width>151</width>
        <height>51</height>
@@ -374,7 +374,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>360</y>
+     <y>410</y>
      <width>491</width>
      <height>121</height>
     </rect>
@@ -384,7 +384,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>330</y>
+     <y>380</y>
      <width>67</width>
      <height>17</height>
     </rect>
