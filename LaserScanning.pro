@@ -28,6 +28,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     my_params.cpp \
+    mychartview.cpp \
     mypclfunction.cpp \
     resultdata.cpp \
     showimgpcddlg.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     laser_paramsetingdlg.h \
     mainwindow.h \
     my_params.h \
+    mychartview.h \
     mypclfunction.h \
     resultdata.h \
     showimgpcddlg.h \

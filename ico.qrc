@@ -24,5 +24,7 @@
         <file>icons/calibration.png</file>
         <file>icons/IP.png</file>
         <file>icons/restart.png</file>
+        <file>icons/views/run.png</file>
+        <file>icons/views/pause.png</file>
     </qresource>
 </RCC>

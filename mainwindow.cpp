@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->action_restart->setVisible(false);
+//    ui->actionactionCemaraView->setVisible(false);
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
@@ -138,6 +139,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
         UpdateUi();
+        ui->page_3->setVisible(false);
     });
 
     // 显示中心线按钮
@@ -151,6 +153,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
         UpdateUi();
+        ui->page_3->setVisible(false);
     });
 
     //显示轮廓
@@ -164,6 +167,7 @@ MainWindow::MainWindow(QWidget *parent)
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
             ui->textBrowser->append("切换为显示轮廓模式");
             ui->stackedWidget->setCurrentIndex(2);
+            ui->page_3->setVisible(false);
 
 //            create_axis();
            // m_mcs->resultdata.viewer->removeAllPointClouds();
@@ -181,7 +185,7 @@ MainWindow::MainWindow(QWidget *parent)
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=3;
 
             ui->stackedWidget->setCurrentIndex(0);
-//            ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+            ui->page_3->setVisible(true);
 
             ui->textBrowser->append("切换为显示深度图模式");
 //            UpdateUi();
@@ -215,22 +219,44 @@ MainWindow::MainWindow(QWidget *parent)
            }
            m_mcs->e2proomdata.measurementDlg_leaser_data_mod=4;
            ui->stackedWidget->setCurrentIndex(1);
+           ui->page_3->setVisible(true);
            ui->textBrowser->append("切换为显示点云图模式");
 //           UpdateUi();
        });
 
     // 点云自适应缩放
-    connect(ui->actionactionCemaraView, &QAction::toggled, this, [=](bool checked){
-        if(checked)
+    connect(ui->actionactionCemaraView, &QAction::toggled, this, [=](){ // bool checked
+//        float zoomFactor = 1.5;
+//        ui->graphicsView->chart()->
+//        ui->graphicsView->update();
+//        vtkCamera* camera = renderer->GetActiveCamera();
+//        camera->SetPosition(-1, 0, 0);
+//        camera->SetViewUp (0, 0, -1);
+//        camera->SetFocalPoint (0, 0, 0);
+//        renderer->ResetCamera();
+//        ui->pclShow->GetRenderWindow()->Render();
+//        ui->pclShow->update();
+//        if(checked)
+//        {
+//            camera_reset_always = true;
+//        }
+//        else
+//        {
+//            camera_reset_always = false;
+//        }
+    });
+    // 数据暂停刷新按钮
+    connect(ui->actionPause, &QAction::toggled, this, [=](bool checked){
+        if (checked)
         {
-            camera_reset_always = true;
+            updateVTKShow = false;
         }
         else
         {
-            camera_reset_always = false;
+            updateVTKShow = true;
         }
-    });
 
+    });
     // 点云选两点测距按钮
     connect(ui->actiondisMeasure, &QAction::toggled, this, [=](bool checked){
         doDisMeasure(checked);
@@ -250,7 +276,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actiondown,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -261,7 +286,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actionforward,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -282,7 +306,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actionright,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -293,7 +316,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actionup,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -874,6 +896,10 @@ void MainWindow::initChart()
     ui->graphicsView->chart()->setTheme(QChart::ChartThemeDark);                  // 设置表的样式
 //    ui->graphicsView->chart()->addSeries(series);       // 将创建的series添加经chart中
 //    ui->graphicsView->chart()->createDefaultAxes();     // 新添加series后，调用这个函数根据添加的series自动生成对于类型的XY轴，会删除已有的轴再生成
+//    ui->graphicsView->setRubberBand(QChartView::RectangleRubberBand); // 设置选择区域的模式
+//    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);   // 平移
+    ui->graphicsView->setInteractive(true); // 启用交互模式
+
 
     axisX = new QValueAxis();
     axisY = new QValueAxis();
@@ -1126,6 +1152,7 @@ void MainWindow::InitSetEdit()
     ui->showPointCloud->setEnabled(false);
     ui->showDepth->setEnabled(false);
     ui->saveFile->setEnabled(false);
+    ui->page_3->hide();
 }
 
 // modbus
