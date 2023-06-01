@@ -17,10 +17,9 @@ class MyChartView : public QChartView
 
 public:
     explicit MyChartView(QWidget* parent = nullptr);
+
     MyChartView(QChart *chart, QWidget *parent = nullptr);
     ~MyChartView();
-    // Save the coordinate area for resetting
-    void saveAxisRange();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -28,16 +27,13 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
 
 private:
-    QPoint prevPoint_;          // 鼠标左键按下的位置坐标
+    QPoint prevPoint_;          // 第一次鼠标左键按下的位置坐标
+    QPoint offsetAll;           // 鼠标按下状态总的移动量
+    int operation_count;        // 操作计数
+    int firstOperate;           // 鼠标左键是否按下
     bool leftButtonPressed_;    // 鼠标左键是否按下
-    bool ctrlPressed_;          // ctrl键是否按下
-    bool alreadySaveRange_;     // 是否保存当前轴的范围
-    AxisRange xRange_;          // X轴的范围
-    AxisRange yRange_;          // Y轴的范围
     QGraphicsSimpleTextItem* coordItem_;
 };
 

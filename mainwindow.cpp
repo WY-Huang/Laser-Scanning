@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->action_restart->setVisible(false);
-//    ui->actionactionCemaraView->setVisible(false);
+    ui->actionactionCemaraView->setVisible(false);
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
@@ -400,10 +400,6 @@ MainWindow::MainWindow(QWidget *parent)
     // 重启按钮
     connect(ui->action_restart, &QAction::triggered, this, &MainWindow::doDockerRestart);
 
-    // 恢复至默认视图大小
-//    connect(default_img_button, &QPushButton::clicked, this, [=](){
-//        imgShowLabel->fitToWindow();
-//    });
 }
 
 
@@ -907,7 +903,9 @@ void MainWindow::initChart()
     ui->graphicsView->chart()->addAxis(axisY, Qt::AlignLeft);
 
     axisX->setRange(0, 100);        // 设置初始坐标轴范围
+    axisX->setTitleText("X_axis");
     axisY->setRange(-10, 10);
+    axisY->setTitleText("Y_axis");
     ui->graphicsView->chart()->addSeries(series);
     series->attachAxis(axisX);                                   // 将系列关联到坐标轴
     series->attachAxis(axisY);
@@ -934,7 +932,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         pcl::getMinMax3D(*pclclould, minPt, maxPt);
         for (std::size_t i = 0; i < pclclould->points.size(); ++i)
         {
-            MyPointf << QPointF(pclclould->points[i].y - minPt.y, -(pclclould->points[i].z + maxPt.z));
+            MyPointf << QPointF(pclclould->points[i].y - minPt.y, maxPt.z - pclclould->points[i].z);
 //            series->append(pclclould->points[i].y, pclclould->points[i].z);
         }
         series->replace(MyPointf);

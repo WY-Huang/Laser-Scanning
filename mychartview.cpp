@@ -5,15 +5,13 @@ MyChartView::MyChartView(QWidget* parent)
     : QChartView{ parent }
     , prevPoint_{}
     , leftButtonPressed_{}
-    , ctrlPressed_{}
-    , alreadySaveRange_{}
-    , xRange_{}
-    , yRange_{}
     , coordItem_{}
 {
     setDragMode(QGraphicsView::RubberBandDrag);
     setMouseTracking(false);
     setCursor(QCursor(Qt::PointingHandCursor));
+    operation_count = 0;
+    firstOperate = 0;
 }
 
 MyChartView::MyChartView(QChart *chart, QWidget *parent)
@@ -39,7 +37,7 @@ void MyChartView::mouseMoveEvent(QMouseEvent *event)
     if (!coordItem_) {
         coordItem_ = new QGraphicsSimpleTextItem{ chart() };
         coordItem_->setZValue(5);
-        coordItem_->setPos(80, 18);
+        coordItem_->setPos(100, 18);
         QColor color(Qt::red);
         coordItem_->setBrush(color);
         coordItem_->show();
@@ -50,98 +48,66 @@ void MyChartView::mouseMoveEvent(QMouseEvent *event)
 
     if (leftButtonPressed_) {
         const auto offset = curPos - prevPoint_;
+        offsetAll += offset;
         prevPoint_ = curPos;
-        if (!alreadySaveRange_) {
-            saveAxisRange();
-            alreadySaveRange_ = true;
-        }
         chart()->scroll(-offset.x(), offset.y());
+
+        // 用于判断平移是否比放大先操作
+        operation_count += 1;
+        if (operation_count == 1)
+        {
+            firstOperate = 1;
+        }
+
     }
 }
 
 void MyChartView::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     leftButtonPressed_ = false;
-//    if (event->button() == Qt::RightButton) {
-//        if (alreadySaveRange_) {
-//            chart()->axisX()->setRange(xRange_[0], xRange_[1]);
-//            chart()->axisY()->setRange(yRange_[0], yRange_[1]);
-//        }
-//    }
 }
 
 void MyChartView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    leftButtonPressed_ = false;
-    if (event->button() == Qt::LeftButton) {
-        if (alreadySaveRange_) {
-            chart()->axisX()->setRange(xRange_[0], xRange_[1]);
-            chart()->axisY()->setRange(yRange_[0], yRange_[1]);
+    if (event->button() == Qt::LeftButton)
+    {
+
+        if (firstOperate == 1)
+        {
+            chart()->zoomReset();
+            chart()->scroll(offsetAll.x(), -offsetAll.y());
         }
+        else
+        {
+            chart()->scroll(offsetAll.x(), -offsetAll.y());
+            chart()->zoomReset();
+        }
+
+        offsetAll = QPoint(0, 0);
+        operation_count = 0;
+        firstOperate = 0;
     }
 }
 
 void MyChartView::wheelEvent(QWheelEvent *event)
 {
 #if (QT_VERSION <= QT_VERSION_CHECK(6,0,0))
-    const auto pos  = QPointF(event->pos());
     const auto isZoomIn = event->delta() > 0;
 #else
-    const auto pos  = event->position();
     const auto isZoomIn = event->angleDelta().y() > 0;
 #endif
-    const QPointF curVal = chart()->mapToValue(pos);
 
-    if (!alreadySaveRange_) {
-        saveAxisRange();
-        alreadySaveRange_ = true;
+    constexpr auto scaling{ 1.5 };
+    if (isZoomIn)
+    {
+        chart()->zoom(scaling);
+    }
+    else
+    {
+        chart()->zoom(1 / scaling);
     }
 
-    auto zoom = [](QValueAxis* axis, double centre, bool zoomIn) {
-        constexpr auto scaling{ 1.5 };
+    operation_count += 1;
 
-        const double down = axis->min();
-        const double up = axis->max();
-
-        double downOffset{};
-        double upOffset{};
-        if (zoomIn) {
-            downOffset = (centre - down) / scaling;
-            upOffset = (up - centre) / scaling;
-        }
-        else {
-            downOffset = (centre - down) * scaling;
-            upOffset = (up - centre) * scaling;
-        }
-
-        axis->setRange(centre - downOffset, centre + upOffset);
-    };
-
-    if (ctrlPressed_) {
-        auto axis = qobject_cast<QValueAxis*>(chart()->axisY());
-        zoom(axis, curVal.y(), isZoomIn);
-    } else {
-        auto axis = qobject_cast<QValueAxis*>(chart()->axisX());
-        zoom(axis, curVal.x(), isZoomIn);
-    }
-}
-
-void MyChartView::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Control)
-        ctrlPressed_ = true;
-}
-
-void MyChartView::keyReleaseEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Control)
-        ctrlPressed_ = false;
-}
-
-void MyChartView::saveAxisRange()
-{
-    const auto axisX = qobject_cast<QValueAxis*>(chart()->axisX());
-    xRange_ = { axisX->min(), axisX->max() };
-    const auto axisY = qobject_cast<QValueAxis*>(chart()->axisY());
-    yRange_ = { axisY->min(), axisY->max() };
 }
