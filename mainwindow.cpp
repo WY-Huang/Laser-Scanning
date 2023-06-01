@@ -881,6 +881,13 @@ void MainWindow::initChart()
     series->setMarkerSize(1);                                   // 设置绘制的点的大小
     series->setColor(QColor(0,255,0));                          // 设置散点颜色
     series->setUseOpenGL(true);                                 // 设置使用openGL加速
+//    connect(series, &QScatterSeries::hovered, ui->graphicsView, [=](const QPointF &point, bool state){
+//        if (state)
+//        {
+//            std::cout << "oo" << std::endl;
+//            ui->graphicsView->coordItem_->setText(QString("X = %1, Y = %2").arg(point.x()).arg(point.y()));
+//        }
+//    });
 
 //    ui->graphicsView->setRenderHint(QPainter::Antialiasing);                              // 设置抗锯齿
     //    ui->graphicsView->chart()->setTitle("散点图标题");                                      // 设置图表标题

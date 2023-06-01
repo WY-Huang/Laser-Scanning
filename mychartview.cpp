@@ -1,5 +1,6 @@
 #include "mychartview.h"
 #include <QValueAxis>
+#include <QScatterSeries>
 
 MyChartView::MyChartView(QWidget* parent)
     : QChartView{ parent }
@@ -9,7 +10,7 @@ MyChartView::MyChartView(QWidget* parent)
 {
     setDragMode(QGraphicsView::RubberBandDrag);
     setMouseTracking(false);
-    setCursor(QCursor(Qt::PointingHandCursor));
+//    setCursor(QCursor(Qt::PointingHandCursor));
     operation_count = 0;
     firstOperate = 0;
 }

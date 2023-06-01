@@ -265,8 +265,8 @@ void SoptopCamera::DisConnect()
     b_connect=false;
     while (stop_b_connect==false||b_stopthred==false)
     {
-      QThread::sleep(0);
-      if(callback_error==1)//相机卡住了，强制退出ROS
+      QThread::sleep(0);    // 线程休眠，主动放弃时间片
+      if(callback_error==1) // 相机卡住了，强制退出ROS
       {
           rclcpp::shutdown();
           stop_b_connect=true;

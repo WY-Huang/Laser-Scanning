@@ -18,6 +18,7 @@ class MyChartView : public QChartView
 public:
     explicit MyChartView(QWidget* parent = nullptr);
 
+
     MyChartView(QChart *chart, QWidget *parent = nullptr);
     ~MyChartView();
 
@@ -35,6 +36,7 @@ private:
     int firstOperate;           // 鼠标左键是否按下
     bool leftButtonPressed_;    // 鼠标左键是否按下
     QGraphicsSimpleTextItem* coordItem_;
+
 };
 
 #endif // MYCHARTVIEW_H
