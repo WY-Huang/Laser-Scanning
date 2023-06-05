@@ -909,12 +909,12 @@ void MainWindow::initChart()
     ui->graphicsView->chart()->addAxis(axisX, Qt::AlignBottom); // 将坐标轴添加到图表
     ui->graphicsView->chart()->addAxis(axisY, Qt::AlignLeft);
 
-    axisX->setRange(0, 100);        // 设置初始坐标轴范围
-    axisX->setTitleText("X_axis");
+    axisX->setRange(0, 100);                                    // 设置初始坐标轴范围
+    axisX->setTitleText("X_axis (mm)");
     axisY->setRange(-10, 10);
-    axisY->setTitleText("Y_axis");
+    axisY->setTitleText("Y_axis (mm)");
     ui->graphicsView->chart()->addSeries(series);
-    series->attachAxis(axisX);                                   // 将系列关联到坐标轴
+    series->attachAxis(axisX);                                  // 将系列关联到坐标轴
     series->attachAxis(axisY);
 
 }
