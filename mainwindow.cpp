@@ -8,8 +8,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->action_restart->setVisible(false);
-    ui->actionactionCemaraView->setVisible(false);
     m_mcs = m_mcs->Get();
     pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
 
@@ -1158,6 +1156,10 @@ void MainWindow::InitSetEdit()
     ui->showDepth->setEnabled(false);
     ui->saveFile->setEnabled(false);
     ui->page_3->hide();
+
+    QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    ui->action_restart->setVisible(false);
+    ui->actionactionCemaraView->setVisible(false);
 }
 
 // modbus

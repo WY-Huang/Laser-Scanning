@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>720</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1200</width>
-    <height>720</height>
+    <height>800</height>
    </size>
   </property>
   <property name="baseSize">
@@ -26,8 +26,20 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_5">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
        <number>2</number>
@@ -142,7 +154,6 @@
    <addaction name="menu_3"/>
    <addaction name="menu_4"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>工具栏</string>
@@ -175,13 +186,13 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>211</width>
+     <width>230</width>
      <height>369</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>250</width>
+     <width>300</width>
      <height>524287</height>
     </size>
    </property>
@@ -205,7 +216,19 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QToolBox" name="toolBox">
        <property name="minimumSize">
@@ -231,8 +254,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>232</width>
-          <height>281</height>
+          <width>230</width>
+          <height>148</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -308,8 +331,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>232</width>
-          <height>281</height>
+          <width>230</width>
+          <height>148</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -500,28 +523,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>日志</string>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QTextBrowser" name="textBrowser"/>
-        </item>
-       </layout>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>296</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </widget>
@@ -547,6 +559,73 @@
    <addaction name="actionforward"/>
    <addaction name="actionbackward"/>
    <addaction name="separator"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_log">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>68</width>
+     <height>93</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>524287</width>
+     <height>150</height>
+    </size>
+   </property>
+   <property name="baseSize">
+    <size>
+     <width>0</width>
+     <height>50</height>
+    </size>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>日志：</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_log">
+    <layout class="QGridLayout" name="gridLayout_4">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>6</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="connectCam">
    <property name="icon">
