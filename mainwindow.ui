@@ -41,6 +41,9 @@
     </property>
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
       <property name="currentIndex">
        <number>2</number>
       </property>
@@ -139,9 +142,9 @@
     <property name="title">
      <string>设置</string>
     </property>
-    <addaction name="calibration"/>
-    <addaction name="setParam"/>
     <addaction name="actionIP"/>
+    <addaction name="setParam"/>
+    <addaction name="calibration"/>
     <addaction name="action_restart"/>
    </widget>
    <widget class="QMenu" name="menu_4">
