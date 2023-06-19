@@ -28,13 +28,13 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_5">
     <property name="leftMargin">
-     <number>0</number>
+     <number>6</number>
     </property>
     <property name="topMargin">
-     <number>0</number>
+     <number>6</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>6</number>
     </property>
     <property name="bottomMargin">
      <number>0</number>
@@ -42,13 +42,28 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::NoFrame</enum>
       </property>
       <property name="currentIndex">
        <number>2</number>
       </property>
       <widget class="QWidget" name="page_0_imgshow">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
        <layout class="QGridLayout" name="gridLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="LabelImageViewer" name="imgShow">
           <property name="sizePolicy">
@@ -66,6 +81,18 @@
       </widget>
       <widget class="QWidget" name="page_2_pclshow">
        <layout class="QGridLayout" name="gridLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="QVTKOpenGLWidget" name="pclShow" native="true">
           <property name="sizePolicy">
@@ -95,8 +122,14 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="MyChartView" name="graphicsView">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
           <property name="resizeAnchor">
            <enum>QGraphicsView::NoAnchor</enum>
           </property>
@@ -572,7 +605,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>68</width>
+     <width>74</width>
      <height>93</height>
     </size>
    </property>
@@ -600,7 +633,7 @@
    <widget class="QWidget" name="dockWidgetContents_log">
     <layout class="QGridLayout" name="gridLayout_4">
      <property name="leftMargin">
-      <number>0</number>
+      <number>6</number>
      </property>
      <property name="topMargin">
       <number>0</number>
