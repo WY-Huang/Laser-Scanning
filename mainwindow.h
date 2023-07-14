@@ -177,6 +177,7 @@ private:
     void showupdata_tabWidget();
 
     QString ipAddress;
+    QString GetCurTime_M();
 
     // vtk显示点云
     vtkSmartPointer<vtkEventQtSlotConnect> Connections;

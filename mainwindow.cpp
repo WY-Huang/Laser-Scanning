@@ -60,8 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
           }
           else
           {
-              QDateTime current_date_time = QDateTime::currentDateTime();
-              QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+              QString current_date = GetCurTime_M();
               ui->textBrowser->append(current_date + "等采集数据完成后再进行此操作");
           }
         }
@@ -77,8 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
              mkdir("./USER_DATA",S_IRWXU);
            }
 
-           QDateTime current_date_time = QDateTime::currentDateTime();
-           QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+           QString current_date = GetCurTime_M();
            ui->textBrowser->append(current_date + "保存成功");
        });
 
@@ -108,8 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
             int alg0_99_threshold=ui->exposureValue->text().toInt();
             if(alg0_99_threshold<20||alg0_99_threshold>65535)
             {
-                QDateTime current_date_time = QDateTime::currentDateTime();
-                QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                QString current_date = GetCurTime_M();
                 ui->textBrowser->append(current_date + "设置相机曝光值超出范围");
             }
             else
@@ -119,8 +116,7 @@ MainWindow::MainWindow(QWidget *parent)
                 int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,1,tab_reg);
                 if(rc!=1)
                 {
-                    QDateTime current_date_time = QDateTime::currentDateTime();
-                    QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                    QString current_date = GetCurTime_M();
                     ui->textBrowser->append(current_date + "设置曝光参数失败");
                 }
                 else
@@ -128,16 +124,14 @@ MainWindow::MainWindow(QWidget *parent)
                     m_mcs->cam->sop_cam[0].i32_exposure=alg0_99_threshold;
                     m_mcs->cam->sop_cam[0].write_para();
 
-                    QDateTime current_date_time = QDateTime::currentDateTime();
-                    QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                    QString current_date = GetCurTime_M();
                     ui->textBrowser->append(current_date + "设置曝光参数成功");
                 }
             }
         }
         else
         {
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "请连接相机后再设置曝光值");
         }
     });
@@ -151,8 +145,7 @@ MainWindow::MainWindow(QWidget *parent)
           m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
-        QDateTime current_date_time = QDateTime::currentDateTime();
-        QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+        QString current_date = GetCurTime_M();
         ui->textBrowser->append(current_date + "切换为显示原图模式");
         UpdateUi();
         ui->page_3->setVisible(false);
@@ -168,8 +161,7 @@ MainWindow::MainWindow(QWidget *parent)
           m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
-        QDateTime current_date_time = QDateTime::currentDateTime();
-        QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+        QString current_date = GetCurTime_M();
         ui->textBrowser->append(current_date + "切换为显示中心线模式");
         UpdateUi();
         ui->page_3->setVisible(false);
@@ -185,8 +177,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "切换为显示轮廓模式");
             ui->stackedWidget->setCurrentIndex(2);
             ui->page_3->setVisible(false);
@@ -209,8 +200,7 @@ MainWindow::MainWindow(QWidget *parent)
             ui->stackedWidget->setCurrentIndex(0);
             ui->page_3->setVisible(true);
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "切换为显示深度图模式");
 //            UpdateUi();
         });
@@ -224,16 +214,14 @@ MainWindow::MainWindow(QWidget *parent)
             #else
 
             #endif
-                QDateTime current_date_time = QDateTime::currentDateTime();
-                QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                QString current_date = GetCurTime_M();
                 ui->textBrowser->append(current_date + "正在采集数据...");
             }
             else
             {
                 stop_deepimg();
 
-                QDateTime current_date_time = QDateTime::currentDateTime();
-                QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                QString current_date = GetCurTime_M();
                 ui->textBrowser->append(current_date + "手动停止采集");
             }
         });
@@ -250,8 +238,7 @@ MainWindow::MainWindow(QWidget *parent)
            ui->stackedWidget->setCurrentIndex(1);
            ui->page_3->setVisible(true);
 
-           QDateTime current_date_time = QDateTime::currentDateTime();
-           QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+           QString current_date = GetCurTime_M();
            ui->textBrowser->append(current_date + "切换为显示点云模式");
 //           UpdateUi();
        });
@@ -399,8 +386,7 @@ MainWindow::MainWindow(QWidget *parent)
 //        {
 //           if(ui->checkBox->isChecked()==false)
 //           {
-//               QDateTime current_date_time = QDateTime::currentDateTime();
-//               QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+//               QString current_date = GetCurTime_M();
 //               ui->textBrowser->append(current_date + "请连接相机后再进行激光头标定");
 //           }
 
@@ -417,8 +403,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         else
         {
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "请先连接传感器再进行参数设置");
         }
     });
@@ -454,8 +439,7 @@ MainWindow::~MainWindow()
         modbus_free(m_mcs->resultdata.ctx_result);
         m_mcs->resultdata.link_result_state=false;
 
-        QDateTime current_date_time = QDateTime::currentDateTime();
-        QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+        QString current_date = GetCurTime_M();
         ui->textBrowser->append(current_date + "控制端口关闭");
     }
     if(m_mcs->resultdata.link_param_state==true)
@@ -463,8 +447,7 @@ MainWindow::~MainWindow()
         modbus_close(m_mcs->resultdata.ctx_param);
         m_mcs->resultdata.link_param_state=false;
 
-        QDateTime current_date_time = QDateTime::currentDateTime();
-        QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+        QString current_date = GetCurTime_M();
         ui->textBrowser->append(current_date + "参数端口关闭");
     }
     delete timer_tragetor_clould;
@@ -812,8 +795,7 @@ void MainWindow::showupdata_tabWidget()
         real_readnum=modbus_read_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,ALS103_REG_TOTALNUM,rcvdata);
         if(real_readnum<0)
         {
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "读取参数失败");
         }
         else
@@ -835,11 +817,18 @@ void MainWindow::showupdata_tabWidget()
             //这里添加其他设置参数显示
             /*******************/
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "读取参数成功");
         }
     }
+}
+
+QString MainWindow::GetCurTime_M()
+{
+    QDateTime current_date_time = QDateTime::currentDateTime();
+    QString current_date = " [" + current_date_time.toString("yyyy-MM-dd hh:mm:ss") + "] ";
+
+    return current_date;
 }
 
 
@@ -857,16 +846,14 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
             m_mcs->resultdata.ctx_result = modbus_new_tcp(server_ip.toUtf8(), server_port2.toInt());
             if (modbus_connect(m_mcs->resultdata.ctx_result) == -1)
             {
-                QDateTime current_date_time = QDateTime::currentDateTime();
-                QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                QString current_date = GetCurTime_M();
                 ui->textBrowser->append(current_date + "控制端口连接失败");
                 modbus_free(m_mcs->resultdata.ctx_result);
                 return;
             }
             m_mcs->resultdata.link_result_state=true;
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "控制端口连接成功");
             open_camer_modbus();
         }
@@ -878,16 +865,14 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
             m_mcs->resultdata.ctx_param = modbus_new_tcp(server_ip.toUtf8(), server_port1.toInt());
             if (modbus_connect(m_mcs->resultdata.ctx_param) == -1)
             {
-                QDateTime current_date_time = QDateTime::currentDateTime();
-                QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+                QString current_date = GetCurTime_M();
                 ui->textBrowser->append(current_date + "参数端口连接失败");
                 modbus_free(m_mcs->resultdata.ctx_param);
                 return;
             }
             m_mcs->resultdata.link_param_state=true;
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "参数端口连接成功");
         }
         //设置task信息
@@ -895,8 +880,7 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
         int rc=modbus_write_registers(m_mcs->resultdata.ctx_result,0x102,1,&task);
         if(rc!=1)
         {
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "激光器任务模式设置失败");
         }
 //        else
@@ -925,8 +909,7 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
             modbus_free(m_mcs->resultdata.ctx_result);
             m_mcs->resultdata.link_result_state=false;
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "控制端口关闭");
         }
         if(m_mcs->resultdata.link_param_state==true)
@@ -934,8 +917,7 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
             modbus_close(m_mcs->resultdata.ctx_param);
             m_mcs->resultdata.link_param_state=false;
 
-            QDateTime current_date_time = QDateTime::currentDateTime();
-            QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+            QString current_date = GetCurTime_M();
             ui->textBrowser->append(current_date + "参数端口关闭");
         }
     #endif
@@ -1388,8 +1370,7 @@ void MainWindow::slot_timer_tragetor_clould()
     m_mcs->resultdata.b_deepimg_pushoneline=false;
     ui->captureDepthBtn->setText("一键采集");
 
-    QDateTime current_date_time = QDateTime::currentDateTime();
-    QString current_date = " [" + current_date_time.toString("hh:mm:ss") + "] ";
+    QString current_date = GetCurTime_M();
     ui->textBrowser->append(current_date + "数据采集完成");
 }
 
