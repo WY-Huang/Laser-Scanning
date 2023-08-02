@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     b_int_show_cvimage_inlab_finish = true;
     b_init_show_pclclould_list_finish=true;
     b_int_show_record_finish=true;
+    recordVideo = false;
 
     connect(imgshow_thread, SIGNAL(Send_show_cvimage_inlab(cv::Mat)), this, SLOT(int_show_cvimage_inlab(cv::Mat)));
     connect(imgshow_thread, SIGNAL(Send_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)), this,
@@ -424,6 +425,9 @@ MainWindow::MainWindow(QWidget *parent)
     // 重启按钮
     connect(ui->action_restart, &QAction::triggered, this, &MainWindow::doDockerRestart);
 
+    // 将图像录制为视频
+    connect(ui->recordAsVideo, &QAction::triggered, this, &MainWindow::recordAsVideo);
+
 }
 
 
@@ -766,6 +770,12 @@ void ImgWindowShowThread::run()
 // 自定义图像显示槽
 void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
 {
+    // 如果正在录制视频，则将图像写入视频文件
+    if (videoWriter.isOpened())
+    {
+        videoWriter.write(cv_image);
+    }
+
     QImage::Format format = QImage::Format_RGB888;
     switch (cv_image.type())
     {
@@ -1456,4 +1466,28 @@ void MainWindow::doDockerRestart()
     ssh_channel_free(channel);
     ssh_disconnect(session);
     ssh_free(session);
+}
+
+void MainWindow::recordAsVideo()
+{
+    if (!recordVideo)
+    {
+        recordVideo = true;
+        ui->recordAsVideo->setText("停止录制");
+
+        QString dir="./USER_DATA/";
+        QString time;
+        GetCurTime to;
+        to.get_time_ms(&time);
+        dir = dir + time + ".avi";
+        videoWriter.open(dir.toStdString(), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(1536, 1024));
+
+    }
+    else
+    {
+        recordVideo = false;
+        ui->recordAsVideo->setText("开始录制");
+        videoWriter.release();
+    }
+
 }

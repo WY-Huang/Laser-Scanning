@@ -147,6 +147,7 @@ public:
     volatile bool camera_reset_always;    // 每次刷新都重置相机
     volatile bool finish_cloud;  // 整个点云是否采集完成
     volatile bool updateVTKShow;    // 是否刷新轮廓显示窗口
+    volatile bool recordVideo;    // 是否开始录制视频
 
 private slots:
     void int_show_cvimage_inlab(cv::Mat cv_image);// 显示图像
@@ -155,7 +156,8 @@ private slots:
     void slot_timer_tragetor_clould();      //轨迹进入点云的定时器中断函数
 
     void doDisMeasure(bool value);      // 两点距离测量
-    void doDockerRestart();         // 重启docker镜像
+    void doDockerRestart();             // 重启docker镜像
+    void recordAsVideo();               // 将图像保存为视频
 
 private:
     Ui::MainWindow *ui;
@@ -186,6 +188,8 @@ private:
     QValueAxis *axisX;
     QValueAxis *axisY;
     void initChart();
+
+    cv::VideoWriter videoWriter;    // 视频写入
 };
 
 // 图像显示线程

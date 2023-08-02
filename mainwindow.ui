@@ -163,6 +163,7 @@
     <addaction name="showTrajectory"/>
     <addaction name="showDepth"/>
     <addaction name="showPointCloud"/>
+    <addaction name="recordAsVideo"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -904,6 +905,11 @@
    </property>
    <property name="toolTip">
     <string>暂停刷新</string>
+   </property>
+  </action>
+  <action name="recordAsVideo">
+   <property name="text">
+    <string>开始录制</string>
    </property>
   </action>
  </widget>
