@@ -497,7 +497,7 @@ void ImgWindowShowThread::run()
         {
              if(lock==false)
              {
-                // 0原图，1轮廓, 2轮廓点云, 3深度图, 4点云, 5标定
+                // 0原图，1中心线, 2轮廓点云, 3深度图, 4点云, 5标定
                 switch(_p->m_mcs->e2proomdata.measurementDlg_leaser_data_mod)
                 {
                     //显示原图（不做处理）
@@ -773,6 +773,7 @@ void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
     // 如果正在录制视频，则将图像写入视频文件
     if (videoWriter.isOpened())
     {
+//        std::cout << "write..." << cv_image.size() << std::endl;
         videoWriter.write(cv_image);
     }
 
@@ -840,7 +841,6 @@ QString MainWindow::GetCurTime_M()
 
     return current_date;
 }
-
 
 
 void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
@@ -1219,6 +1219,7 @@ void MainWindow::InitSetEdit()
     ui->saveFile->setEnabled(false);
     ui->setParam->setEnabled(false);
     ui->calibration->setEnabled(false);
+    ui->recordAsVideo->setEnabled(false);
     ui->page_3->hide();
 
     QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
@@ -1268,6 +1269,7 @@ void MainWindow::UpdateUi()
         ui->setParam->setEnabled(false);
         ui->calibration->setEnabled(false);
         ui->imgShow->clear();
+        ui->recordAsVideo->setEnabled(false);
     }
     else
     {
@@ -1283,7 +1285,7 @@ void MainWindow::UpdateUi()
         ui->saveFile->setEnabled(true);
         ui->setParam->setEnabled(true);
         ui->calibration->setEnabled(true);
-
+        ui->recordAsVideo->setEnabled(true);
 
     }
 }
@@ -1475,12 +1477,26 @@ void MainWindow::recordAsVideo()
         recordVideo = true;
         ui->recordAsVideo->setText("停止录制");
 
-        QString dir="./USER_DATA/";
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "正在保存为视频...");
+
+        QString dir = "./USER_DATA/";
         QString time;
         GetCurTime to;
         to.get_time_ms(&time);
-        dir = dir + time + ".avi";
-        videoWriter.open(dir.toStdString(), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(1536, 1024));
+        dir = dir + time + ".mp4";
+
+        bool imgIsColor;
+        if (m_mcs->e2proomdata.measurementDlg_leaser_data_mod == 1)
+        {
+            imgIsColor = true;
+        }
+        else
+        {
+            imgIsColor = false;
+        }
+        videoWriter.open(dir.toStdString(), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30,
+                         cv::Size(CAMIMAGE_WIDTH, CAMIMAGE_HEIGHT), imgIsColor);
 
     }
     else
@@ -1488,6 +1504,9 @@ void MainWindow::recordAsVideo()
         recordVideo = false;
         ui->recordAsVideo->setText("开始录制");
         videoWriter.release();
+
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "视频保存成功！");
     }
 
 }
