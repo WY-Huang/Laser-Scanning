@@ -664,6 +664,7 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="connectCam">
    <property name="icon">
     <iconset>

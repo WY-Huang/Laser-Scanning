@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QtCore/QTextCodec>
 #include <libssh/libssh.h>
+#include <QElapsedTimer>
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
 #include <vtkExtractSelection.h>
@@ -190,6 +191,9 @@ private:
     void initChart();
 
     cv::VideoWriter videoWriter;    // 视频写入
+    QElapsedTimer timerElapsed;     // 计时器计算FPS
+    QTimer *fpsShowTimer;
+    qint64 fpsShow;
 };
 
 // 图像显示线程

@@ -22,6 +22,13 @@ MainWindow::MainWindow(QWidget *parent)
     timer_tragetor_clould=new QTimer(this);
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
 
+    // fps的timer
+    fpsShowTimer = new QTimer(this);
+    fpsShowTimer->setInterval(200);
+    connect(fpsShowTimer, &QTimer::timeout, this, [=]() {
+            ui->statusBar->showMessage("FPS: " + QString::number(fpsShow));
+    });
+
     finish_line = false;
     camera_reset_once = true;   // 首次重置相机视角
     camera_reset_always = false;
@@ -89,6 +96,8 @@ MainWindow::MainWindow(QWidget *parent)
         {
             b_imgshow_thread = true;
             imgshow_thread->start();
+            timerElapsed.start();   // 计时开始
+            fpsShowTimer->start();  // fpsShowTimer计时开始
             img_windowshow(true, ui->imgShow);
             UpdateUi();
         }
@@ -770,6 +779,8 @@ void ImgWindowShowThread::run()
 // 自定义图像显示槽
 void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
 {
+    fpsShow = 1000 / (timerElapsed.elapsed());
+    timerElapsed.start();
     // 如果正在录制视频，则将图像写入视频文件
     if (videoWriter.isOpened())
     {
