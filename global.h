@@ -6,11 +6,11 @@
 #define LEASER_VIEW_CONER_COL       26.9f      //水平视场26.9度
 #define LEASER_VIEW_CONER_ROW       0.0f      //垂直视场0度
 
-#define CAMIMAGE_HEIGHT             1024     //初始化相机图像长宽
-#define CAMIMAGE_WIDTH              1536
+#define CAMIMAGE_HEIGHT             2048     //初始化相机图像长宽
+#define CAMIMAGE_WIDTH              3072
 
-#define CAMBUILD_IMAGE_WIDTH        1024
-#define CAMBUILD_IMAGE_HEIGHT       1536
+#define CAMBUILD_IMAGE_WIDTH        2048
+#define CAMBUILD_IMAGE_HEIGHT       3072
 
 #define CAMTOTALNUM                 1       //当前同型号下支持几路相机
 
