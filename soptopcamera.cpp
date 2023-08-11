@@ -5,7 +5,7 @@ Camshow::Camshow(SoptopCamera *statci_p): Node("qt_imgshow")
 {
   _p = statci_p;
 
-  subscription_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitimage>(
+  subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
         "camera_tis_node/image", rclcpp::SensorDataQoS(), std::bind(&Camshow::topic_callback, this, _1));
 
 //  subscriresult_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitmsg>(
@@ -18,12 +18,12 @@ Camshow::~Camshow()
 
 }
 
-void Camshow::topic_callback(const tutorial_interfaces::msg::IfAlgorhmitimage msg)  const
+void Camshow::topic_callback(const sensor_msgs::msg::Image msg)  const
 {
   if(_p->b_connect==true)
   {
     cv_bridge::CvImagePtr cv_ptr;
-    cv_ptr = cv_bridge::toCvCopy(msg.image, msg.image.encoding);
+    cv_ptr = cv_bridge::toCvCopy(msg, msg.encoding);
     *(_p->cv_image) = cv_ptr->image.clone();
     _p->b_updataimage_finish=true;
     _p->callbacknumber++;
@@ -354,7 +354,7 @@ Cambuild::Cambuild(SoptopCamera *statci_p):Node("my_cambuild"){
 //  subscription_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitmsg>(
 //        "/laser_imagepos_node/result", rclcpp::SensorDataQoS(), std::bind(&Camshow::topic_callback, this, _1));
 //#else
-subscription1_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitimage>(
+subscription1_ = this->create_subscription<sensor_msgs::msg::Image>(
       "/rotate_image_node/image_rotated", rclcpp::SensorDataQoS(), std::bind(&Cambuild::cambuild_callback, this, _1));
 //#endif
 
@@ -380,13 +380,13 @@ Cambuild::~Cambuild()
        _p->_pub_config.reset();
 }
 
-void Cambuild::cambuild_callback(const tutorial_interfaces::msg::IfAlgorhmitimage msg) const
+void Cambuild::cambuild_callback(const sensor_msgs::msg::Image msg) const
 { if(_p->b_connect==true)
     {
       if(_p->b_int_show_image_inlab==false)
       {
           cv_bridge::CvImagePtr cv_ptr;
-          cv_ptr = cv_bridge::toCvCopy(msg.image, "mono8");
+          cv_ptr = cv_bridge::toCvCopy(msg, "mono8");
           if(!cv_ptr->image.empty())
           {
               *(_p->cv_image)=cv_ptr->image.clone();

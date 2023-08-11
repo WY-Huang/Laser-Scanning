@@ -208,8 +208,8 @@
    <addaction name="showCam"/>
    <addaction name="showCenter"/>
    <addaction name="showTrajectory"/>
-   <addaction name="showDepth"/>
    <addaction name="showPointCloud"/>
+   <addaction name="showDepth"/>
    <addaction name="separator"/>
    <addaction name="openFile"/>
    <addaction name="saveFile"/>
@@ -739,7 +739,7 @@
      <normaloff>:/toolbar_ico/icons/range.png</normaloff>:/toolbar_ico/icons/range.png</iconset>
    </property>
    <property name="text">
-    <string>显示深度</string>
+    <string>采集深度图</string>
    </property>
   </action>
   <action name="showPointCloud">
@@ -748,7 +748,7 @@
      <normaloff>:/toolbar_ico/icons/pointcloud.png</normaloff>:/toolbar_ico/icons/pointcloud.png</iconset>
    </property>
    <property name="text">
-    <string>显示点云</string>
+    <string>采集点云</string>
    </property>
   </action>
   <action name="setParam">
