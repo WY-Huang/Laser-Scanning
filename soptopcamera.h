@@ -10,6 +10,9 @@
 #include <tutorial_interfaces/msg/if_algorhmitcloud.hpp>
 #include <tutorial_interfaces/msg/if_algorhmitmsg.hpp>
 
+#include <tutorial_interfaces/msg/if_algorhmitimage.hpp>
+#include <tutorial_interfaces/msg/if_algorhmitrobpos.hpp>
+
 #include <opencv2/opencv.hpp>
 #include <QObject>
 #include <QThread>
@@ -150,13 +153,13 @@ public:
 //#ifdef DEBUG_MYINTERFACES
 //    rclcpp::Subscription<tutorial_interfaces::msg::IfAlgorhmitmsg>::SharedPtr subscription_;
 //#else
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription1_;
+    rclcpp::Subscription<tutorial_interfaces::msg::IfAlgorhmitimage>::SharedPtr subscription1_;
 //#endif
 
 //#ifdef DEBUG_MYINTERFACES
     //void topic_callback(const tutorial_interfaces::msg::IfAlgorhmitmsg msg)  const;
 //#else
-    void cambuild_callback(const sensor_msgs::msg::Image msg)  const;
+    void cambuild_callback(const tutorial_interfaces::msg::IfAlgorhmitimage msg)  const;
 //#endif
 
 };
@@ -171,8 +174,8 @@ public:
 private:
     SoptopCamera *_p;
 public:
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
-    void topic_callback(const sensor_msgs::msg::Image msg)  const;
+    rclcpp::Subscription<tutorial_interfaces::msg::IfAlgorhmitimage>::SharedPtr subscription_;
+    void topic_callback(const tutorial_interfaces::msg::IfAlgorhmitimage msg)  const;
 };
 
 

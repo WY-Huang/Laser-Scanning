@@ -1,29 +1,11 @@
 #include "soptopcamera.h"
 
-
+// 图像订阅节点
 Camshow::Camshow(SoptopCamera *statci_p): Node("qt_imgshow")
 {
   _p = statci_p;
-#ifdef ONLY_TEST_CAMER
-  system("ros2 param set gpio_raspberry_node laser True");  //激光打开
-  system("ros2 param set /camera_tis_node power True");     //相机打开
-  _p->updata_parameter();                                   //应用相机参数
-#endif
-/*
-  auto stamp = this->now();
-  time_t t;
-  int t2;
-  double t3;
-  struct tm *p;
-  t=stamp.seconds();
-  t2=stamp.nanoseconds();
-  t3=stamp.nanoseconds();
-  t2=t2/1000000.0;
-  p=gmtime(&t);
-  char s[100];
-  sprintf(s, "%d-%d-%d %d:%d:%d", 1900+p->tm_year,1+p->tm_mon,p->tm_mday,(p->tm_hour+8)%24,p->tm_min,p->tm_sec);
-*/
-  subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
+
+  subscription_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitimage>(
         "camera_tis_node/image", rclcpp::SensorDataQoS(), std::bind(&Camshow::topic_callback, this, _1));
 
 //  subscriresult_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitmsg>(
@@ -36,12 +18,12 @@ Camshow::~Camshow()
 
 }
 
-void Camshow::topic_callback(const sensor_msgs::msg::Image msg)  const
+void Camshow::topic_callback(const tutorial_interfaces::msg::IfAlgorhmitimage msg)  const
 {
   if(_p->b_connect==true)
   {
     cv_bridge::CvImagePtr cv_ptr;
-    cv_ptr = cv_bridge::toCvCopy(msg, msg.encoding);
+    cv_ptr = cv_bridge::toCvCopy(msg.image, msg.image.encoding);
     *(_p->cv_image) = cv_ptr->image.clone();
     _p->b_updataimage_finish=true;
     _p->callbacknumber++;
@@ -74,7 +56,8 @@ void Camshow::result_callback(tutorial_interfaces::msg::IfAlgorhmitmsg msg)  con
   }
 }
 */
-#if 1
+
+// 点云订阅节点
 Cloudshow::Cloudshow(SoptopCamera *statci_p): Node("qt_cloudshow")
 {
   _p=statci_p;
@@ -121,8 +104,8 @@ void Cloudshow::cloud_callback(const tutorial_interfaces::msg::IfAlgorhmitcloud 
     _p->stop_b_connect=true;
   }
 }
-#endif
 
+// 相机构造函数
 SoptopCamera::SoptopCamera()
 {
   i32_exposure_min=SOPTOPCAM_EXPOSURE_MIN;
@@ -304,7 +287,7 @@ void SoptopCamera::int_show_image_inlab()
     break;
   }
   QImage img = QImage((const uchar*)cv_image->data, cv_image->cols, cv_image->rows,
-  cv_image->cols * cv_image->channels(), format);
+                      cv_image->cols * cv_image->channels(), format);
   img = img.scaled(m_lab_show->width(),m_lab_show->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
   m_lab_show->setPixmap(QPixmap::fromImage(img));
 }
@@ -371,7 +354,7 @@ Cambuild::Cambuild(SoptopCamera *statci_p):Node("my_cambuild"){
 //  subscription_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitmsg>(
 //        "/laser_imagepos_node/result", rclcpp::SensorDataQoS(), std::bind(&Camshow::topic_callback, this, _1));
 //#else
-subscription1_ = this->create_subscription<sensor_msgs::msg::Image>(
+subscription1_ = this->create_subscription<tutorial_interfaces::msg::IfAlgorhmitimage>(
       "/rotate_image_node/image_rotated", rclcpp::SensorDataQoS(), std::bind(&Cambuild::cambuild_callback, this, _1));
 //#endif
 
@@ -397,13 +380,13 @@ Cambuild::~Cambuild()
        _p->_pub_config.reset();
 }
 
-void Cambuild::cambuild_callback(const sensor_msgs::msg::Image msg) const
+void Cambuild::cambuild_callback(const tutorial_interfaces::msg::IfAlgorhmitimage msg) const
 { if(_p->b_connect==true)
     {
       if(_p->b_int_show_image_inlab==false)
       {
           cv_bridge::CvImagePtr cv_ptr;
-          cv_ptr = cv_bridge::toCvCopy(msg, "mono8");
+          cv_ptr = cv_bridge::toCvCopy(msg.image, "mono8");
           if(!cv_ptr->image.empty())
           {
               *(_p->cv_image)=cv_ptr->image.clone();
