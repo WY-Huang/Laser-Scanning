@@ -78,7 +78,7 @@ LIBS += /home/wanyel/Downloads/modbus/libmodbus/install/lib/libmodbus.so*
 
 #ros2接口
 INCLUDEPATH += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/include
-LIBS += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/include/libtutorial_interfaces*.so
+LIBS += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/lib/libtutorial_interfaces*.so
 
 #Eigen库
 INCLUDEPATH += /usr/include/eigen3
