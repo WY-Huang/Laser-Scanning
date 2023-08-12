@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     m_mcs = m_mcs->Get();
-    pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
+    pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT, CAMIMAGE_WIDTH, CV_8UC1);
 
     paramset = new laser_paramsetingdlg(m_mcs);
 //    imgShowLabel = new LabelImageViewer;
@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     camera_reset_once = true;   // 首次重置相机视角
     camera_reset_always = false;
     finish_cloud = false;
+    cloud2deepimg = false;
     updateVTKShow = true;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
@@ -548,7 +549,17 @@ void ImgWindowShowThread::run()
                     {
                        if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
                        {
-                          _p->m_mcs->resultdata.cv_imagelinecenter=cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC3);
+                            /*
+                            cv::Mat tempImg;
+                            if(_p->m_mcs->cam->sop_cam[0].b_updataimage_finish==true)
+                            {
+                                tempImg = _p->m_mcs->cam->sop_cam[0].cv_image->clone();
+                                _p->m_mcs->cam->sop_cam[0].b_updataimage_finish=false;
+                            }
+                            cv::cvtColor(tempImg, tempImg, cv::COLOR_GRAY2BGR);
+                            tempImg.copyTo(_p->m_mcs->resultdata.cv_imagelinecenter);
+                            */
+                           _p->m_mcs->resultdata.cv_imagelinecenter=cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC3);
                           if(_p->m_mcs->cam->sop_cam[0].b_cv_lineEn==true)
                           {
                              _p->cv_line=(*_p->m_mcs->cam->sop_cam[0].cv_line).linepoint;
@@ -559,8 +570,8 @@ void ImgWindowShowThread::run()
                                   int x=n;
                                   int y=_p->cv_line[n].z;
                                   y=_p->m_mcs->resultdata.cv_imagelinecenter.rows-1-y;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3]=0;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=255;
+                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3]=255;
+                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=0;
                                   _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+2]=0;
                                 }
                              }
@@ -623,6 +634,7 @@ void ImgWindowShowThread::run()
                     // 显示深度图
                     case 3:
                     {
+                        /*
                        if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
                        {
                            if(_p->m_mcs->resultdata.b_deepimg_pushoneline==true)
@@ -649,6 +661,8 @@ void ImgWindowShowThread::run()
                            }
                            _p->m_mcs->cam->sop_cam[0].b_updatacloud_finish=false;
                        }
+
+
                        if(_p->m_mcs->resultdata.b_deepimg_showclould_finish==true)
                        {   //采集完成,点云转深度图
                            _p->m_mcs->resultdata.b_deepimg_showclould_finish=false;
@@ -664,13 +678,25 @@ void ImgWindowShowThread::run()
 //                             emit Send_show_record("完成数据采集");
 //                           }
                        }
-                       if(_p->b_int_show_cvimage_inlab_finish==true)
-                       {
-                           _p->b_int_show_cvimage_inlab_finish=false;
-                           _p->pclclass.cv_f32deepimg_to_show8deepimg(_p->m_mcs->resultdata.cv_deepimg,&_p->m_mcs->resultdata.cv_8deepimg_temp);
-                           qRegisterMetaType< cv::Mat >("cv::Mat"); //传递自定义类型信号时要添加注册
-                           emit Send_show_cvimage_inlab(_p->m_mcs->resultdata.cv_8deepimg_temp);
-                       }
+                       */
+                        if (_p->cloud2deepimg == true)
+                        {
+                            _p->cloud2deepimg = false;
+                            _p->pclclass.pointCloud2imgI(&_p->m_mcs->resultdata.ptr_pcl_deepclould,&_p->m_mcs->resultdata.cv_deepimg,_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis);
+                            _p->pclclass.addpoint_image(&_p->m_mcs->resultdata.cv_deepimg,
+                                                        (int)(_p->m_mcs->e2proomdata.paramsetingDlg_col_add_distance/_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis+0.5),
+                                                        (int)(_p->m_mcs->e2proomdata.paramsetingDlg_row_add_distance/_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis+0.5));
+
+                        }
+
+                        if(_p->b_int_show_cvimage_inlab_finish==true)
+                        {
+                            _p->b_int_show_cvimage_inlab_finish=false;
+                            _p->pclclass.cv_f32deepimg_to_show8deepimg(_p->m_mcs->resultdata.cv_deepimg,&_p->m_mcs->resultdata.cv_8deepimg_temp);
+                            qRegisterMetaType< cv::Mat >("cv::Mat"); //传递自定义类型信号时要添加注册
+                            emit Send_show_cvimage_inlab(_p->m_mcs->resultdata.cv_8deepimg_temp);
+                        }
+
                        if(_p->u8_save_data==1)//保存结果
                        {
                            QString str=_p->save_imgdata_cvimage(_p->m_mcs->resultdata.cv_deepimg);
@@ -727,6 +753,7 @@ void ImgWindowShowThread::run()
                              {
                                _p->b_int_show_record_finish=false;
                                _p->finish_cloud = true;
+                               _p->cloud2deepimg = true;
                                qRegisterMetaType<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>("pcl::PointCloud<pcl::PointXYZRGB>::Ptr"); //传递自定义类型信号时要添加注册
                                emit Send_show_pclclould_list(_p->m_mcs->resultdata.ptr_pcl_deepclould);
 //                               qRegisterMetaType< QString >("QString");
@@ -779,8 +806,12 @@ void ImgWindowShowThread::run()
 // 自定义图像显示槽
 void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
 {
-    fpsShow = 1000 / (timerElapsed.elapsed());
-    timerElapsed.start();
+    if (timerElapsed.elapsed() != 0)
+    {
+        fpsShow = 1000 / (timerElapsed.elapsed());
+        timerElapsed.start();
+    }
+
     // 如果正在录制视频，则将图像写入视频文件
     if (videoWriter.isOpened())
     {

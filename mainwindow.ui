@@ -161,8 +161,8 @@
     <addaction name="showCam"/>
     <addaction name="showCenter"/>
     <addaction name="showTrajectory"/>
-    <addaction name="showDepth"/>
     <addaction name="showPointCloud"/>
+    <addaction name="showDepth"/>
     <addaction name="recordAsVideo"/>
    </widget>
    <widget class="QMenu" name="menu_2">
@@ -379,7 +379,7 @@
           <selectedon>:/toolbar_ico/icons/down.png</selectedon>:/toolbar_ico/icons/right.png</iconset>
         </attribute>
         <attribute name="label">
-         <string>点云/深度图采集参数</string>
+         <string>点云采集参数</string>
         </attribute>
         <widget class="QLabel" name="labelDis">
          <property name="geometry">
@@ -739,7 +739,7 @@
      <normaloff>:/toolbar_ico/icons/range.png</normaloff>:/toolbar_ico/icons/range.png</iconset>
    </property>
    <property name="text">
-    <string>采集深度图</string>
+    <string>显示深度图</string>
    </property>
   </action>
   <action name="showPointCloud">
