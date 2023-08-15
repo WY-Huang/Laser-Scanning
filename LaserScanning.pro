@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,6 +28,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     my_params.cpp \
+    mychartview.cpp \
     mypclfunction.cpp \
     resultdata.cpp \
     showimgpcddlg.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     laser_paramsetingdlg.h \
     mainwindow.h \
     my_params.h \
+    mychartview.h \
     mypclfunction.h \
     resultdata.h \
     showimgpcddlg.h \
@@ -70,9 +72,9 @@ LIBS += /opt/ros/galactic/lib/x86_64-linux-gnu/lib*.so
 INCLUDEPATH += /home/wanyel/Downloads/modbus/libmodbus/install/include
 LIBS += /home/wanyel/Downloads/modbus/libmodbus/install/lib/libmodbus.so*
 
-#自定义ROS接口添加
-INCLUDEPATH +=/home/wanyel/custom_interfaces/install/tutorial_interfaces/include
-LIBS += /home/wanyel/custom_interfaces/install/tutorial_interfaces/lib/libtutorial_interfaces*.so
+#ros2接口
+INCLUDEPATH += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/include
+LIBS += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/lib/libtutorial_interfaces*.so
 
 #Eigen库
 INCLUDEPATH += /usr/include/eigen3

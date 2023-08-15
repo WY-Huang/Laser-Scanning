@@ -25,7 +25,7 @@ cambuilddlg::cambuilddlg(My_params *mcs, QWidget *parent) :
     b_key_up_pull=false;
     b_key_down_pull=false;
 
-    connect(ui->cambuildBtn,&QPushButton::clicked,[=](){
+    connect(ui->cambuildBtn,&QPushButton::clicked, this, [=](){
         m_mcs->e2proomdata.camdlg_modposX1=ui->x1_Edit->text().toFloat()*100;
         m_mcs->e2proomdata.camdlg_modposY1=ui->y1_Edit->text().toFloat()*100;
         m_mcs->e2proomdata.camdlg_modposX2=ui->x2_Edit->text().toFloat()*100;
@@ -62,11 +62,13 @@ cambuilddlg::cambuilddlg(My_params *mcs, QWidget *parent) :
             ui->a31_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[6],'f',3));
             ui->a32_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[7],'f',3));
             ui->a33_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[8],'f',3));
+
+            ui->record->append("标定参数计算完成");
         }
 
     });
 
-    connect(ui->confimbuildBtn,&QPushButton::clicked,[=](){
+    connect(ui->confimbuildBtn,&QPushButton::clicked, this, [=](){
         m_mcs->cam->sop_cam->ros_set_homography_matrix(m_mcs->cam->sop_cam[0].ros_Params);
         QString msg="line_center_reconstruction_node:\n  homography_matrix: ["+
                 QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[0])+","+
@@ -112,6 +114,14 @@ void cambuilddlg::init_dlg_show()
     ui->y3_Edit->setText(QString::number(m_mcs->e2proomdata.camdlg_modposY3/100.0,'f',2));
     ui->x4_Edit->setText(QString::number(m_mcs->e2proomdata.camdlg_modposX4/100.0,'f',2));
     ui->y4_Edit->setText(QString::number(m_mcs->e2proomdata.camdlg_modposY4/100.0,'f',2));
+//    ui->x1_Edit->setText(QString::number(0/100.0,'f',2));
+//    ui->y1_Edit->setText(QString::number(50800/100.0,'f',2));
+//    ui->x2_Edit->setText(QString::number(10800/100.0,'f',2));
+//    ui->y2_Edit->setText(QString::number(0/100.0,'f',2));
+//    ui->x3_Edit->setText(QString::number(44400/100.0,'f',2));
+//    ui->y3_Edit->setText(QString::number(0/100.0,'f',2));
+//    ui->x4_Edit->setText(QString::number(69300/100.0,'f',2));
+//    ui->y4_Edit->setText(QString::number(50800/100.0,'f',2));
     if(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix.size()==9)
     {
         ui->a11_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[0],'f',3));
@@ -123,6 +133,10 @@ void cambuilddlg::init_dlg_show()
         ui->a31_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[6],'f',3));
         ui->a32_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[7],'f',3));
         ui->a33_label->setText(QString::number(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix[8],'f',3));
+    }
+    else
+    {
+//        std::cout << "标定参数初始化读取失败" << std::endl;
     }
     thread1 = new cambuildThread(this);
 
@@ -307,13 +321,16 @@ void cambuilddlg::drow_point(cv::Mat cvimg)
         }
     }
 
-    std::vector<cv::Point2f> points_trans(1),corners_trans;
-    points_trans[0]=cv::Point2f(ui->widget->mousePos.rx()*d_zoomx,ui->widget->mousePos.ry()*d_zoomy);
-    auto _homo = cv::Mat(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix, true).reshape(1, 3);
-    cv::perspectiveTransform(points_trans, corners_trans, _homo);
-    ui->posY_label->setText(QString::number(corners_trans[0].x,'f',2));
-    ui->posZ_label->setText(QString::number(corners_trans[0].y,'f',2));
-
+    // 根据标定矩阵校验标定是否正确
+    if (m_mcs->cam->sop_cam[0].ros_Params.homography_matrix.size() == 9)
+    {
+        std::vector<cv::Point2f> points_trans(1), corners_trans;
+        points_trans[0]=cv::Point2f(ui->widget->mousePos.rx()*d_zoomx,ui->widget->mousePos.ry()*d_zoomy);
+        auto _homo = cv::Mat(m_mcs->cam->sop_cam[0].ros_Params.homography_matrix, true).reshape(1, 3);
+        cv::perspectiveTransform(points_trans, corners_trans, _homo);
+        ui->posY_label->setText(QString::number(corners_trans[0].x,'f',2));
+        ui->posZ_label->setText(QString::number(corners_trans[0].y,'f',2));
+    }
 
     cv::Point2f p1(m_mcs->e2proomdata.camdlg_cvimg_posX1,m_mcs->e2proomdata.camdlg_cvimg_posY1);
     cv::Point2f p1_1=p1;
@@ -346,7 +363,7 @@ void cambuilddlg::drow_point(cv::Mat cvimg)
 
 void cambuilddlg::init_show_cambuild_inlab(cv::Mat cvimg)
 {
-    cv::waitKey(1000);
+//    cv::waitKey(1000);
     if(!cvimg.empty())
     {
          if(cvimg.rows!=CAMBUILD_IMAGE_HEIGHT||

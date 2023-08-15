@@ -34,7 +34,7 @@ public:
     //把浮点型深度图转成8位图，死区用0表示
     void cv_f32deepimg_to_show8deepimg(cv::Mat f32_deepimg,cv::Mat *f8_deepimg);
     //把点云投影到Z平面，强度用Z表示
-    void pointCloud2imgI(pcl::PointCloud<pcl::PointXYZRGB>::Ptr *point_cloud_ptr_In, cv::Mat *f8_deepimg,double resolution);
+    void pointCloud2imgI(pcl::PointCloud<pcl::PointXYZRGB>::Ptr *point_cloud_ptr_In, cv::Mat *f8_deepimg, double resolution);
     Int8 Myfixfdata(float *dataIn_Out,Uint8 *mask,Int32 num);
     //插补s
     void addpoint_image(cv::Mat *f8_deepimg,int coldis,int rowdis);

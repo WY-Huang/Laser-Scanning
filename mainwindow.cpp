@@ -2,32 +2,44 @@
 #include "ui_mainwindow.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     m_mcs = m_mcs->Get();
-    pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC1);
+    pImage = cv::Mat::zeros(CAMIMAGE_HEIGHT, CAMIMAGE_WIDTH, CV_8UC1);
 
     paramset = new laser_paramsetingdlg(m_mcs);
-    imgShowLabel = new LabelImageViewer;
-    indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
+//    imgShowLabel = new LabelImageViewer;
+//    indexImgShowLabel = ui->stackedWidget->addWidget(imgShowLabel);
 
     InitSetEdit();  // 界面初始化
     vtk_init();
+    initChart();
 //  自定义定时器槽 slot_timer_tragetor_clould()
     timer_tragetor_clould=new QTimer(this);
     connect(timer_tragetor_clould, SIGNAL(timeout()), this, SLOT(slot_timer_tragetor_clould()));
 
+    // fps的timer
+    fpsShowTimer = new QTimer(this);
+    fpsShowTimer->setInterval(200);
+    connect(fpsShowTimer, &QTimer::timeout, this, [=]() {
+            ui->statusBar->showMessage("FPS: " + QString::number(fpsShow));
+    });
+
     finish_line = false;
     camera_reset_once = true;   // 首次重置相机视角
+    camera_reset_always = false;
     finish_cloud = false;
+    cloud2deepimg = false;
     updateVTKShow = true;
     imgshow_thread = new ImgWindowShowThread(this);
     b_int_show_cvimage_inlab_finish = true;
     b_init_show_pclclould_list_finish=true;
     b_int_show_record_finish=true;
+    recordVideo = false;
 
     connect(imgshow_thread, SIGNAL(Send_show_cvimage_inlab(cv::Mat)), this, SLOT(int_show_cvimage_inlab(cv::Mat)));
     connect(imgshow_thread, SIGNAL(Send_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr)), this,
@@ -57,7 +69,8 @@ MainWindow::MainWindow(QWidget *parent)
           }
           else
           {
-//            ui->record->append("等采集数据完成后再进行此操作");
+              QString current_date = GetCurTime_M();
+              ui->textBrowser->append(current_date + "等采集数据完成后再进行此操作");
           }
         }
     });
@@ -71,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent)
            {
              mkdir("./USER_DATA",S_IRWXU);
            }
+
+           QString current_date = GetCurTime_M();
+           ui->textBrowser->append(current_date + "保存成功");
        });
 
     // 连接按钮控制，lambda表达式
@@ -81,13 +97,14 @@ MainWindow::MainWindow(QWidget *parent)
         {
             b_imgshow_thread = true;
             imgshow_thread->start();
-
-            img_windowshow(true, imgShowLabel);
+            timerElapsed.start();   // 计时开始
+            fpsShowTimer->start();  // fpsShowTimer计时开始
+            img_windowshow(true, ui->imgShow);
             UpdateUi();
         }
         else
         {
-            img_windowshow(false, imgShowLabel);
+            img_windowshow(false, ui->imgShow);
             UpdateUi();
         }
     });
@@ -100,7 +117,8 @@ MainWindow::MainWindow(QWidget *parent)
             int alg0_99_threshold=ui->exposureValue->text().toInt();
             if(alg0_99_threshold<20||alg0_99_threshold>65535)
             {
-//                ui->record->append("设置相机曝光值超出范围");
+                QString current_date = GetCurTime_M();
+                ui->textBrowser->append(current_date + "设置相机曝光值超出范围");
             }
             else
             {
@@ -109,19 +127,23 @@ MainWindow::MainWindow(QWidget *parent)
                 int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,1,tab_reg);
                 if(rc!=1)
                 {
-//                    ui->record->append("设置曝光参数失败");
+                    QString current_date = GetCurTime_M();
+                    ui->textBrowser->append(current_date + "设置曝光参数失败");
                 }
                 else
                 {
                     m_mcs->cam->sop_cam[0].i32_exposure=alg0_99_threshold;
                     m_mcs->cam->sop_cam[0].write_para();
-//                    ui->record->append("设置曝光参数成功");
+
+                    QString current_date = GetCurTime_M();
+                    ui->textBrowser->append(current_date + "设置曝光参数成功");
                 }
             }
         }
         else
         {
-//            ui->record->append("请连接相机后再设置曝光值");
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "请连接相机后再设置曝光值");
         }
     });
 
@@ -131,10 +153,13 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=0;
-          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "切换为显示原图模式");
         UpdateUi();
+        ui->page_3->setVisible(false);
     });
 
     // 显示中心线按钮
@@ -144,23 +169,29 @@ MainWindow::MainWindow(QWidget *parent)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
           m_mcs->cam->sop_cam[0].node_mode=1;
-          m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "切换为显示中心线模式");
         UpdateUi();
+        ui->page_3->setVisible(false);
     });
 
-    //显示轨迹
+    //显示轮廓
     connect(ui->showTrajectory, &QAction::triggered, this, [=](){
             if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
-//            ui->record->append("切换为显示轨迹模式");
-            ui->stackedWidget->setCurrentIndex(1);
+
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "切换为显示轮廓模式");
+            ui->stackedWidget->setCurrentIndex(2);
+            ui->page_3->setVisible(false);
 
 //            create_axis();
            // m_mcs->resultdata.viewer->removeAllPointClouds();
@@ -173,14 +204,15 @@ MainWindow::MainWindow(QWidget *parent)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
               m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=3;
 
-//            ui->stackedWidget->setCurrentIndex(0);
-            ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+            ui->stackedWidget->setCurrentIndex(0);
+            ui->page_3->setVisible(true);
 
-//            ui->record->append("切换为显示深度图模式");
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "切换为显示深度图模式");
 //            UpdateUi();
         });
 
@@ -193,12 +225,15 @@ MainWindow::MainWindow(QWidget *parent)
             #else
 
             #endif
-//                ui->record->append("正在采集数据......");
+                QString current_date = GetCurTime_M();
+                ui->textBrowser->append(current_date + "正在采集数据...");
             }
             else
             {
                 stop_deepimg();
-//                ui->record->append("手动停止采集");
+
+                QString current_date = GetCurTime_M();
+                ui->textBrowser->append(current_date + "手动停止采集");
             }
         });
 
@@ -208,14 +243,50 @@ MainWindow::MainWindow(QWidget *parent)
            {
              m_mcs->cam->sop_cam[0].DisConnect();
              m_mcs->cam->sop_cam[0].node_mode=1;
-             m_mcs->cam->sop_cam[0].InitConnect(imgShowLabel);
+             m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
            }
            m_mcs->e2proomdata.measurementDlg_leaser_data_mod=4;
            ui->stackedWidget->setCurrentIndex(1);
-//           ui->record->append("切换为显示点云图模式");
+           ui->page_3->setVisible(true);
+
+           QString current_date = GetCurTime_M();
+           ui->textBrowser->append(current_date + "切换为显示点云模式");
 //           UpdateUi();
        });
 
+    // 点云自适应缩放
+    connect(ui->actionactionCemaraView, &QAction::toggled, this, [=](){ // bool checked
+//        float zoomFactor = 1.5;
+//        ui->graphicsView->chart()->
+//        ui->graphicsView->update();
+//        vtkCamera* camera = renderer->GetActiveCamera();
+//        camera->SetPosition(-1, 0, 0);
+//        camera->SetViewUp (0, 0, -1);
+//        camera->SetFocalPoint (0, 0, 0);
+//        renderer->ResetCamera();
+//        ui->pclShow->GetRenderWindow()->Render();
+//        ui->pclShow->update();
+//        if(checked)
+//        {
+//            camera_reset_always = true;
+//        }
+//        else
+//        {
+//            camera_reset_always = false;
+//        }
+    });
+    // 数据暂停刷新按钮
+    connect(ui->actionPause, &QAction::toggled, this, [=](bool checked){
+        if (checked)
+        {
+            updateVTKShow = false;
+        }
+        else
+        {
+            updateVTKShow = true;
+        }
+
+    });
     // 点云选两点测距按钮
     connect(ui->actiondisMeasure, &QAction::toggled, this, [=](bool checked){
         doDisMeasure(checked);
@@ -235,7 +306,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actiondown,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -246,7 +316,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actionforward,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -267,7 +336,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actionright,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -278,7 +346,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
      connect(ui->actionup,&QAction::triggered, this, [=]()
        {
         vtkCamera* camera = renderer->GetActiveCamera();
@@ -292,45 +359,49 @@ MainWindow::MainWindow(QWidget *parent)
 
     //激光头标定
     connect(ui->calibration, &QAction::triggered, this, [=](){
-    if(m_mcs->resultdata.link_param_state==true)
-    {
-       m_mcs->e2proomdata.measurementDlg_leaser_data_mod = 5;
-       u_int16_t tab_reg[1];
-       tab_reg[0] = 2;
-       int rc = modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD, 1, tab_reg);
-       if(rc != 1)
-       {
-        //   if(ui->checkBox->isChecked()==false)
-        //      ui->record->append(QString::fromLocal8Bit("写入视图步骤失败"));
-       }
-       else
-       {
-           m_mcs->cam->sop_cam[0].DisConnect();
-           m_mcs->cam->sop_cam[0].node_mode = 3;
-           m_mcs->cam->sop_cam[0].InitConnect1();
+        if(m_mcs->resultdata.link_param_state==true)
+        {
+           m_mcs->e2proomdata.measurementDlg_leaser_data_mod = 5;
+           u_int16_t tab_reg[1];
+           tab_reg[0] = 1;
+           int rc = modbus_write_registers(m_mcs->resultdata.ctx_param, ALS_SHOW_STEP_REG_ADD, 1, tab_reg);
+           if(rc != 1)
+           {
+            //   if(ui->checkBox->isChecked()==false)
+            //      ui->record->append(QString::fromLocal8Bit("写入视图步骤失败"));
+           }
+           else
+           {
+               m_mcs->cam->sop_cam[0].DisConnect();
+               m_mcs->cam->sop_cam[0].node_mode = 3;
+               m_mcs->cam->sop_cam[0].InitConnect1();
 
-           cambuild = new cambuilddlg(m_mcs);
-           cambuild->init_dlg_show();
-           cambuild->setWindowTitle(QString::fromLocal8Bit("激光平面标定"));
-           cambuild->exec();
-           cambuild->close_dlg_show();
+               cambuild = new cambuilddlg(m_mcs);
+               cambuild->init_dlg_show();
+               cambuild->setWindowTitle(QString::fromLocal8Bit("激光平面标定"));
+               cambuild->exec();
+               cambuild->close_dlg_show();
 
-           delete cambuild;
+               delete cambuild;
 
-//           tab_reg[0]=1;
-//           int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS_SHOW_STEP_REG_ADD,1,tab_reg);
-//           if(rc!=1)
+    //           tab_reg[0]=1;
+    //           int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS_SHOW_STEP_REG_ADD,1,tab_reg);
+    //           if(rc!=1)
+    //           {
+    //               if(ui->checkBox->isChecked()==false)
+    //                 ui->record->append(QString::fromLocal8Bit("恢复视图步骤失败"));
+    //           }
+           }
+        }
+//        else
+//        {
+//           if(ui->checkBox->isChecked()==false)
 //           {
-//               if(ui->checkBox->isChecked()==false)
-//                 ui->record->append(QString::fromLocal8Bit("恢复视图步骤失败"));
+//               QString current_date = GetCurTime_M();
+//               ui->textBrowser->append(current_date + "请连接相机后再进行激光头标定");
 //           }
-       }
-    }
-//    else
-//    {
-//       if(ui->checkBox->isChecked()==false)
-//          ui->record->append(QString::fromLocal8Bit("请连接相机后再进行激光头标定"));
-//    }
+
+//        }
     });
 
     // 参数设置
@@ -343,17 +414,30 @@ MainWindow::MainWindow(QWidget *parent)
         }
         else
         {
-//          ui->record->append("请先连接传感器再进行参数设置");
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "请先连接传感器再进行参数设置");
         }
+    });
+
+    // IP设置
+    connect(ui->actionIP, &QAction::triggered, this, [=](){
+            bool isbool;
+            QString strString = QInputDialog::getText(this, "IP设置", "请输入IP地址:",
+                                                      QLineEdit::Normal, ipAddress, &isbool);
+
+            if(isbool && !strString.isEmpty())  // 是否点击了确认及判断字符串是否为空
+            {
+                ipAddress = strString;
+            }
+
     });
 
     // 重启按钮
     connect(ui->action_restart, &QAction::triggered, this, &MainWindow::doDockerRestart);
 
-    // 恢复至默认视图大小
-//    connect(default_img_button, &QPushButton::clicked, this, [=](){
-//        imgShowLabel->fitToWindow();
-//    });
+    // 将图像录制为视频
+    connect(ui->recordAsVideo, &QAction::triggered, this, &MainWindow::recordAsVideo);
+
 }
 
 
@@ -368,13 +452,17 @@ MainWindow::~MainWindow()
         close_camer_modbus();
         modbus_free(m_mcs->resultdata.ctx_result);
         m_mcs->resultdata.link_result_state=false;
-//        ui->record->append("控制端口关闭");
+
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "控制端口关闭");
     }
     if(m_mcs->resultdata.link_param_state==true)
     {
         modbus_close(m_mcs->resultdata.ctx_param);
         m_mcs->resultdata.link_param_state=false;
-//        ui->record->append("参数端口关闭");
+
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "参数端口关闭");
     }
     delete timer_tragetor_clould;
     delete paramset;
@@ -419,7 +507,7 @@ void ImgWindowShowThread::run()
         {
              if(lock==false)
              {
-                // 0原图，1轮廓, 2轮廓点云, 3深度图, 4点云, 5标定
+                // 0原图，1中心线, 2轮廓点云, 3深度图, 4点云, 5标定
                 switch(_p->m_mcs->e2proomdata.measurementDlg_leaser_data_mod)
                 {
                     //显示原图（不做处理）
@@ -461,7 +549,17 @@ void ImgWindowShowThread::run()
                     {
                        if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
                        {
-                          _p->m_mcs->resultdata.cv_imagelinecenter=cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC3);
+                            /*
+                            cv::Mat tempImg;
+                            if(_p->m_mcs->cam->sop_cam[0].b_updataimage_finish==true)
+                            {
+                                tempImg = _p->m_mcs->cam->sop_cam[0].cv_image->clone();
+                                _p->m_mcs->cam->sop_cam[0].b_updataimage_finish=false;
+                            }
+                            cv::cvtColor(tempImg, tempImg, cv::COLOR_GRAY2BGR);
+                            tempImg.copyTo(_p->m_mcs->resultdata.cv_imagelinecenter);
+                            */
+                           _p->m_mcs->resultdata.cv_imagelinecenter=cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC3);
                           if(_p->m_mcs->cam->sop_cam[0].b_cv_lineEn==true)
                           {
                              _p->cv_line=(*_p->m_mcs->cam->sop_cam[0].cv_line).linepoint;
@@ -472,8 +570,8 @@ void ImgWindowShowThread::run()
                                   int x=n;
                                   int y=_p->cv_line[n].z;
                                   y=_p->m_mcs->resultdata.cv_imagelinecenter.rows-1-y;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3]=0;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=255;
+                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3]=255;
+                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=0;
                                   _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+2]=0;
                                 }
                              }
@@ -536,6 +634,7 @@ void ImgWindowShowThread::run()
                     // 显示深度图
                     case 3:
                     {
+                        /*
                        if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
                        {
                            if(_p->m_mcs->resultdata.b_deepimg_pushoneline==true)
@@ -562,6 +661,8 @@ void ImgWindowShowThread::run()
                            }
                            _p->m_mcs->cam->sop_cam[0].b_updatacloud_finish=false;
                        }
+
+
                        if(_p->m_mcs->resultdata.b_deepimg_showclould_finish==true)
                        {   //采集完成,点云转深度图
                            _p->m_mcs->resultdata.b_deepimg_showclould_finish=false;
@@ -577,13 +678,25 @@ void ImgWindowShowThread::run()
 //                             emit Send_show_record("完成数据采集");
 //                           }
                        }
-                       if(_p->b_int_show_cvimage_inlab_finish==true)
-                       {
-                           _p->b_int_show_cvimage_inlab_finish=false;
-                           _p->pclclass.cv_f32deepimg_to_show8deepimg(_p->m_mcs->resultdata.cv_deepimg,&_p->m_mcs->resultdata.cv_8deepimg_temp);
-                           qRegisterMetaType< cv::Mat >("cv::Mat"); //传递自定义类型信号时要添加注册
-                           emit Send_show_cvimage_inlab(_p->m_mcs->resultdata.cv_8deepimg_temp);
-                       }
+                       */
+                        if (_p->cloud2deepimg == true)
+                        {
+                            _p->cloud2deepimg = false;
+                            _p->pclclass.pointCloud2imgI(&_p->m_mcs->resultdata.ptr_pcl_deepclould,&_p->m_mcs->resultdata.cv_deepimg,_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis);
+                            _p->pclclass.addpoint_image(&_p->m_mcs->resultdata.cv_deepimg,
+                                                        (int)(_p->m_mcs->e2proomdata.paramsetingDlg_col_add_distance/_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis+0.5),
+                                                        (int)(_p->m_mcs->e2proomdata.paramsetingDlg_row_add_distance/_p->m_mcs->e2proomdata.measurementDlg_deepimg_pisdis+0.5));
+
+                        }
+
+                        if(_p->b_int_show_cvimage_inlab_finish==true)
+                        {
+                            _p->b_int_show_cvimage_inlab_finish=false;
+                            _p->pclclass.cv_f32deepimg_to_show8deepimg(_p->m_mcs->resultdata.cv_deepimg,&_p->m_mcs->resultdata.cv_8deepimg_temp);
+                            qRegisterMetaType< cv::Mat >("cv::Mat"); //传递自定义类型信号时要添加注册
+                            emit Send_show_cvimage_inlab(_p->m_mcs->resultdata.cv_8deepimg_temp);
+                        }
+
                        if(_p->u8_save_data==1)//保存结果
                        {
                            QString str=_p->save_imgdata_cvimage(_p->m_mcs->resultdata.cv_deepimg);
@@ -640,6 +753,7 @@ void ImgWindowShowThread::run()
                              {
                                _p->b_int_show_record_finish=false;
                                _p->finish_cloud = true;
+                               _p->cloud2deepimg = true;
                                qRegisterMetaType<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>("pcl::PointCloud<pcl::PointXYZRGB>::Ptr"); //传递自定义类型信号时要添加注册
                                emit Send_show_pclclould_list(_p->m_mcs->resultdata.ptr_pcl_deepclould);
 //                               qRegisterMetaType< QString >("QString");
@@ -692,6 +806,19 @@ void ImgWindowShowThread::run()
 // 自定义图像显示槽
 void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
 {
+    if (timerElapsed.elapsed() != 0)
+    {
+        fpsShow = 1000 / (timerElapsed.elapsed());
+        timerElapsed.start();
+    }
+
+    // 如果正在录制视频，则将图像写入视频文件
+    if (videoWriter.isOpened())
+    {
+//        std::cout << "write..." << cv_image.size() << std::endl;
+        videoWriter.write(cv_image);
+    }
+
     QImage::Format format = QImage::Format_RGB888;
     switch (cv_image.type())
     {
@@ -706,9 +833,9 @@ void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
       break;
     }
     QImage img = QImage((const uchar*)cv_image.data, cv_image.cols, cv_image.rows,cv_image.cols * cv_image.channels(), format);
-    img = img.scaled(imgShowLabel->width(), imgShowLabel->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
+    img = img.scaled(ui->imgShow->width(), ui->imgShow->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
 //    ui->imgShow->setPixmap(QPixmap::fromImage(img));
-    imgShowLabel->showImage(img);
+    ui->imgShow->showImage(img);
     b_int_show_cvimage_inlab_finish = true;
 }
 
@@ -721,7 +848,8 @@ void MainWindow::showupdata_tabWidget()
         real_readnum=modbus_read_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,ALS103_REG_TOTALNUM,rcvdata);
         if(real_readnum<0)
         {
-//            ui->record->append("读取参数失败");
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "读取参数失败");
         }
         else
         {
@@ -741,10 +869,21 @@ void MainWindow::showupdata_tabWidget()
             /*******************/
             //这里添加其他设置参数显示
             /*******************/
-//            ui->record->append("读取参数成功");
+
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "读取参数成功");
         }
     }
 }
+
+QString MainWindow::GetCurTime_M()
+{
+    QDateTime current_date_time = QDateTime::currentDateTime();
+    QString current_date = " [" + current_date_time.toString("yyyy-MM-dd hh:mm:ss") + "] ";
+
+    return current_date;
+}
+
 
 void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
 {
@@ -753,40 +892,49 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
     #ifndef ONLY_TEST_CAMER
         if(m_mcs->resultdata.link_result_state==false)
         {
-            QString server_ip=ui->IpAddr->text();
+//            QString server_ip=ui->IpAddr->text();
+            QString server_ip = ipAddress;
             QString server_port2="1502";
             m_mcs->resultdata.ctx_result = modbus_new_tcp(server_ip.toUtf8(), server_port2.toInt());
             if (modbus_connect(m_mcs->resultdata.ctx_result) == -1)
             {
-//                ui->record->append("控制端口连接失败");
+                QString current_date = GetCurTime_M();
+                ui->textBrowser->append(current_date + "控制端口连接失败");
                 modbus_free(m_mcs->resultdata.ctx_result);
                 return;
             }
             m_mcs->resultdata.link_result_state=true;
-//            ui->record->append("控制端口连接成功");
+
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "控制端口连接成功");
             open_camer_modbus();
         }
         if(m_mcs->resultdata.link_param_state==false)
         {
-            QString server_ip=ui->IpAddr->text();
+//            QString server_ip=ui->IpAddr->text();
+            QString server_ip = ipAddress;
             QString server_port1="1500";
             m_mcs->resultdata.ctx_param = modbus_new_tcp(server_ip.toUtf8(), server_port1.toInt());
             if (modbus_connect(m_mcs->resultdata.ctx_param) == -1)
             {
-//                ui->record->append("参数端口连接失败");
+                QString current_date = GetCurTime_M();
+                ui->textBrowser->append(current_date + "参数端口连接失败");
                 modbus_free(m_mcs->resultdata.ctx_param);
                 return;
             }
             m_mcs->resultdata.link_param_state=true;
-//            ui->record->append("参数端口连接成功");
+
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "参数端口连接成功");
         }
         //设置task信息
         u_int16_t task=103;
         int rc=modbus_write_registers(m_mcs->resultdata.ctx_result,0x102,1,&task);
-//        if(rc!=1)
-//        {
-//            ui->record->append("激光器任务模式设置失败");
-//        }
+        if(rc!=1)
+        {
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "激光器任务模式设置失败");
+        }
 //        else
 //        {
 //            ui->record->append("激光器任务模式设置成功");
@@ -812,16 +960,65 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
             close_camer_modbus();
             modbus_free(m_mcs->resultdata.ctx_result);
             m_mcs->resultdata.link_result_state=false;
-//            ui->record->append("控制端口关闭");
+
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "控制端口关闭");
         }
         if(m_mcs->resultdata.link_param_state==true)
         {
             modbus_close(m_mcs->resultdata.ctx_param);
             m_mcs->resultdata.link_param_state=false;
-//            ui->record->append("参数端口关闭");
+
+            QString current_date = GetCurTime_M();
+            ui->textBrowser->append(current_date + "参数端口关闭");
         }
     #endif
     }
+}
+
+void MainWindow::initChart()
+{
+    series = new QScatterSeries();                              // 创建一个散点数据集对象
+    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);  // 设置绘制的散点的样式为圆
+    series->setMarkerSize(1);                                   // 设置绘制的点的大小
+    series->setColor(QColor(0,255,0));                          // 设置散点颜色
+    series->setUseOpenGL(true);                                 // 设置使用openGL加速
+//    connect(series, &QScatterSeries::hovered, ui->graphicsView, [=](const QPointF &point, bool state){
+//        if (state)
+//        {
+//            std::cout << "oo" << std::endl;
+//            ui->graphicsView->coordItem_->setText(QString("X = %1, Y = %2").arg(point.x()).arg(point.y()));
+//        }
+//    });
+
+//    ui->graphicsView->setRenderHint(QPainter::Antialiasing);                              // 设置抗锯齿
+    //    ui->graphicsView->chart()->setTitle("散点图标题");                                      // 设置图表标题
+    ui->graphicsView->chart()->setDropShadowEnabled(false);                               // 设置不启用背景阴影效果
+    //    QBrush brush(Qt::darkGray);                                                                // 创建蓝色画刷
+    //    ui->graphicsView->chart()->setBackgroundBrush(brush);
+    //    ui->graphicsView->chart()->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);  // 在图例中显示点的形状样式
+    ui->graphicsView->chart()->legend()->hide();
+    ui->graphicsView->chart()->setTheme(QChart::ChartThemeDark);                  // 设置表的样式
+//    ui->graphicsView->chart()->addSeries(series);       // 将创建的series添加经chart中
+//    ui->graphicsView->chart()->createDefaultAxes();     // 新添加series后，调用这个函数根据添加的series自动生成对于类型的XY轴，会删除已有的轴再生成
+//    ui->graphicsView->setRubberBand(QChartView::RectangleRubberBand); // 设置选择区域的模式
+//    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);   // 平移
+    ui->graphicsView->setInteractive(true); // 启用交互模式
+
+
+    axisX = new QValueAxis();
+    axisY = new QValueAxis();
+    ui->graphicsView->chart()->addAxis(axisX, Qt::AlignBottom); // 将坐标轴添加到图表
+    ui->graphicsView->chart()->addAxis(axisY, Qt::AlignLeft);
+
+    axisX->setRange(0, 100);                                    // 设置初始坐标轴范围
+    axisX->setTitleText("X_axis (mm)");
+    axisY->setRange(-10, 10);
+    axisY->setTitleText("Y_axis (mm)");
+    ui->graphicsView->chart()->addSeries(series);
+    series->attachAxis(axisX);                                  // 将系列关联到坐标轴
+    series->attachAxis(axisY);
+
 }
 
 void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclclould)
@@ -832,16 +1029,40 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         return;
     }
 
-    if(finish_line==true && updateVTKShow)
+    if(finish_line && updateVTKShow)
+    {
+        fpsShow = 1000 / (timerElapsed.elapsed());  // 点云帧率计算
+        timerElapsed.start();
+
+        finish_line = false;
+        b_int_show_record_finish = true;
+
+//        series->clear();
+        ui->graphicsView->chart()->removeSeries(series);
+        QVector<QPointF> MyPointf;      // 绘制散点所需要的数据
+        pcl::PointXYZRGB minPt, maxPt;
+        pcl::getMinMax3D(*pclclould, minPt, maxPt);
+        for (std::size_t i = 0; i < pclclould->points.size(); ++i)
+        {
+            MyPointf << QPointF(pclclould->points[i].y - minPt.y, maxPt.z - pclclould->points[i].z);
+//            series->append(pclclould->points[i].y, pclclould->points[i].z);
+        }
+        series->replace(MyPointf);
+//        ui->graphicsView->chart()->addSeries(series);
+//        ui->graphicsView->chart()->createDefaultAxes();
+        // 动态调整坐标轴范围
+        axisX->setRange(0, maxPt.y-minPt.y);
+        axisY->setRange(0, maxPt.z-minPt.z);
+        ui->graphicsView->chart()->addSeries(series);
+    }
+/*
+    if(finish_line && updateVTKShow)
         {
             // 清空数据
             points->Reset();
             cells->Reset();
             polydata->Initialize();
             vtkIdType idtype;
-//            points = vtkSmartPointer<vtkPoints>::New();
-//            cells = vtkSmartPointer<vtkCellArray>::New();
-//            polydata = vtkSmartPointer<vtkPolyData>::New();
 
             scalars->SetNumberOfValues(pclclould->size());
             for (std::size_t i = 0; i < pclclould->points.size(); ++i)
@@ -869,7 +1090,7 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             actor->GetProperty()->SetInterpolationToFlat();
             cubeAxesActor->SetBounds(points->GetBounds());
 
-            if (camera_reset_once)
+            if (camera_reset_once || camera_reset_always)
             {
                 camera_reset_once = false;
                 renderer->ResetCamera();
@@ -879,9 +1100,8 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
             finish_line = false;
             b_int_show_record_finish = true;
 
-
         }
-
+*/
     // 扫描完成的点云
     if(finish_cloud==true)
         {
@@ -958,8 +1178,8 @@ void MainWindow::vtk_init()
     style->SetDefaultRenderer(renderer);        // 将 renderer 设置为默认的渲染器
 
     renderer->GradientBackgroundOn();       // 背景设置
-    renderer->SetBackground(colors->GetColor3d("black").GetData());
-    renderer->SetBackground2(colors->GetColor3d("Gray").GetData());
+    renderer->SetBackground(colors->GetColor3d("dark").GetData());
+//    renderer->SetBackground2(colors->GetColor3d("Gray").GetData());
 //    renderer->ResetCamera();
 
     ui->pclShow->GetRenderWindow()->AddRenderer(renderer);  // 添加renderer到渲染窗口
@@ -969,7 +1189,7 @@ void MainWindow::vtk_init()
 
     // 坐标轴及网格显示控制
     cubeAxesActor->SetScreenSize(10);
-    cubeAxesActor->DrawZGridlinesOff();
+    cubeAxesActor->DrawZGridlinesOn();
     cubeAxesActor->DrawXGridlinesOn();
     cubeAxesActor->DrawYGridlinesOn();
     cubeAxesActor->SetDrawXInnerGridlines(false);
@@ -982,6 +1202,7 @@ void MainWindow::vtk_init()
     cubeAxesActor->ZAxisMinorTickVisibilityOff();
     cubeAxesActor->SetCamera(renderer->GetActiveCamera());
 
+    lut->SetHueRange(0.666, 0);
     lut->Build();
     scalarBar->SetTitle("Unit (mm)\n");
     scalarBar->SetNumberOfLabels(5);
@@ -1022,13 +1243,14 @@ void MainWindow::vtk_init()
 void MainWindow::InitSetEdit()
 {
 
-    ui->IpAddr->setText("192.168.1.2");
+//    ui->IpAddr->setText("192.168.1.2");
+    ipAddress = "192.168.1.2";
     ui->exposureValue->setText(QString::number(m_mcs->cam->sop_cam[0].i32_exposure));
 
     ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
     ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));
 
-    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+    ui->stackedWidget->setCurrentIndex(0);
 
     // 按钮可用性初始化
     ui->applyBtn->setEnabled(false);
@@ -1040,6 +1262,14 @@ void MainWindow::InitSetEdit()
     ui->showPointCloud->setEnabled(false);
     ui->showDepth->setEnabled(false);
     ui->saveFile->setEnabled(false);
+    ui->setParam->setEnabled(false);
+    ui->calibration->setEnabled(false);
+    ui->recordAsVideo->setEnabled(false);
+    ui->page_3->hide();
+
+    QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    ui->action_restart->setVisible(false);
+    ui->actionactionCemaraView->setVisible(false);
 }
 
 // modbus
@@ -1067,7 +1297,7 @@ void MainWindow::close_camer_modbus()
 
 void MainWindow::UpdateUi()
 {
-    ui->stackedWidget->setCurrentIndex(indexImgShowLabel);
+    ui->stackedWidget->setCurrentIndex(0);
     // 连接、断开按钮的控制，应用、一键采集按钮控制
     if(m_mcs->cam->sop_cam[0].b_connect==false)
     {
@@ -1081,7 +1311,10 @@ void MainWindow::UpdateUi()
         ui->showPointCloud->setEnabled(false);
         ui->showDepth->setEnabled(false);
         ui->saveFile->setEnabled(false);
-        imgShowLabel->clear();
+        ui->setParam->setEnabled(false);
+        ui->calibration->setEnabled(false);
+        ui->imgShow->clear();
+        ui->recordAsVideo->setEnabled(false);
     }
     else
     {
@@ -1095,7 +1328,9 @@ void MainWindow::UpdateUi()
         ui->showPointCloud->setEnabled(true);
         ui->showDepth->setEnabled(true);
         ui->saveFile->setEnabled(true);
-
+        ui->setParam->setEnabled(true);
+        ui->calibration->setEnabled(true);
+        ui->recordAsVideo->setEnabled(true);
 
     }
 }
@@ -1191,6 +1426,9 @@ void MainWindow::slot_timer_tragetor_clould()
     m_mcs->resultdata.b_deepimg_showclould_finish=true;
     m_mcs->resultdata.b_deepimg_pushoneline=false;
     ui->captureDepthBtn->setText("一键采集");
+
+    QString current_date = GetCurTime_M();
+    ui->textBrowser->append(current_date + "数据采集完成");
 }
 
 // 控制距离测量按钮是否执行
@@ -1258,7 +1496,8 @@ void MainWindow::doDockerRestart()
         return ;
     }
     // 执行重启容器命令（无法执行需要sudo权限）
-    std::string command = "docker-compose restart";
+    std::string command = "echo \"123456\" | sudo -S docker-compose restart";
+//    std::cout << command.c_str() << std::endl;
     rc = ssh_channel_request_exec(channel, command.c_str());
     if (rc != SSH_OK) {
         std::cout << "Failed to execute command: " << command << std::endl;
@@ -1274,4 +1513,45 @@ void MainWindow::doDockerRestart()
     ssh_channel_free(channel);
     ssh_disconnect(session);
     ssh_free(session);
+}
+
+void MainWindow::recordAsVideo()
+{
+    if (!recordVideo)
+    {
+        recordVideo = true;
+        ui->recordAsVideo->setText("停止录制");
+
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "正在保存为视频...");
+
+        QString dir = "./USER_DATA/";
+        QString time;
+        GetCurTime to;
+        to.get_time_ms(&time);
+        dir = dir + time + ".mp4";
+
+        bool imgIsColor;
+        if (m_mcs->e2proomdata.measurementDlg_leaser_data_mod == 1)
+        {
+            imgIsColor = true;
+        }
+        else
+        {
+            imgIsColor = false;
+        }
+        videoWriter.open(dir.toStdString(), cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30,
+                         cv::Size(CAMIMAGE_WIDTH, CAMIMAGE_HEIGHT), imgIsColor);
+
+    }
+    else
+    {
+        recordVideo = false;
+        ui->recordAsVideo->setText("开始录制");
+        videoWriter.release();
+
+        QString current_date = GetCurTime_M();
+        ui->textBrowser->append(current_date + "视频保存成功！");
+    }
+
 }

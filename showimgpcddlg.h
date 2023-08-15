@@ -124,7 +124,7 @@ public:
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr pclclould;
     void showpoint(std::string filename);      //显示图像及点云
-    int indexLabel;     // 图像label窗口的索引
+//    int indexLabel;     // 图像label窗口的索引
 
     // VTK显示点云
     vtkSmartPointer<vtkNamedColors> colors;
@@ -153,7 +153,7 @@ private:
     Ui::showImgPcdDlg *ui;
     MyPclFunction pclclass;//点云算法
 
-    LabelImageViewer * imgLabel;
+//    LabelImageViewer * imgLabel;
 
     // vtk显示点云
     vtkSmartPointer<vtkEventQtSlotConnect> Connections;

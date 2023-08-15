@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 
 #include "my_params.h"
+#include "PictureBox.h"
 
 
 namespace Ui {

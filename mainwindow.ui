@@ -6,38 +6,66 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>933</width>
-    <height>596</height>
+    <width>1200</width>
+    <height>800</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1200</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>1280</width>
+    <height>720</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_2">
+   <layout class="QGridLayout" name="gridLayout_5">
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_0_imgshow">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0" alignment="Qt::AlignLeft">
-         <widget class="QPushButton" name="default_img">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="ico.qrc">
-            <normaloff>:/toolbar_ico/icons/huifuxitongmoren.png</normaloff>:/toolbar_ico/icons/huifuxitongmoren.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="imgShow">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="LabelImageViewer" name="imgShow">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
             <horstretch>0</horstretch>
@@ -53,6 +81,18 @@
       </widget>
       <widget class="QWidget" name="page_2_pclshow">
        <layout class="QGridLayout" name="gridLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="QVTKOpenGLWidget" name="pclShow" native="true">
           <property name="sizePolicy">
@@ -68,6 +108,38 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page_3_chartshow">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="MyChartView" name="graphicsView">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="resizeAnchor">
+           <enum>QGraphicsView::NoAnchor</enum>
+          </property>
+          <property name="viewportUpdateMode">
+           <enum>QGraphicsView::SmartViewportUpdate</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -77,7 +149,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>933</width>
+     <width>1200</width>
      <height>27</height>
     </rect>
    </property>
@@ -89,8 +161,9 @@
     <addaction name="showCam"/>
     <addaction name="showCenter"/>
     <addaction name="showTrajectory"/>
-    <addaction name="showDepth"/>
     <addaction name="showPointCloud"/>
+    <addaction name="showDepth"/>
+    <addaction name="recordAsVideo"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -103,9 +176,9 @@
     <property name="title">
      <string>设置</string>
     </property>
-    <addaction name="calibration"/>
-    <addaction name="setParam"/>
     <addaction name="actionIP"/>
+    <addaction name="setParam"/>
+    <addaction name="calibration"/>
     <addaction name="action_restart"/>
    </widget>
    <widget class="QMenu" name="menu_4">
@@ -118,7 +191,6 @@
    <addaction name="menu_3"/>
    <addaction name="menu_4"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>工具栏</string>
@@ -151,8 +223,14 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>211</width>
-     <height>338</height>
+     <width>230</width>
+     <height>369</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>300</width>
+     <height>524287</height>
     </size>
    </property>
    <property name="font">
@@ -169,357 +247,332 @@
     <bool>false</bool>
    </property>
    <property name="windowTitle">
-    <string>参数设置</string>
+    <string>  参数设置</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QToolBox" name="toolBox">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>10</y>
-       <width>211</width>
-       <height>211</height>
-      </rect>
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+     <property name="leftMargin">
+      <number>0</number>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QToolBox::Tab { border: 1px outset lightgray; border-radius: 5px; }</string>
+     <property name="topMargin">
+      <number>0</number>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+     <property name="rightMargin">
+      <number>0</number>
      </property>
-     <property name="currentIndex">
-      <number>2</number>
+     <property name="bottomMargin">
+      <number>0</number>
      </property>
-     <property name="tabSpacing">
-      <number>1</number>
-     </property>
-     <widget class="QWidget" name="page">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>211</width>
-        <height>118</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <attribute name="icon">
-       <iconset resource="ico.qrc">
-        <normaloff>:/toolbar_ico/icons/right.png</normaloff>
-        <selectedon>:/toolbar_ico/icons/down.png</selectedon>:/toolbar_ico/icons/right.png</iconset>
-      </attribute>
-      <attribute name="label">
-       <string>IP地址</string>
-      </attribute>
-      <widget class="QLineEdit" name="IpAddr">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>0</y>
-         <width>112</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>80</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>120</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="page_2">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>211</width>
-        <height>118</height>
-       </rect>
-      </property>
-      <attribute name="icon">
-       <iconset resource="ico.qrc">
-        <normaloff>:/toolbar_ico/icons/right.png</normaloff>
-        <selectedon>:/toolbar_ico/icons/down.png</selectedon>:/toolbar_ico/icons/right.png</iconset>
-      </attribute>
-      <attribute name="label">
-       <string>曝光值</string>
-      </attribute>
-      <widget class="QLineEdit" name="exposureValue">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>0</y>
-         <width>72</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>72</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>20-65535</string>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="applyBtn">
-       <property name="geometry">
-        <rect>
-         <x>110</x>
-         <y>0</y>
-         <width>71</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>300</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>应用</string>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="page_3">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>211</width>
-        <height>118</height>
-       </rect>
-      </property>
-      <attribute name="icon">
-       <iconset resource="ico.qrc">
-        <normaloff>:/toolbar_ico/icons/right.png</normaloff>
-        <normalon>:/toolbar_ico/icons/down.png</normalon>
-        <selectedon>:/toolbar_ico/icons/down.png</selectedon>:/toolbar_ico/icons/right.png</iconset>
-      </attribute>
-      <attribute name="label">
-       <string>点云/深度图采集参数</string>
-      </attribute>
-      <widget class="QLabel" name="labelDis">
-       <property name="geometry">
-        <rect>
-         <x>12</x>
-         <y>2</y>
-         <width>75</width>
-         <height>25</height>
-        </rect>
-       </property>
+     <item>
+      <widget class="QToolBox" name="toolBox">
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>25</height>
+         <height>210</height>
         </size>
        </property>
-       <property name="text">
-        <string>采集距离：</string>
+       <property name="styleSheet">
+        <string notr="true">QToolBox::Tab { border: 1px outset lightgray; border-radius: 5px; }</string>
        </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <property name="tabSpacing">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="page_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>230</width>
+          <height>148</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="ico.qrc">
+          <normaloff>:/toolbar_ico/icons/right.png</normaloff>
+          <selectedon>:/toolbar_ico/icons/down.png</selectedon>:/toolbar_ico/icons/right.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>曝光值</string>
+        </attribute>
+        <widget class="QLineEdit" name="exposureValue">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>0</y>
+           <width>72</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>72</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="mouseTracking">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>20-65535</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="applyBtn">
+         <property name="geometry">
+          <rect>
+           <x>110</x>
+           <y>0</y>
+           <width>71</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>应用</string>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="page_3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>230</width>
+          <height>148</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="ico.qrc">
+          <normaloff>:/toolbar_ico/icons/right.png</normaloff>
+          <normalon>:/toolbar_ico/icons/down.png</normalon>
+          <selectedon>:/toolbar_ico/icons/down.png</selectedon>:/toolbar_ico/icons/right.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>点云采集参数</string>
+        </attribute>
+        <widget class="QLabel" name="labelDis">
+         <property name="geometry">
+          <rect>
+           <x>12</x>
+           <y>2</y>
+           <width>75</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>采集距离：</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="labelVel">
+         <property name="geometry">
+          <rect>
+           <x>12</x>
+           <y>39</y>
+           <width>75</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>采集速度：</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="captureDepthBtn">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>80</y>
+           <width>186</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>一键采集</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="sampleVel">
+         <property name="geometry">
+          <rect>
+           <x>94</x>
+           <y>40</y>
+           <width>50</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="toolTipDuration">
+          <number>5</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="labelMMS">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>40</y>
+           <width>39</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>mm/s</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="sampleDis">
+         <property name="geometry">
+          <rect>
+           <x>95</x>
+           <y>4</y>
+           <width>50</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="toolTipDuration">
+          <number>10</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="labelMM">
+         <property name="geometry">
+          <rect>
+           <x>151</x>
+           <y>4</y>
+           <width>26</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>mm</string>
+         </property>
+        </widget>
+       </widget>
       </widget>
-      <widget class="QLabel" name="labelVel">
-       <property name="geometry">
-        <rect>
-         <x>12</x>
-         <y>39</y>
-         <width>75</width>
-         <height>25</height>
-        </rect>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
-       <property name="minimumSize">
+       <property name="sizeHint" stdset="0">
         <size>
-         <width>0</width>
-         <height>25</height>
+         <width>20</width>
+         <height>296</height>
         </size>
        </property>
-       <property name="text">
-        <string>采集速度：</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="captureDepthBtn">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>80</y>
-         <width>186</width>
-         <height>30</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>一键采集</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="sampleVel">
-       <property name="geometry">
-        <rect>
-         <x>94</x>
-         <y>40</y>
-         <width>50</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>50</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="toolTipDuration">
-        <number>5</number>
-       </property>
-      </widget>
-      <widget class="QLabel" name="labelMMS">
-       <property name="geometry">
-        <rect>
-         <x>150</x>
-         <y>40</y>
-         <width>39</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>mm/s</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="sampleDis">
-       <property name="geometry">
-        <rect>
-         <x>95</x>
-         <y>4</y>
-         <width>50</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>50</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="toolTipDuration">
-        <number>10</number>
-       </property>
-      </widget>
-      <widget class="QLabel" name="labelMM">
-       <property name="geometry">
-        <rect>
-         <x>151</x>
-         <y>4</y>
-         <width>26</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </widget>
-    </widget>
+      </spacer>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QToolBar" name="toolBar_right">
@@ -532,6 +585,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionPause"/>
+   <addaction name="actionactionCemaraView"/>
    <addaction name="actiondisMeasure"/>
    <addaction name="separator"/>
    <addaction name="actionup"/>
@@ -542,6 +597,74 @@
    <addaction name="actionbackward"/>
    <addaction name="separator"/>
   </widget>
+  <widget class="QDockWidget" name="dockWidget_log">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>74</width>
+     <height>93</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>524287</width>
+     <height>150</height>
+    </size>
+   </property>
+   <property name="baseSize">
+    <size>
+     <width>0</width>
+     <height>50</height>
+    </size>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="windowTitle">
+    <string>日志：</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_log">
+    <layout class="QGridLayout" name="gridLayout_4">
+     <property name="leftMargin">
+      <number>6</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>6</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QTextBrowser" name="textBrowser">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="connectCam">
    <property name="icon">
     <iconset>
@@ -604,7 +727,10 @@
      <normaloff>:/toolbar_ico/icons/contour.png</normaloff>:/toolbar_ico/icons/contour.png</iconset>
    </property>
    <property name="text">
-    <string>显示轨迹</string>
+    <string>显示轮廓</string>
+   </property>
+   <property name="toolTip">
+    <string>显示单条轮廓</string>
    </property>
   </action>
   <action name="showDepth">
@@ -613,7 +739,7 @@
      <normaloff>:/toolbar_ico/icons/range.png</normaloff>:/toolbar_ico/icons/range.png</iconset>
    </property>
    <property name="text">
-    <string>显示深度</string>
+    <string>显示深度图</string>
    </property>
   </action>
   <action name="showPointCloud">
@@ -622,10 +748,14 @@
      <normaloff>:/toolbar_ico/icons/pointcloud.png</normaloff>:/toolbar_ico/icons/pointcloud.png</iconset>
    </property>
    <property name="text">
-    <string>显示点云</string>
+    <string>采集点云</string>
    </property>
   </action>
   <action name="setParam">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/paramSet.png</normaloff>:/toolbar_ico/icons/paramSet.png</iconset>
+   </property>
    <property name="text">
     <string>参数设置</string>
    </property>
@@ -634,11 +764,19 @@
    </property>
   </action>
   <action name="calibration">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/calibration.png</normaloff>:/toolbar_ico/icons/calibration.png</iconset>
+   </property>
    <property name="text">
     <string>相机标定</string>
    </property>
   </action>
   <action name="actionIP">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/IP.png</normaloff>:/toolbar_ico/icons/IP.png</iconset>
+   </property>
    <property name="text">
     <string>IP设置</string>
    </property>
@@ -716,6 +854,13 @@
    </property>
   </action>
   <action name="action_restart">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/restart.png</normaloff>:/toolbar_ico/icons/restart.png</iconset>
+   </property>
    <property name="text">
     <string>重启</string>
    </property>
@@ -735,6 +880,39 @@
     <string>测量两点间的距离</string>
    </property>
   </action>
+  <action name="actionactionCemaraView">
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/cameraView.png</normaloff>:/toolbar_ico/icons/views/cameraView.png</iconset>
+   </property>
+   <property name="text">
+    <string>actionCemaraView</string>
+   </property>
+   <property name="toolTip">
+    <string>自适应视角</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="ico.qrc">
+     <normaloff>:/toolbar_ico/icons/views/pause.png</normaloff>
+     <normalon>:/toolbar_ico/icons/views/run.png</normalon>:/toolbar_ico/icons/views/pause.png</iconset>
+   </property>
+   <property name="text">
+    <string>Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>暂停刷新</string>
+   </property>
+  </action>
+  <action name="recordAsVideo">
+   <property name="text">
+    <string>开始录制</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -742,6 +920,16 @@
    <extends>QWidget</extends>
    <header>QVTKOpenGLWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LabelImageViewer</class>
+   <extends>QLabel</extends>
+   <header>label_image_viewer.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MyChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>mychartview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

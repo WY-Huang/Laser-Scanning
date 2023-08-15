@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QtCore/QTextCodec>
 #include <libssh/libssh.h>
+#include <QElapsedTimer>
 
 #define vtkRenderingCore_AUTOINIT 3(vtkRenderingOpenGL2, vtkInteractionStyle,vtkRenderingFreeType)
 #include <vtkExtractSelection.h>
@@ -72,6 +73,9 @@
 #include "laser_paramsetingdlg.h"
 #include "label_image_viewer.h"
 
+#include <QScatterSeries>
+#include <QValueAxis>
+QT_CHARTS_USE_NAMESPACE
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -141,8 +145,11 @@ public:
 
     volatile bool finish_line;       // 单条轮廓是否采集完成
     volatile bool camera_reset_once;    // 仅首次重置相机
+    volatile bool camera_reset_always;    // 每次刷新都重置相机
     volatile bool finish_cloud;  // 整个点云是否采集完成
+    volatile bool cloud2deepimg;  // 整个点云是否可以转为深度图
     volatile bool updateVTKShow;    // 是否刷新轮廓显示窗口
+    volatile bool recordVideo;    // 是否开始录制视频
 
 private slots:
     void int_show_cvimage_inlab(cv::Mat cv_image);// 显示图像
@@ -151,7 +158,8 @@ private slots:
     void slot_timer_tragetor_clould();      //轨迹进入点云的定时器中断函数
 
     void doDisMeasure(bool value);      // 两点距离测量
-    void doDockerRestart();         // 重启docker镜像
+    void doDockerRestart();             // 重启docker镜像
+    void recordAsVideo();               // 将图像保存为视频
 
 private:
     Ui::MainWindow *ui;
@@ -160,7 +168,7 @@ private:
     ImgWindowShowThread *imgshow_thread;
 
     laser_paramsetingdlg *paramset;     // 参数设置
-    LabelImageViewer * imgShowLabel;        // 自定义图像显示的label
+//    LabelImageViewer * imgShowLabel;  // 自定义图像显示的label
 
     void UpdateUi();  //刷新控件显示和使能
     void InitSetEdit(); //初始化控件数字
@@ -172,8 +180,21 @@ private:
 
     void showupdata_tabWidget();
 
+    QString ipAddress;
+    QString GetCurTime_M();
+
     // vtk显示点云
     vtkSmartPointer<vtkEventQtSlotConnect> Connections;
+
+    QScatterSeries* series;         // 散点图chart
+    QValueAxis *axisX;
+    QValueAxis *axisY;
+    void initChart();
+
+    cv::VideoWriter videoWriter;    // 视频写入
+    QElapsedTimer timerElapsed;     // 计时器计算FPS
+    QTimer *fpsShowTimer;
+    qint64 fpsShow;
 };
 
 // 图像显示线程

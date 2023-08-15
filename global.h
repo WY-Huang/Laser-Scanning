@@ -30,19 +30,20 @@
 
 
 //任务号103
-#define ALS103_EXPOSURE_TIME_REG_ADD           0x0070
-#define ALS103_PINGJUN_REG_ADD                 0x0071
-#define ALS103_GUJIAERZHI_REG_ADD              0x0072
-#define ALS103_WIDTHLIANTONGDIS_REG_ADD        0x0073
-#define ALS103_HIGHLIANTONGDIS_REG_ADD         0x0074
-#define ALS103_JIGUANGLONG_REG_ADD             0x0075
-#define ALS103_JIGUANGKUANDU_REG_ADD           0x0076
-#define ALS103_JIGUANGDUIBIDU_REG_ADD          0x0077
+#define ALS103_EXPOSURE_TIME_REG_ADD           0x0090
+#define ALS103_PINGJUN_REG_ADD                 0x0091
+#define ALS103_GUJIAERZHI_REG_ADD              0x0092
+#define ALS103_WIDTHLIANTONGDIS_REG_ADD        0x0093
+#define ALS103_HIGHLIANTONGDIS_REG_ADD         0x0094
+#define ALS103_JIGUANGLONG_REG_ADD             0x0095
+#define ALS103_JIGUANGKUANDU_REG_ADD           0x0096
+#define ALS103_JIGUANGDUIBIDU_REG_ADD          0x0097
+#define ALS103_LVBOMOD_REG_ADD                 0x0098
 
 //任务号103寄存器总数
-#define ALS103_REG_TOTALNUM                    0x0008
+#define ALS103_REG_TOTALNUM                    0x0009
 //重置任务103参数寄存器
-#define ALS103_INIT_REG_ADD                    0x007f
+#define ALS103_INIT_REG_ADD                    0x009f
 
 //显示图像处理步骤
 #define ALS_SHOW_STEP_REG_ADD                  0x018f
