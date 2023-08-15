@@ -94,7 +94,7 @@ public:
     My_params *m_mcs;
     cv::Mat pImage;//要计算的图像
 
-    cambuilddlg * cambuild;
+//    cambuilddlg * cambuild;
 
     std::vector<cv::Point3f> cv_line; //要计算的点云
     MyPclFunction pclclass;//点云算法

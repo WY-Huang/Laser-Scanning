@@ -109,7 +109,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-    // 设置相机参数
+    // 设置相机曝光参数
     connect(ui->applyBtn,&QPushButton::clicked, this, [=](){
 
         if(m_mcs->resultdata.link_param_state==true)
@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent)
             {
                 uint16_t tab_reg[1];
                 tab_reg[0]=alg0_99_threshold;
-                int rc=modbus_write_registers(m_mcs->resultdata.ctx_param,ALS103_EXPOSURE_TIME_REG_ADD,1,tab_reg);
+                int rc=modbus_write_registers(m_mcs->resultdata.ctx_param, ALS103_EXPOSURE_TIME_REG_ADD, 1, tab_reg);
                 if(rc!=1)
                 {
                     QString current_date = GetCurTime_M();
@@ -132,8 +132,8 @@ MainWindow::MainWindow(QWidget *parent)
                 }
                 else
                 {
-                    m_mcs->cam->sop_cam[0].i32_exposure=alg0_99_threshold;
-                    m_mcs->cam->sop_cam[0].write_para();
+//                    m_mcs->cam->sop_cam[0].i32_exposure=alg0_99_threshold;
+//                    m_mcs->cam->sop_cam[0].write_para();
 
                     QString current_date = GetCurTime_M();
                     ui->textBrowser->append(current_date + "设置曝光参数成功");
@@ -152,8 +152,8 @@ MainWindow::MainWindow(QWidget *parent)
         if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod!=0)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
-          m_mcs->cam->sop_cam[0].node_mode=0;
-          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+          m_mcs->cam->sop_cam[0].connect_mod=0;
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_CAMIMAGE);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=0;
         QString current_date = GetCurTime_M();
@@ -168,8 +168,8 @@ MainWindow::MainWindow(QWidget *parent)
         if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
         {
           m_mcs->cam->sop_cam[0].DisConnect();
-          m_mcs->cam->sop_cam[0].node_mode=1;
-          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+          m_mcs->cam->sop_cam[0].connect_mod=1;
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_CAMIMAGE_RESULT);
         }
         m_mcs->e2proomdata.measurementDlg_leaser_data_mod=1;
         QString current_date = GetCurTime_M();
@@ -183,8 +183,8 @@ MainWindow::MainWindow(QWidget *parent)
             if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
-              m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+              m_mcs->cam->sop_cam[0].connect_mod=1;
+              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_POINTCLOUDS_RESULT);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=2;
 
@@ -203,8 +203,8 @@ MainWindow::MainWindow(QWidget *parent)
             if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
             {
               m_mcs->cam->sop_cam[0].DisConnect();
-              m_mcs->cam->sop_cam[0].node_mode=1;
-              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+              m_mcs->cam->sop_cam[0].connect_mod=1;
+              m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_POINTCLOUDS_RESULT);
             }
             m_mcs->e2proomdata.measurementDlg_leaser_data_mod=3;
 
@@ -242,8 +242,8 @@ MainWindow::MainWindow(QWidget *parent)
            if(m_mcs->cam->sop_cam[0].b_connect==true&&m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
            {
              m_mcs->cam->sop_cam[0].DisConnect();
-             m_mcs->cam->sop_cam[0].node_mode=1;
-             m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow);
+             m_mcs->cam->sop_cam[0].connect_mod=1;
+             m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_POINTCLOUDS_RESULT);
            }
            m_mcs->e2proomdata.measurementDlg_leaser_data_mod=4;
            ui->stackedWidget->setCurrentIndex(1);
@@ -356,7 +356,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->pclShow->GetRenderWindow()->Render();
         ui->pclShow->update();
     });
-
+/*
     //激光头标定
     connect(ui->calibration, &QAction::triggered, this, [=](){
         if(m_mcs->resultdata.link_param_state==true)
@@ -373,7 +373,7 @@ MainWindow::MainWindow(QWidget *parent)
            else
            {
                m_mcs->cam->sop_cam[0].DisConnect();
-               m_mcs->cam->sop_cam[0].node_mode = 3;
+               m_mcs->cam->sop_cam[0].connect_mod = 3;
                m_mcs->cam->sop_cam[0].InitConnect1();
 
                cambuild = new cambuilddlg(m_mcs);
@@ -403,7 +403,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 //        }
     });
-
+*/
     // 参数设置
     connect(ui->setParam, &QAction::triggered, this, [=](){
         if(m_mcs->resultdata.link_param_state==true)
@@ -515,7 +515,7 @@ void ImgWindowShowThread::run()
                     {
                         if(_p->m_mcs->cam->sop_cam[0].b_updataimage_finish==true)
                         {
-                          _p->pImage=_p->m_mcs->cam->sop_cam[0].cv_image->clone();
+                          _p->pImage=_p->m_mcs->cam->sop_cam[0].cv_image.clone();
                           if(_p->b_int_show_cvimage_inlab_finish==true)
                           {
                               _p->b_int_show_cvimage_inlab_finish=false;
@@ -549,42 +549,24 @@ void ImgWindowShowThread::run()
                     {
                        if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
                        {
-                            /*
-                            cv::Mat tempImg;
-                            if(_p->m_mcs->cam->sop_cam[0].b_updataimage_finish==true)
+                            _p->m_mcs->resultdata.cv_imagelinecenter = cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC3);
+                            std::vector<Lasertrackoutcloud> laserTrackOutCloud = _p->m_mcs->cam->sop_cam[0].IfAlgorhmitcloud.lasertrackoutcloud;
+                            for(int n=0; n<(int)laserTrackOutCloud.size(); n++)
                             {
-                                tempImg = _p->m_mcs->cam->sop_cam[0].cv_image->clone();
-                                _p->m_mcs->cam->sop_cam[0].b_updataimage_finish=false;
-                            }
-                            cv::cvtColor(tempImg, tempImg, cv::COLOR_GRAY2BGR);
-                            tempImg.copyTo(_p->m_mcs->resultdata.cv_imagelinecenter);
-                            */
-                           _p->m_mcs->resultdata.cv_imagelinecenter=cv::Mat::zeros(CAMIMAGE_HEIGHT,CAMIMAGE_WIDTH,CV_8UC3);
-                          if(_p->m_mcs->cam->sop_cam[0].b_cv_lineEn==true)
-                          {
-                             _p->cv_line=(*_p->m_mcs->cam->sop_cam[0].cv_line).linepoint;
-                             for(int n=0;n<(int)_p->cv_line.size();n++)
-                             {
-                                if(_p->cv_line[n].z<=_p->m_mcs->resultdata.cv_imagelinecenter.rows-1&&_p->cv_line[n].z>=0)
-                                {
-                                  int x=n;
-                                  int y=_p->cv_line[n].z;
-                                  y=_p->m_mcs->resultdata.cv_imagelinecenter.rows-1-y;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3]=255;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+1]=0;
-                                  _p->m_mcs->resultdata.cv_imagelinecenter.data[y*_p->m_mcs->resultdata.cv_imagelinecenter.cols*3+x*3+2]=0;
-                                }
-                             }
-                          }
+                                int x = laserTrackOutCloud[n].u;
+                                int y = laserTrackOutCloud[n].v;
+                                _p->m_mcs->resultdata.cv_imagelinecenter.at<cv::Vec3b>(x, y)[2] = 255;
 
-                          if(_p->b_int_show_cvimage_inlab_finish==true)
-                          {
-                              _p->b_int_show_cvimage_inlab_finish=false;
-                              qRegisterMetaType< cv::Mat >("cv::Mat"); //传递自定义类型信号时要添加注册
-                              emit Send_show_cvimage_inlab(_p->m_mcs->resultdata.cv_imagelinecenter);
-                          }
-                          _p->m_mcs->cam->sop_cam[0].b_updatacloud_finish=false;
-                       }
+                            }
+
+                            if(_p->b_int_show_cvimage_inlab_finish==true)
+                            {
+                                _p->b_int_show_cvimage_inlab_finish=false;
+                                qRegisterMetaType< cv::Mat >("cv::Mat"); //传递自定义类型信号时要添加注册
+                                emit Send_show_cvimage_inlab(_p->m_mcs->resultdata.cv_imagelinecenter);
+                            }
+                            _p->m_mcs->cam->sop_cam[0].b_updatacloud_finish=false;
+                        }
 
                        if(_p->u8_save_data==1)//保存结果
                        {
@@ -600,33 +582,30 @@ void ImgWindowShowThread::run()
                     {
                        if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
                        {
-                           if(_p->m_mcs->cam->sop_cam[0].b_cv_lineEn==true)
-                           {
-                              _p->cv_line=(*_p->m_mcs->cam->sop_cam[0].cv_line).linepoint;
-                              _p->pclclass.cvpoint3f_to_oneline_pclclould(_p->cv_line,0,&_p->m_mcs->resultdata.ptr_pcl_lineclould);
-                              if(_p->b_init_show_pclclould_list_finish==true)
-                              {
-                                  _p->b_init_show_pclclould_list_finish=false;
-                                  _p->finish_line=true;
+                            std::vector<Lasertrackoutcloud> laserTrackOutCloud = _p->m_mcs->cam->sop_cam[0].IfAlgorhmitcloud.lasertrackoutcloud;
+                            for(int n=0; n<laserTrackOutCloud.size(); n++)
+                            {
+                                cv::Point3f pointCloud(0, laserTrackOutCloud[n].x, laserTrackOutCloud[n].y);
+                                _p->cv_line.push_back(pointCloud);
 
-                                  qRegisterMetaType<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>("pcl::PointCloud<pcl::PointXYZRGB>::Ptr"); //传递自定义类型信号时要添加注册
-                                  emit Send_show_pclclould_list(_p->m_mcs->resultdata.ptr_pcl_lineclould);
-                              }
-                           }
-                           _p->m_mcs->cam->sop_cam[0].b_updatacloud_finish=false;
+                            }
+                            _p->pclclass.cvpoint3f_to_oneline_pclclould(_p->cv_line,0,&_p->m_mcs->resultdata.ptr_pcl_lineclould);
+
+                            if(_p->b_init_show_pclclould_list_finish==true)
+                            {
+                                _p->b_init_show_pclclould_list_finish=false;
+                                _p->finish_line=true;
+
+                                qRegisterMetaType<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>("pcl::PointCloud<pcl::PointXYZRGB>::Ptr"); //传递自定义类型信号时要添加注册
+                                emit Send_show_pclclould_list(_p->m_mcs->resultdata.ptr_pcl_lineclould);
+                            }
+                            _p->m_mcs->cam->sop_cam[0].b_updatacloud_finish=false;
                        }
+
                        if(_p->u8_save_data==1)//保存结果
                        {
                           QString str=_p->save_pcldata_pclclould(_p->m_mcs->resultdata.ptr_pcl_lineclould);
                           _p->u8_save_data=0;
-                          /*if(_p->b_int_show_record_finish==true)
-                          {
-                            _p->b_int_show_record_finish=false;
-                            qRegisterMetaType< QString >("QString");
-                            QString strname="数据保存在:";
-                            strname=strname+str;
-                            emit Send_show_record(strname);
-                          }*/
                        }
                     }
                     break;
@@ -711,7 +690,7 @@ void ImgWindowShowThread::run()
                         }
                     }
                     break;
-
+/*
                     case 4:   //显示点云
                     {
                          if(_p->m_mcs->cam->sop_cam[0].b_updatacloud_finish==true)
@@ -782,6 +761,7 @@ void ImgWindowShowThread::run()
                          }
                     }
                     break;
+*/
                     // 一键标定时用
                     case 5:
                     {
@@ -853,6 +833,7 @@ void MainWindow::showupdata_tabWidget()
         }
         else
         {
+            /*
             if(rcvdata[0]>65534)
             {
                 m_mcs->cam->sop_cam[0].i32_exposure=65535;
@@ -866,6 +847,7 @@ void MainWindow::showupdata_tabWidget()
                 m_mcs->cam->sop_cam[0].i32_exposure=rcvdata[0];
             }
             ui->exposureValue->setText(QString::number(m_mcs->cam->sop_cam[0].i32_exposure));
+            */
             /*******************/
             //这里添加其他设置参数显示
             /*******************/
@@ -942,14 +924,16 @@ void MainWindow::img_windowshow(bool b_show, QLabel *lab_show)
         showupdata_tabWidget();
         if(m_mcs->e2proomdata.measurementDlg_leaser_data_mod==0)
         {
-          m_mcs->cam->sop_cam[0].node_mode=0;
+          m_mcs->cam->sop_cam[0].connect_mod=0;
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_CAMIMAGE);
         }
         else
         {
-          m_mcs->cam->sop_cam[0].node_mode=1;
+          m_mcs->cam->sop_cam[0].connect_mod=1;
+          m_mcs->cam->sop_cam[0].InitConnect(ui->imgShow, ui->actionIP->text(), PORT_ALSTCP_POINTCLOUDS_RESULT);
         }
    #endif
-        m_mcs->cam->sop_cam[0].InitConnect(lab_show);
+//        m_mcs->cam->sop_cam[0].InitConnect(lab_show);
     }
     else
     {
@@ -1245,7 +1229,7 @@ void MainWindow::InitSetEdit()
 
 //    ui->IpAddr->setText("192.168.1.2");
     ipAddress = "192.168.1.2";
-    ui->exposureValue->setText(QString::number(m_mcs->cam->sop_cam[0].i32_exposure));
+    ui->exposureValue->setText(QString::number(100));
 
     ui->sampleDis->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_distance));
     ui->sampleVel->setText(QString::number(m_mcs->e2proomdata.measurementDlg_deepimg_speed));

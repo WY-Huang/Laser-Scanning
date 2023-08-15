@@ -2,6 +2,7 @@
 #define GLOBAL_H
 
 //#define ONLY_TEST_CAMER             //测试相机模式
+#define WINDOWS_TCP 1                   //linux仿windowstcp传输相机图像测试开关
 
 #define LEASER_VIEW_CONER_COL       26.9f      //水平视场26.9度
 #define LEASER_VIEW_CONER_ROW       0.0f      //垂直视场0度
@@ -15,6 +16,17 @@
 #define CAMTOTALNUM                 1       //当前同型号下支持几路相机
 
 #define CLOULD_POINT_NOTDATE        0   //深度值不存在时点云的值
+
+/*============================================*/
+//相机任务号文件查询TCP传输端口
+#define PORT_ALSTCP_FTP                       1476
+//相机原图TCP传输端口
+#define PORT_ALSTCP_CAMIMAGE                  1497
+//相机处理结果图TCP传输端口
+#define PORT_ALSTCP_CAMIMAGE_RESULT           1498
+//点云轨迹处理结果TCP传输端口
+#define PORT_ALSTCP_POINTCLOUDS_RESULT        1499
+/*============================================*/
 
 /*************************/
 //采集模式

@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     PictureBox.cpp \
+    XTcp.cpp \
     cam_sensor.cpp \
     cambuilddlg.cpp \
     e2promdata.cpp \
@@ -32,10 +33,12 @@ SOURCES += \
     mypclfunction.cpp \
     resultdata.cpp \
     showimgpcddlg.cpp \
+    soptocameratcpip.cpp \
     soptopcamera.cpp
 
 HEADERS += \
     PictureBox.h \
+    XTcp.h \
     cam_sensor.h \
     cambuilddlg.h \
     e2promdata.h \
@@ -50,6 +53,7 @@ HEADERS += \
     mypclfunction.h \
     resultdata.h \
     showimgpcddlg.h \
+    soptocameratcpip.h \
     soptopcamera.h \
     tistdtypes.h
 

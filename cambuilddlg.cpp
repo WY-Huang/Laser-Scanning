@@ -1,6 +1,7 @@
 #include "cambuilddlg.h"
 #include "ui_cambuilddlg.h"
-
+#if _MSC_VER||WINDOWS_TCP
+#else
 using namespace cv;
 template<typename _Tp>
 
@@ -508,3 +509,4 @@ void cambuildThread::Stop()
   }
 }
 
+#endif

@@ -1,6 +1,11 @@
 ﻿#ifndef CAMBUILDDLG_H
 #define CAMBUILDDLG_H
 
+#include "global.h"
+
+#if _MSC_VER||WINDOWS_TCP
+#else
+
 #include <QDialog>
 #include <QKeyEvent>
 
@@ -71,6 +76,5 @@ signals:
     void Send_show_cambuild_inlab(cv::Mat);
 };
 
-
-
+#endif
 #endif // CAMBUILDDLG_H
