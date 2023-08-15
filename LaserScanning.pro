@@ -72,10 +72,6 @@ LIBS += /opt/ros/galactic/lib/x86_64-linux-gnu/lib*.so
 INCLUDEPATH += /home/wanyel/Downloads/modbus/libmodbus/install/include
 LIBS += /home/wanyel/Downloads/modbus/libmodbus/install/lib/libmodbus.so*
 
-#自定义ROS接口添加
-#INCLUDEPATH +=/home/wanyel/custom_interfaces/install/tutorial_interfaces/include
-#LIBS += /home/wanyel/custom_interfaces/install/tutorial_interfaces/lib/libtutorial_interfaces*.so
-
 #ros2接口
 INCLUDEPATH += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/include
 LIBS += /home/wanyel/TPSoftware/tutorial_interfaces/install/tutorial_interfaces/lib/libtutorial_interfaces*.so
