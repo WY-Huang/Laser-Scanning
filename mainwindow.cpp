@@ -832,9 +832,9 @@ void MainWindow::int_show_cvimage_inlab(cv::Mat cv_image)
       format = QImage::Format_ARGB32;
       break;
     }
-    QImage img = QImage((const uchar*)cv_image.data, cv_image.cols, cv_image.rows,cv_image.cols * cv_image.channels(), format);
-    img = img.scaled(ui->imgShow->width(), ui->imgShow->height(),Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
-//    ui->imgShow->setPixmap(QPixmap::fromImage(img));
+    QImage img = QImage((const uchar*)cv_image.data, cv_image.cols, cv_image.rows, cv_image.cols * cv_image.channels(), format);
+    img = img.scaled(ui->imgShow->width(), ui->imgShow->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);//图片自适应lab大小
+//    ui->imgShow->setPixmap(QPixmap::fromImage(img)); Qt::FastTransformation，Qt::SmoothTransformation
     ui->imgShow->showImage(img);
     b_int_show_cvimage_inlab_finish = true;
 }
