@@ -998,8 +998,11 @@ void MainWindow::init_show_pclclould_list(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
         return;
     }
 
-    fpsShow = 1000 / (timerElapsed.elapsed());  // 点云帧率计算
-    timerElapsed.start();
+    if (timerElapsed.elapsed() != 0)
+    {
+        fpsShow = 1000 / (timerElapsed.elapsed());  // 点云帧率计算
+        timerElapsed.start();
+    }
 
     if(finish_line && updateVTKShow)
     {
